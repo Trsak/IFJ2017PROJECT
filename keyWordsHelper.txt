@@ -1,0 +1,43 @@
+As          20
+Asc         21
+Declare     22
+Dim         23
+
+Do          24
+Double      25
+Else        26
+End         27
+
+Chr         28
+Function    29
+If          30
+Input       31
+
+Integer     32
+Length      33
+Loop        34
+Print       35
+
+Return      36
+Scope       37
+String      38
+SubStr      39
+
+Then        40
+While       41
+And         42
+Boolean     43
+
+Continue    44
+Elseif      45
+Exit        46
+False       47
+
+For         48
+Next        49
+Not         50
+Or          51
+
+Shared      52
+Static      53
+True        54
