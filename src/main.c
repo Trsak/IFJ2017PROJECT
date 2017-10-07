@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "scaner.h"
+#include "scanner.h"
 
 
 #define FILE_ERROR 5

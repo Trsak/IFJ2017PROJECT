@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "scaner.h"
+#include "scanner.h"
 #include "string.h"
 
 string attr; // Globální proměnná pro posílání attributu
