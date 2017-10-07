@@ -3,5 +3,5 @@ project(untitled)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES main.c scaner.h scaner.c string.h string.c)
+set(SOURCE_FILES main.c scanner.h scanner.c string.h string.c)
 add_executable(untitled ${SOURCE_FILES})
