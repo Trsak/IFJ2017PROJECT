@@ -1,10 +1,10 @@
-//
-// Created by Bartosek on 05.10.2017.
-//
-
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @brief
+ */
 #ifndef UNTITLED_SCANER_H
 #define UNTITLED_SCANER_H
-#endif //UNTITLED_SCANER_H
 
 // Lexémy
 #define ID 0
@@ -27,11 +27,11 @@
  * Poslední hodnota "True" je rovna 54.
  * Všechny hodnoty jsou rozepsány v souboru keyWordsHelper.txt
  */
-char* keyWords[] = { "As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
-                     "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
-                     "Return", "Scope", "String", "SubStr", "Then", "While", "And",
-                     "Boolean", "Continue", "Elseif", "Exit", "False", "For", "Next",
-                     "Not", "Or", "Shared", "Static", "True" };
+char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
+                    "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
+                    "Return", "Scope", "String", "SubStr", "Then", "While", "And",
+                    "Boolean", "Continue", "Elseif", "Exit", "False", "For", "Next",
+                    "Not", "Or", "Shared", "Static", "True"};
 
 // Speciální znaky
 #define END_OF_FILE 55
@@ -41,4 +41,7 @@ char* keyWords[] = { "As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End
 
 // Fce
 void setSourceFile(FILE *f);
+
 int getNextToken();
+
+#endif //UNTITLED_SCANER_H
