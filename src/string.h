@@ -1,7 +1,8 @@
-//
-// Created by Bartosek on 06.10.2017.
-//
-
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @brief
+ */
 #ifndef UNTITLED_STRING_H
 #define UNTITLED_STRING_H
 

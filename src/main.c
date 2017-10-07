@@ -1,20 +1,22 @@
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @author Petr Sopf (xsopfp00)
+ * @brief Main project file
+ */
 #include <stdio.h>
 #include "scanner.h"
+#include "error_codes.h"
 
-
-#define FILE_ERROR 5
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     FILE *f;
-    if (argc == 1)
-    {
+    if (argc == 1) {
         printf("Neni zadan vstupni soubor\n");
-        return FILE_ERROR;
+        return ERROR_FILE;
     }
-    if ((f = fopen(argv[1], "r")) == NULL)
-    {
+    if ((f = fopen(argv[1], "r")) == NULL) {
         printf("Soubor se nepodarilo otevrit\n");
-        return FILE_ERROR;
+        return ERROR_FILE;
     }
 
     setSourceFile(f);

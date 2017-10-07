@@ -1,7 +1,8 @@
-//
-// Created by Bartosek on 05.10.2017.
-//
-
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @brief
+ */
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

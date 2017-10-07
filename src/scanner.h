@@ -1,7 +1,8 @@
-//
-// Created by Bartosek on 05.10.2017.
-//
-
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @brief
+ */
 #ifndef UNTITLED_SCANER_H
 #define UNTITLED_SCANER_H
 #endif //UNTITLED_SCANER_H

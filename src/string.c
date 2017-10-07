@@ -1,14 +1,14 @@
-//
-// Created by Bartosek on 06.10.2017.
-//
-
+/**
+ * @file main.c
+ * @author Jan Bartosek
+ * @brief
+ */
 #include <string.h>
 #include <malloc.h>
 #include "string.h"
 
-int strInit(string *s)
-{
-    if ((s->str = (char*) malloc(STR_LEN_INC)) == NULL){
+int strInit(string *s) {
+    if ((s->str = (char *) malloc(STR_LEN_INC)) == NULL) {
         return STR_ERROR;
     }
     s->str[0] = '\0';
@@ -17,21 +17,18 @@ int strInit(string *s)
     return STR_SUCCESS;
 }
 
-void strFree(string *s)
-{
+void strFree(string *s) {
     free(s->str);
 }
 
-void strClear(string *s)
-{
+void strClear(string *s) {
     strFree(s);
     strInit(s);
 }
 
-int strAddChar(string *s1, char c)
-{
-    if (s1->length + 1 >= s1->allocSize){
-        if ((s1->str = (char*) realloc(s1->str, s1->length + STR_LEN_INC)) == NULL){
+int strAddChar(string *s1, char c) {
+    if (s1->length + 1 >= s1->allocSize) {
+        if ((s1->str = (char *) realloc(s1->str, s1->length + STR_LEN_INC)) == NULL) {
             return STR_ERROR;
         }
         s1->allocSize = s1->length + STR_LEN_INC;
