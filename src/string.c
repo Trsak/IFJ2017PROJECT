@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @author Jan Bartosek
+ * @author Jan Bartosek (xbarto92)
  * @brief
  */
 #include <string.h>

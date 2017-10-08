@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @author Jan Bartosek
+ * @author Jan Bartosek (xbarto92)
  * @author Petr Sopf (xsopfp00)
  * @brief Main project file
  */
