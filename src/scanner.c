@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @author Jan Bartosek
+ * @author Jan Bartosek (xbarto92)
  * @brief
  */
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #include "scanner.h"
 #include "string.h"
 
-string attr; // Globální proměnná pro posílání attributu
+string attr; // Global variable used for attribute sending
 
 FILE *source;
 
@@ -27,21 +27,21 @@ int getNextToken() {
         c = getc(source);
 
         switch (state) {
-            case 0: // Tady začínám
-                if (isspace(c)); // Je to bílý znak - ignoruji
-                else if (c == '{') { // Je to komentář
+            case 0: // The beggining
+                if (isspace(c)); // It's a white space (ignore that!)
+                else if (c == '{') { // It's a comment
                     state = 1;
-                } else if (isalpha(c)) { // Je to identifikátor, nebo klíčové slovo
+                } else if (isalpha(c)) { // It's an ID or keyword
                     strAddChar(&attr, c);
                     state = 2;
-                } else if (isdigit(c)) { // Je to číslo
+                } else if (isdigit(c)) { // It's a number
                     strAddChar(&attr, c);
                     state = 3;
-                } else if (c == ':') { // Je to přiřazení
+                } else if (c == ':') { // It's an assignment
                     state = 4;
-                } else if (c == '+') { // Je to operátor + nebo ++
+                } else if (c == '+') { // It's plus or increment
                     state = 5;
-                } else if (c == '-') { // Je to operátor - nebo --
+                } else if (c == '-') { // It's minus or decrement
                     state = 6;
                 } else if (c == '<') {
                     state = 7;
@@ -56,15 +56,15 @@ int getNextToken() {
                 }
                 break;
 
-            case 1: // Komentář
+            case 1: // Comment
                 if (c == '}') {
                     state = 0;
-                } else if (c == EOF) { // Neukončený komentář
+                } else if (c == EOF) { // Neverending comment
                     return LEX_ERROR;
                 }
                 break;
 
-            case 2: // Identifikátor / Klíčové slovo
+            case 2: // ID or Keyword
                 if (isalnum(c)) {
                     strAddChar(&attr, c);
                 } else {
@@ -77,7 +77,7 @@ int getNextToken() {
                 }
                 return ID;
 
-            case 3: // Číslo
+            case 3: // Number
                 if (isdigit(c)) {
                     strAddChar(&attr, c);
                 } else if (isalpha(c)) {
@@ -88,13 +88,13 @@ int getNextToken() {
                 }
                 break;
 
-            case 4: // Přiřazení
+            case 4: // Assignment
                 if (c == '=') {
                     return ASSIGNMENT;
                 }
                 return LEX_ERROR;
 
-            case 5: // + nebo ++
+            case 5: // Plus or Increment
                 if (c == '+') {
                     return INC;
                 } else {
@@ -102,7 +102,7 @@ int getNextToken() {
                     return PLUS;
                 }
 
-            case 6: // - nebo --
+            case 6: // Minus or Decrement
                 if (c == '-') {
                     return DEC;
                 } else {
@@ -111,7 +111,7 @@ int getNextToken() {
                 }
 
                 //TODO co je to za operátory?Je to správně?
-            case 7: // <= nebo <> nebo <
+            case 7: // <= or <> or <
                 if (c == '=') {
                     return LEQ;
                 } else if (c == '>') {
