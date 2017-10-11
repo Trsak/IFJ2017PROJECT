@@ -3,7 +3,7 @@
 Semester project of the IFJ (Formal Languages and Translators) of the second year 
 of the Master's program at VUT-FIT, Božetěchova 1/2, 612 00 Brno-Královo Pole.
 
-See [fit.vutbr.cz](fit.vutbr.cz) for more info.
+See [fit.vutbr.cz](http://fit.vutbr.cz) for more info.
  
 ## About the Project
 
