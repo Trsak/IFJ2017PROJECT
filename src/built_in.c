@@ -8,6 +8,7 @@
 
 #include "<stdio.h>"
 #include "<stdlib.h>"
+#include "<string.h>"
 #include "built_in.h"
 
 /**
@@ -42,7 +43,13 @@ char *subStr(char *string, int startChar, int stringLength) {
  * @copydoc asc
  */
 int asc(char *string, int charPosition) {
-    return 0;
+    int len = strlen(string);
+
+    if (charPosition < 0 || charPosition > (len - 1)) {
+        return 0;
+    }
+
+    return (int) string[charPosition];
 }
 
 /**
