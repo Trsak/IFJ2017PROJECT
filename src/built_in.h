@@ -1,6 +1,7 @@
 /**
  * @file built_in.h
  * @author Roman Bartl (xbartl06)
+ * @author Petr Sopf (xsopfp00)
  * @brief Built in functions of IFJ17 language
  */
 
@@ -15,7 +16,7 @@
  *
  * TODO - have no idea, how to recognize data type of output string (perhaps two arrays - array of data types and array of values in appropriate order) + string is not specified in assignment
  */
-void print( char** stringsToPrint );
+void print(char **stringsToPrint);
 
 
 /**
@@ -34,7 +35,7 @@ void print( char** stringsToPrint );
  *
  * TODO - I'd return every value as string and depending on data type of variable this value will be converted; not sure about this
  */
-char* input ( );
+char *input();
 
 
 /**
@@ -45,7 +46,7 @@ char* input ( );
  * Returns length of given string.
  * For example - stringLength ( !"x\nz" ) = 3
  */
-int stringLength ( char* string );
+int stringLength(char *string);
 
 
 /**
@@ -59,7 +60,7 @@ int stringLength ( char* string );
  * If 'stringLength' <= 0 then returns empty string (!"")
  * if 'stringLength' < 0 or 'stringLength' > stringLength ( 'string' ) - 'startChar' then returns substring from 'startChar' to last character of 'string'
  */
-char* subStr ( char* string, int startChar, int stringLength );
+char *subStr(char *string, int startChar, int stringLength);
 
 
 /**
@@ -70,14 +71,14 @@ char* subStr ( char* string, int startChar, int stringLength );
  *
  * If 'charPosition' < 0 or 'charPosition' > stringLength ( string ) - 1 then function will return 0
  */
-int asc ( char* string, int charPosition );
+int asc(char *string, int charPosition);
 
 
 /**
  *
  * @param asciiVal - value of ASCII character from interval <0, 255>
- * @return character from given ASCII value
+ * @return string with only one character - from given ASCII value
  *
  * Function has undefined behavior if value isn't from ASCII interval ( <0, 255> )
  */
-char chr ( int asciiVal );
+char *chr(int asciiVal);
