@@ -1,39 +1,72 @@
 /**
  * @file built_in.c
  * @author Roman Bartl (xbartl06)
+ * @author Petr Sopf (xsopfp00)
  * @brief Built in functions of IFJ17 language
  */
 
 
 #include "<stdio.h>"
 #include "<stdlib.h>"
+#include "<string.h>"
 #include "built_in.h"
 
-
-void print( char** stringsToPrint ) {
+/**
+ * @copydoc print
+ */
+void print(char **stringsToPrint) {
 
 }
 
-char* input ( ) {
+/**
+ * @copydoc input
+ */
+char *input() {
     return "Hello world";
 }
 
-
-int stringLength ( char* string ) {
+/**
+ * @copydoc stringLength
+ */
+int stringLength(char *string) {
     return 0;
 }
 
-
-char* subStr ( char* string, int startChar, int stringLength ) {
+/**
+ * @copydoc subStr
+ */
+char *subStr(char *string, int startChar, int stringLength) {
     return "Hello world";
 }
 
+/**
+ * @copydoc asc
+ */
+int asc(char *string, int charPosition) {
+    int len = strlen(string);
 
-int asc ( char* string, int charPosition ) {
-    return 0;
+    if (charPosition < 0 || charPosition > (len - 1)) {
+        return 0;
+    }
+
+    return (int) string[charPosition];
 }
 
+/**
+ * @copydoc chr
+ */
+char *chr(int asciiVal) {
+    if (asciiVal > 255 || asciiVal < 0) {
+        return NULL;
+    }
 
-char chr ( int asciiVal ) {
-    return 'a';
+    char *out = (char *) malloc(2 * sizeof(char));
+    if (out == NULL) {
+        return NULL;
+    }
+
+    out[0] = asciiVal;
+    out[1] = '\0';
+
+    return out;
 }
