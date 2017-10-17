@@ -8,6 +8,7 @@
 #define IFJ_ERROR_CODES_H
 
 #include <stdarg.h>
+#include <stdio.h>
 
 /**
  *
@@ -22,6 +23,6 @@ enum ERROR_CODES {
  * @param msg String literal to print.
  * @param ... Any number of parameters, same functionality as printf.
  */
-void print_err_msg(ERROR_CODES err_code, const char *msg, ...);
+void print_err_msg(enum ERROR_CODES err_code, const char *msg, ...);
 
 #endif //IFJ_ERROR_CODES_H
