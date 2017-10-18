@@ -2,7 +2,6 @@ TARGET   = ifj2017
 
 SRCDIR   = src
 OBJDIR   = .
-BINDIR   = .
 
 CC       = gcc
 CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -Wextra -c -Wno-unused-function -O3 -s
@@ -15,7 +14,9 @@ INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
 
-$(BINDIR)/$(TARGET): $(OBJECTS)
+.PHONY: build
+build:
+	$(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	make clean
 
