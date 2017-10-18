@@ -39,5 +39,8 @@ test:
 	$(OBJECTS_TEST)
 	$(C_COMPILER) $^ -o $(TAGET_TESTS)
 
+%.o : %.C
+	$(CC) $(CFLAGS) -c $<
+
 clean:
 	rm -f $(TARGET) $(TAGET_TESTS) $(OBJECTS) $(OBJECTS_TEST)
