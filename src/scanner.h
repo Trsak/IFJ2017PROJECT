@@ -27,11 +27,7 @@
  * The last value "True" is set to 54.
  * All the values can be found in keyWordsHelper.txt
  */
-extern char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
-                    "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
-                    "Return", "Scope", "String", "SubStr", "Then", "While", "And",
-                    "Boolean", "Continue", "Elseif", "Exit", "False", "For", "Next",
-                    "Not", "Or", "Shared", "Static", "True"};
+extern char *keyWords[];
 
 // Special chars
 #define END_OF_FILE 55
