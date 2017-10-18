@@ -1,11 +1,11 @@
 TARGET   = ifj2017
 
-CC       = gcc
-CFLAGS   = -std=c99 -Wall -I.
-
 SRCDIR   = src
 OBJDIR   = .
 BINDIR   = .
+
+CC       = gcc
+CFLAGS   = -std=c99 -Wall -I.$(SRCDIR)/
 
 LINKER   = gcc
 LFLAGS   = -Wall -I.$(SRCDIR)/ -lm
