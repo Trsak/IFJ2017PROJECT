@@ -5,10 +5,10 @@ OBJDIR   = .
 BINDIR   = .
 
 CC       = gcc
-CFLAGS   = -std=c99 -Wall -I.$(SRCDIR)/
+CFLAGS   = -std=c99 -Wall -I$(SRCDIR)/
 
 LINKER   = gcc
-LFLAGS   = -Wall -I.$(SRCDIR)/ -lm
+LFLAGS   = -Wall -I$(SRCDIR)/ -lm
 
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
