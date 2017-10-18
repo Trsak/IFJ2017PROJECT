@@ -24,7 +24,7 @@ void setSourceFile(FILE *f) {
     strInit(&attr);
 }
 
-int getNextToken() {
+int getNextToken(string *attr) {
     int state = 0;
     int c;
     strClear(&attr);
