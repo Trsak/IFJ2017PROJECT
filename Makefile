@@ -27,6 +27,8 @@ OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_TEST_FILES))
 
 #Targets
 .PHONY: build test clean
+%.o: %.c
+	$(C_COMPILER) $(CFLAGS) $< -o $@
 
 build: CFLAGS += $(CFLAGS_RELEASE)
 build: CFLAGS += $(INC_DIRS)
@@ -38,9 +40,6 @@ test: CFLAGS += $(INC_DIRS_TESTS)
 test:
 	$(OBJECTS_TEST)
 	$(C_COMPILER) $^ -o $(TAGET_TESTS)
-
-%.o : %.C
-	$(CC) $(CFLAGS) -c $<
 
 clean:
 	rm -f $(TARGET) $(TAGET_TESTS) $(OBJECTS) $(OBJECTS_TEST)
