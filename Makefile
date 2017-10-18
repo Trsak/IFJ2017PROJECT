@@ -17,9 +17,9 @@ OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
 
 SRC_TEST = \
+  $(wildcard $(TESTDIR)/src/*.c) \
   $(filter-out src/main.c, $(SOURCES)) \
-  $(wildcard $(TESTDIR)/*.c) \
-  $(wildcard $(TESTDIR)/src/*.c)
+  $(wildcard $(TESTDIR)/*.c)
 INC_DIRS = -Isrc -I$(TESTDIR)/src
 
 all: $(TARGET) clean
@@ -34,9 +34,9 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: run_tests
-run_tests: CFLAGS = -std=c99 -Wall -Wextra
+run_tests: CFLAGS = -std=c99 -Wall -Wextra -s
 run_tests:
-	$(CC) $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
+	@$(CC) -include $(TESTDIR)/src/unity_fixture_malloc_overrides.h $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
 	- ./$(TRG_TEST)
 
 .PHONY: clean_tests
