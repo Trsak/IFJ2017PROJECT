@@ -14,11 +14,11 @@ INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
 
+all: build clean
 
 .PHONY: build
 build: $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
-	clean
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
