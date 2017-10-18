@@ -4,10 +4,10 @@ SRCDIR   = src
 OBJDIR   = .
 
 CC       = gcc
-CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -Wextra -c -Wno-unused-function -O3 -s
+CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -s -Wextra -c -Wno-unused-function -O3
 
 LINKER   = gcc
-LFLAGS   = -Wall -I$(SRCDIR)/ -lm
+LFLAGS   = -Wall -s -I$(SRCDIR)/ -lm
 
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
