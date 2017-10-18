@@ -19,8 +19,9 @@ rm       = rm -f
 SRC_TEST = \
   $(filter-out src/main.c, $(SOURCES)) \
   $(wildcard $(TESTDIR)/*.c) \
-  $(wildcard $(TESTDIR)/src/*.c)
-INC_DIRS = -Isrc -I$(TESTDIR)/src
+  $(wildcard $(TESTDIR)/src/*.c) \
+  $(TESTDIR)/extras/fixture/src/unity_fixture.c
+INC_DIRS = -Isrc -I$(TESTDIR)/src -I$(TESTDIR)/extras/fixture/src
 
 all: $(TARGET) clean
 
