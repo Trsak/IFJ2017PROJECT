@@ -15,7 +15,7 @@
  * @copydoc print
  */
 void print(char **stringsToPrint) {
-
+    (void) stringsToPrint;
 }
 
 /**
@@ -29,6 +29,7 @@ char *input() {
  * @copydoc stringLength
  */
 int stringLength(char *string) {
+    (void) string;
     return 0;
 }
 
@@ -57,7 +58,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         return NULL;
     }
 
-    for (unsigned int i = 0; i < stringLength; i++) {
+    for (int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i - 1];
     }
 
