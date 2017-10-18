@@ -37,20 +37,27 @@ int stringLength(char *string) {
  */
 char *subStr(char *string, int startChar, int stringLength) {
     if (string == NULL || string == "" || startChar <= 0) {
-        return "";
+        char *out = (char *) malloc(sizeof(char));
+        if (out == NULL) {
+            return NULL;
+        }
+
+        out[0] = '\0';
+        return out;
+    } else {
+
     }
 
     int len = strlen(string);
 
     if (stringLength < 0 || stringLength > (len - startChar)) {
-        char c = string[startChar - 1];
-        stringLength = 0;
-        for (int i = startChar; c != '\0'; i++) {
-            ++stringLength;
-        }
+        stringLength = len - startChar;
     }
 
     char *out = (char *) malloc((stringLength + 1) * sizeof(char));
+    if (out == NULL) {
+        return NULL;
+    }
 
     for (unsigned int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i];
