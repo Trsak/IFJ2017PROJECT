@@ -3,12 +3,12 @@ TARGET   = ifj2017
 CC       = gcc
 CFLAGS   = -std=c99 -Wall -I.
 
-LINKER   = gcc
-LFLAGS   = -Wall -I. -lm
-
 SRCDIR   = src
 OBJDIR   = .
 BINDIR   = .
+
+LINKER   = gcc
+LFLAGS   = -Wall -I.$(SRCDIR)/ -lm
 
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
