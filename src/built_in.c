@@ -36,17 +36,21 @@ int stringLength(char *string) {
  * @copydoc subStr
  */
 char *subStr(char *string, int startChar, int stringLength) {
-    if (string == NULL || string == "" || stringLength <= 0) {
+    if (string == NULL || string == "" || startChar <= 0) {
         return "";
     }
 
     int len = strlen(string);
 
-    if (startChar < 0 || stringLength > (len - startChar)) {
-
+    if (stringLength < 0 || stringLength > (len - startChar)) {
+        char c = string[startChar - 1];
+        stringLength = 0;
+        for (int i = startChar; c != '\0'; i++) {
+            ++stringLength;
+        }
     }
 
-    char *out = (char *) malloc((stringLength) * sizeof(char));
+    char *out = (char *) malloc((stringLength + 1) * sizeof(char));
 
     for (unsigned int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i];
