@@ -5,7 +5,7 @@ OBJDIR   = .
 BINDIR   = .
 
 CC       = gcc
-CFLAGS   = -std=c99 -Wall -I$(SRCDIR)/
+CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -Wextra -c -Wno-unused-function -O3 -s
 
 LINKER   = gcc
 LFLAGS   = -Wall -I$(SRCDIR)/ -lm
@@ -14,7 +14,6 @@ SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
-
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -26,9 +25,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 .PHONY: clean
 clean:
 	@$(rm) $(OBJECTS)
-	@echo "Cleanup complete!"
 
 .PHONY: remove
 remove: clean
 	@$(rm) $(BINDIR)/$(TARGET)
-	@echo "Executable removed!"
