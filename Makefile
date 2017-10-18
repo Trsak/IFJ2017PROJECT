@@ -16,25 +16,27 @@ CFLAGS_RELEASE = -O3 -s
 
 #Files for build
 SRC_FILES = $(wildcard $(SOURCE_ROOT)/*.c)
-OBJECTS := $(patsubst $(SOURCE_ROOT)/%.c, ./%.o, $(SRC_FILES))
+OBJECTS := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_FILES))
 
 #Files for tests
 SRC_TEST_FILES=\
   $(TEST_ROOT)/src/unity.c \
   $(SOURCE_ROOT)/built_in.c \
   $(TEST_ROOT)/test_built_in.c
-OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, ./%.o, $(SRC_TEST_FILES))
+OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_TEST_FILES))
 
 #Targets
 .PHONY: build test clean
 
 build: CFLAGS += $(CFLAGS_RELEASE)
 build: CFLAGS += $(INC_DIRS)
-build: $(OBJECTS)
+build:
+	$(OBJECTS)
 	$(C_COMPILER) $^ -o $(TARGET)
 
 test: CFLAGS += $(INC_DIRS_TESTS)
-test: $(OBJECTS_TEST)
+test:
+	$(OBJECTS_TEST)
 	$(C_COMPILER) $^ -o $(TAGET_TESTS)
 
 clean:
