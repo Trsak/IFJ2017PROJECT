@@ -18,7 +18,7 @@ rm       = rm -f
 .PHONY: build
 build: $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
-build: clean
+	clean
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
