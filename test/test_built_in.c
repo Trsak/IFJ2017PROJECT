@@ -62,7 +62,7 @@ void test_built_in_subStr(void) {
     TEST_ASSERT_EQUAL_STRING("stovaci", test);
     free(test);
 
-    *test = subStr(str, 1, 50);
+    test = subStr(str, 1, 50);
     TEST_ASSERT_EQUAL_STRING("Testovaci", test);
     free(test);
 
