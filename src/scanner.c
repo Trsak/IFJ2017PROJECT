@@ -27,7 +27,7 @@ void setSourceFile(FILE *f) {
 int getNextToken(string *attr) {
     int state = 0;
     int c;
-    strClear(&attr);
+    strClear(attr);
 
     while (1) {
         c = getc(source);
@@ -38,10 +38,10 @@ int getNextToken(string *attr) {
                 else if (c == '{') { // It's a comment
                     state = 1;
                 } else if (isalpha(c)) { // It's an ID or keyword
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                     state = 2;
                 } else if (isdigit(c)) { // It's a number
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                     state = 3;
                 } else if (c == ':') { // It's an assignment
                     state = 4;
@@ -85,7 +85,7 @@ int getNextToken(string *attr) {
 
             case 3: // Number
                 if (isdigit(c)) {
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                 } else if (isalpha(c)) {
                     return LEX_ERROR;
                 } else {
