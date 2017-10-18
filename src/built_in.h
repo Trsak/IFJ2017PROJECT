@@ -9,6 +9,7 @@
 
 /**
  *
+ * @brief Built-in function that prints out expression(s) from user.
  * @param stringsToPrint
  *
  * Function prints out given strings in array of string 'stringsToPrint' next to each other in appropriate format (e.g. escape sequences - \n)
@@ -21,7 +22,8 @@ void print(char **stringsToPrint);
 
 /**
  *
- * @return - value loaded from console in array
+ * @brief Built-in function that stores input from console into user's variable.
+ * @return value loaded from console in array
  *
  * Firstly prints out string !"? "
  * Then reads value depending on data type of variable, where this value will be stored.
@@ -40,23 +42,24 @@ char *input();
 
 /**
  *
+ * @brief Built-in function that counts lenght of given string
  * @param string - string from which will be length computed
- * @return - length of given string
+ * @return length of given string
  *
- * Returns length of given string.
- * For example - stringLength ( !"x\nz" ) = 3
+ * Example - stringLength ( !"x\nz" ) = 3
  */
 int stringLength(char *string);
 
 
 /**
  *
+ * @brief Built-in function that returns substring form given string.
  * @param string - string from which will be cut substring
  * @param startChar - location of starting character
  * @param stringLength - length of final substring
- * @return - substring of given string
+ * @return substring of given string
  *
- * Returns substring of 'stringLength' length from given 'string'. Substring will start @ 'startChar' position in 'string'
+ * Substring will start @ 'startChar' position in 'string'.
  * If 'stringLength' <= 0 then returns empty string (!"")
  * if 'stringLength' < 0 or 'stringLength' > stringLength ( 'string' ) - 'startChar' then returns substring from 'startChar' to last character of 'string'
  */
@@ -65,9 +68,10 @@ char *subStr(char *string, int startChar, int stringLength);
 
 /**
  *
+ * @brief Built-in function that returns ASCII value of chosen character of given string
  * @param string
  * @param charPosition - position of char in 'string' which value of string will return
- * @return - value of ASCII of given 'string' on 'charPosition' position
+ * @return value of ASCII of given 'string' on 'charPosition' position
  *
  * If 'charPosition' < 0 or 'charPosition' > stringLength ( string ) - 1 then function will return 0
  */
@@ -76,6 +80,7 @@ int asc(char *string, int charPosition);
 
 /**
  *
+ * @brief Built-in function that return character of given ASCII value
  * @param asciiVal - value of ASCII character from interval <0, 255>
  * @return string with only one character - from given ASCII value
  *

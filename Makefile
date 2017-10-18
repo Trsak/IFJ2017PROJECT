@@ -36,6 +36,7 @@ SRC_FILES1=\
   src/scanner.c \
   src/string.c \
   src/symtable.c \
+  src/symtable.h \
   test/test_built_in_code.c \
   test/test_runners/test_build_in_code_runner.c \
   test/test_runners/all_tests.c
