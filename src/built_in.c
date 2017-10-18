@@ -36,7 +36,7 @@ int stringLength(char *string) {
  * @copydoc subStr
  */
 char *subStr(char *string, int startChar, int stringLength) {
-    if (string == NULL || strcmp(string, "") || startChar <= 0) {
+    if (string == NULL || string[0] == '\0' || startChar <= 0) {
         char *out = (char *) malloc(sizeof(char));
         if (out == NULL) {
             return NULL;
@@ -44,8 +44,6 @@ char *subStr(char *string, int startChar, int stringLength) {
 
         out[0] = '\0';
         return out;
-    } else {
-
     }
 
     int len = strlen(string);
@@ -59,7 +57,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         return NULL;
     }
 
-    for (unsigned int i = 0; i <= stringLength; i++) {
+    for (unsigned int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i - 1];
     }
 
