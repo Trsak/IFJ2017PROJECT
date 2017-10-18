@@ -31,12 +31,16 @@ OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_TEST_FILES))
 build: CFLAGS += $(CFLAGS_RELEASE)
 build: CFLAGS += $(INC_DIRS)
 build:
-	$(C_COMPILER) $^ -o $(TARGET) $(OBJECTS)
+	$(OBJECTS)
+	$(C_COMPILER) $^ -o $(TARGET)
 
 test: CFLAGS += $(INC_DIRS_TESTS)
 test:
 	$(OBJECTS_TEST)
 	$(C_COMPILER) $^ -o $(TAGET_TESTS)
+
+%.o: $(SOURCE_ROOT)/%.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -f $(TARGET) $(TAGET_TESTS) $(OBJECTS) $(OBJECTS_TEST)
