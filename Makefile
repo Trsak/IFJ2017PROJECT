@@ -34,7 +34,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: run_tests
-run_tests: CFLAGS = -std=c99 -Wall -Wextra
+run_tests: CFLAGS = -std=c99 -Wall -Wextra -s
 run_tests:
 	$(CC) -include $(TESTDIR)/src/unity_fixture_malloc_overrides.h $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
 	- ./$(TRG_TEST)
