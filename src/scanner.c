@@ -77,7 +77,7 @@ int getNextToken() {
                     ungetc(c, source);
                 }
                 for (unsigned int i = 0; i < sizeof(keyWords); i++) {
-                    if (strcmp(&attr.str, keyWords[i])) {
+                    if (strcmp(attr->str, keyWords[i])) {
                         return 20 + i;
                     }
                 }

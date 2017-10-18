@@ -58,7 +58,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         return NULL;
     }
 
-    for (unsigned int i = 0; i < stringLength; i++) {
+    for (int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i - 1];
     }
 
