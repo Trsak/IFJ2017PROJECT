@@ -17,10 +17,10 @@ OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
 
 SRC_TEST = \
-  $(filter-out src/main.c, $(SOURCES)) \
-  $(wildcard $(TESTDIR)/*.c) \
   $(wildcard $(TESTDIR)/src/*.c) \
-  $(TESTDIR)/extras/fixture/src/unity_fixture.c
+  $(TESTDIR)/extras/fixture/src/unity_fixture.c \
+  $(filter-out src/main.c, $(SOURCES)) \
+  $(wildcard $(TESTDIR)/*.c)
 INC_DIRS = -Isrc -I$(TESTDIR)/src -I$(TESTDIR)/extras/fixture/src
 
 all: $(TARGET) clean
