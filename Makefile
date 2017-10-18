@@ -35,6 +35,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 
 .PHONY: run_tests
 run_tests:
+	CFLAGS = -std=c99 -Wall -Wextra
 	$(CC) $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
 	- ./$(TRG_TEST)
 
