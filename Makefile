@@ -8,7 +8,7 @@ SOURCE_ROOT = ./src
 INC_DIRS = -I$(SOURCE_ROOT)
 
 TEST_ROOT = ./test
-INC_DIRS_TESTS = -I$(SOURCE_ROOT) -I$(UNITY_ROOT)/src
+INC_DIRS_TESTS = -I$(SOURCE_ROOT) -I$(TEST_ROOT)/src
 
 #Base flags
 CFLAGS = -std=c99 -Wall -Wextra -Wno-unused-function -c
