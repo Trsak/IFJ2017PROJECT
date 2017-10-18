@@ -4,11 +4,11 @@
 
 TEST_GROUP(BuiltInCode);
 
-TEST_SETUP(ProductionCode)
+TEST_SETUP(BuiltInCode)
 {
 }
 
-TEST_TEAR_DOWN(ProductionCode)
+TEST_TEAR_DOWN(BuiltInCode)
 {
 }
 
