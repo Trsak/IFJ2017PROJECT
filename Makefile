@@ -1,51 +1,43 @@
-ifeq ($(OS),Windows_NT)
-  ifeq ($(shell uname -s),) # not in a bash-like shell
-	CLEANUP = del /F /Q
-	MKDIR = mkdir
-  else # in a bash-like shell, like msys
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-  endif
-	TARGET_EXTENSION=.exe
-else
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-	TARGET_EXTENSION=.out
-endif
+#General
+TARGET = ifj2017
+TAGET_TESTS = ifj-tests
+C_COMPILER = gcc
 
-C_COMPILER=gcc
-ifeq ($(shell uname -s), Darwin)
-C_COMPILER=clang
-endif
+#Roots
+SOURCE_ROOT = ./src
+INC_DIRS = -I$(SOURCE_ROOT)
 
-UNITY_ROOT=./test
+TEST_ROOT = ./test
+INC_DIRS_TESTS = -I$(SOURCE_ROOT) -I$(UNITY_ROOT)/src
 
-CFLAGS=-std=c99
-CFLAGS += -Wall
-CFLAGS += -Wextra
+#Base flags
+CFLAGS = -std=c99 -Wall -Wextra -Wno-unused-function -c
+CFLAGS_RELEASE = -O3 -s
 
-TARGET_BASE1=all_tests
-TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
-SRC_FILES1=\
-  $(UNITY_ROOT)/src/unity.c \
-  src/built_in.c \
-  src/error_codes.c \
-  src/parser.c \
-  src/scanner.c \
-  src/string.c \
-  src/symtable.c \
-  test/test_built_in.c
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
-SYMBOLS=
+#Files for build
+SRC_FILES = $(wildcard $(SOURCE_ROOT)/*.c)
+OBJECTS := $(patsubst $(SOURCE_ROOT)/%.c, ./%.o, $(SRC_FILES))
 
-all: clean default
+#Files for tests
+SRC_TEST_FILES=\
+  $(TEST_ROOT)/src/unity.c \
+  $(SOURCE_ROOT)/built_in.c \
+  $(TEST_ROOT)/test_built_in.c
+OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, ./%.o, $(SRC_TEST_FILES))
 
-default:
-	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES1) -o $(TARGET1)
-	- ./$(TARGET1) -v
+#Targets
+.PHONY: build test clean
+
+build:
+	CFLAGS += $(CFLAGS_RELEASE)
+	CFLAGS += $(INC_DIRS)
+	$(OBJECTS)
+	$(CC) $^ -o $(TARGET)
+
+test:
+	CFLAGS += $(INC_DIRS_TESTS)
+	$(OBJECTS_TEST)
+	$(CC) $^ -o $(TAGET_TESTS)
 
 clean:
-	$(CLEANUP) $(TARGET1)
-
-ci: CFLAGS += -Werror
-ci: default
+	rm -f $(TARGET) $(TAGET_TESTS) $(OBJECTS) $(OBJECTS_TEST)

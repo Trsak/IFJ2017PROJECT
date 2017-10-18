@@ -15,7 +15,7 @@
  * @copydoc print
  */
 void print(char **stringsToPrint) {
-
+    (void) stringsToPrint;
 }
 
 /**
@@ -29,6 +29,7 @@ char *input() {
  * @copydoc stringLength
  */
 int stringLength(char *string) {
+    (void) string;
     return 0;
 }
 
