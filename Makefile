@@ -29,7 +29,6 @@ TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
 SRC_FILES1=\
   $(UNITY_ROOT)/src/unity.c \
   $(UNITY_ROOT)/extras/fixture/src/unity_fixture.c \
-  src/main.c \
   src/built_in.c \
   src/error_codes.c \
   src/parser.c \
