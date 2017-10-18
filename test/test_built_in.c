@@ -40,7 +40,7 @@ void test_built_in_subStr(void) {
 
     test = subStr(str, -2, 5);
     TEST_ASSERT_EQUAL_STRING("", test);
-    free(test);/**
+    free(test);
 
     test = subStr("", 1, 1);
     TEST_ASSERT_EQUAL_STRING("", test);
@@ -62,7 +62,7 @@ void test_built_in_subStr(void) {
     TEST_ASSERT_EQUAL_STRING("stovaci", test);
     free(test);
 
-    *test = subStr(str, 1, 50);
+    test = subStr(str, 1, 50);
     TEST_ASSERT_EQUAL_STRING("Testovaci", test);
     free(test);
 
@@ -82,9 +82,9 @@ void test_built_in_subStr(void) {
     TEST_ASSERT_EQUAL_STRING("Te", test);
     free(test);
 
-    char *test = subStr(str, 4, 4);
+    test = subStr(str, 4, 4);
     TEST_ASSERT_EQUAL_STRING("tova", test);
-    free(test);**/
+    free(test);
 }
 
 int main(void) {
