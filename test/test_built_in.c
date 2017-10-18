@@ -19,7 +19,7 @@ void test_built_in_asc(void) {
     char str[] = "Testovaci";
 
     TEST_ASSERT_EQUAL_INT(84, asc(str, 0));
-    TEST_ASSERT_EQUAL_INT(105, asc(st, 8));
+    TEST_ASSERT_EQUAL_INT(105, asc(str, 8));
     TEST_ASSERT_EQUAL_INT(65, asc("AB", 0));
     TEST_ASSERT_EQUAL_INT(66, asc("AB", 1));
     TEST_ASSERT_EQUAL_INT(0, asc(str, -1));
