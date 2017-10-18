@@ -28,17 +28,14 @@ TARGET_BASE1=all_tests
 TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
 SRC_FILES1=\
   $(UNITY_ROOT)/src/unity.c \
-  $(UNITY_ROOT)/extras/fixture/src/unity_fixture.c \
   src/built_in.c \
   src/error_codes.c \
   src/parser.c \
   src/scanner.c \
   src/string.c \
   src/symtable.c \
-  test/test_built_in_code.c \
-  test/test_runners/test_build_in_code_runner.c \
-  test/test_runners/all_tests.c
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
+  test/test_built_in.c
+INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
 SYMBOLS=
 
 all: clean default
