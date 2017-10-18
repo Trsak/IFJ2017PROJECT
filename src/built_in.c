@@ -36,7 +36,24 @@ int stringLength(char *string) {
  * @copydoc subStr
  */
 char *subStr(char *string, int startChar, int stringLength) {
-    return "Hello world";
+    if (string == NULL || string == "" || stringLength <= 0) {
+        return "";
+    }
+
+    int len = strlen(string);
+
+    if (startChar < 0 || stringLength > (len - startChar)) {
+
+    }
+
+    char *out = (char *) malloc((stringLength) * sizeof(char));
+
+    for (unsigned int i = 0; i < stringLength; i++) {
+        out[i] = string[startChar + i];
+    }
+
+    out[stringLength] = '\0';
+    return out;
 }
 
 /**
@@ -56,10 +73,6 @@ int asc(char *string, int charPosition) {
  * @copydoc chr
  */
 char *chr(int asciiVal) {
-    if (asciiVal > 255 || asciiVal < 0) {
-        return NULL;
-    }
-
     char *out = (char *) malloc(2 * sizeof(char));
     if (out == NULL) {
         return NULL;
