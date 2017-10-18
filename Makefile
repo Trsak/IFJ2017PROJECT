@@ -1,4 +1,5 @@
 TARGET   = ifj2017
+TRG_TEST = tests
 
 SRCDIR   = src
 OBJDIR   = .
