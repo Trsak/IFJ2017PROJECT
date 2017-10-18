@@ -4,8 +4,8 @@
  * @author Petr Sopf (xsopfp00)
  * @brief Built in functions of IFJ17 language
  */
-
-
+#ifndef IFJ_BUILTIN_H
+#define IFJ_BUILTIN_H
 
 /**
  *
@@ -82,3 +82,4 @@ int asc(char *string, int charPosition);
  * Function has undefined behavior if value isn't from ASCII interval ( <0, 255> )
  */
 char *chr(int asciiVal);
+#endif

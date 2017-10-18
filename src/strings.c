@@ -3,9 +3,9 @@
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
-#include <string.h>
+#include "strings.h"
 #include <malloc.h>
-#include "string.h"
+#include "strings.h"
 
 int strInit(string *s) {
     if ((s->str = (char *) malloc(STR_LEN_INC)) == NULL) {

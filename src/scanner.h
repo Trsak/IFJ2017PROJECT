@@ -3,8 +3,8 @@
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef IFJ_SCANNER_H
+#define IFJ_SCANNER_H
 
 // Lexems
 #define ID 0
@@ -39,4 +39,4 @@ extern char *keyWords[];
 void setSourceFile(FILE *f);
 int getNextToken();
 
-#endif //UNTITLED_SCANER_H
+#endif

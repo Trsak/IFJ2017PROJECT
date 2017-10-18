@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "scanner.h"
-#include "string.h"
+#include "strings.h"
 
 char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
                     "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
@@ -77,7 +77,7 @@ int getNextToken() {
                     ungetc(c, source);
                 }
                 for (unsigned int i = 0; i < sizeof(keyWords); i++) {
-                    if (strcmp((const char *) &attr.str, (const char *) keyWords[i])) {
+                    if (strcmp(&attr.str, keyWords[i])) {
                         return 20 + i;
                     }
                 }

@@ -47,7 +47,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         return out;
     }
 
-    int len = strlen((const char *) string);
+    int len = strlen(string);
 
     if (stringLength < 0 || stringLength > (len - startChar)) {
         stringLength = len - startChar + 1;
@@ -58,7 +58,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         return NULL;
     }
 
-    for (int i = 0; i < stringLength; i++) {
+    for (unsigned int i = 0; i < stringLength; i++) {
         out[i] = string[startChar + i - 1];
     }
 
@@ -70,7 +70,7 @@ char *subStr(char *string, int startChar, int stringLength) {
  * @copydoc asc
  */
 int asc(char *string, int charPosition) {
-    int len = strlen((const char *) string);
+    int len = strlen(string);
 
     if (charPosition < 0 || charPosition > (len - 1)) {
         return 0;
