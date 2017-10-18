@@ -1,46 +1,35 @@
-#General
-TARGET = ifj2017
-TAGET_TESTS = ifj-tests
-C_COMPILER = gcc
+TARGET   = ifj2017
 
-#Roots
-SOURCE_ROOT = ./src
-INC_DIRS = -I$(SOURCE_ROOT)
+CC       = gcc
+CFLAGS   = -std=c99 -Wall -I.
 
-TEST_ROOT = ./test
-INC_DIRS_TESTS = -I$(SOURCE_ROOT) -I$(TEST_ROOT)/src
+LINKER   = gcc
+LFLAGS   = -Wall -I. -lm
 
-#Base flags
-CFLAGS = -std=c99 -Wall -Wextra -Wno-unused-function -c
-CFLAGS_RELEASE = -O3 -s
+SRCDIR   = src
+OBJDIR   = .
+BINDIR   = .
 
-#Files for build
-SRC_FILES = $(wildcard $(SOURCE_ROOT)/*.c)
-OBJECTS := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_FILES))
+SOURCES  := $(wildcard $(SRCDIR)/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+rm       = rm -f
 
-#Files for tests
-SRC_TEST_FILES=\
-  $(TEST_ROOT)/src/unity.c \
-  $(SOURCE_ROOT)/built_in.c \
-  $(TEST_ROOT)/test_built_in.c
-OBJECTS_TEST := $(patsubst $(SOURCE_ROOT)/%.c, %.o, $(SRC_TEST_FILES))
 
-#Targets
-.PHONY: build test clean
+$(BINDIR)/$(TARGET): $(OBJECTS)
+    @$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
+    @echo "Linking complete!"
 
-build: CFLAGS += $(CFLAGS_RELEASE)
-build: CFLAGS += $(INC_DIRS)
-build:
-	$(OBJECTS)
-	$(C_COMPILER) $^ -o $(TARGET)
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+    @$(CC) $(CFLAGS) -c $< -o $@
+    @echo "Compiled "$<" successfully!"
 
-test: CFLAGS += $(INC_DIRS_TESTS)
-test:
-	$(OBJECTS_TEST)
-	$(C_COMPILER) $^ -o $(TAGET_TESTS)
-
-%.o: $(SOURCE_ROOT)/%.c
-	$(CC) $(CFLAGS) $< -o $@
-
+.PHONY: clean
 clean:
-	rm -f $(TARGET) $(TAGET_TESTS) $(OBJECTS) $(OBJECTS_TEST)
+    @$(rm) $(OBJECTS)
+    @echo "Cleanup complete!"
+
+.PHONY: remove
+remove: clean
+    @$(rm) $(BINDIR)/$(TARGET)
+    @echo "Executable removed!"
