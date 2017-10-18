@@ -58,7 +58,7 @@ int stringLength(char *string);
  *
  * Returns substring of 'stringLength' length from given 'string'. Substring will start @ 'startChar' position in 'string'
  * If 'startChar' <= 0 then returns empty string (!"")
- * if 'stringLength' < 0 or 'stringLength' > len ( 'string' ) - 'startChar' then returns substring from 'startChar' to last character of 'string'
+ * if 'stringLength' < 0 or 'stringLength' > stringLength ( 'string' ) - 'startChar' then returns substring from 'startChar' to last character of 'string'
  */
 char *subStr(char *string, int startChar, int stringLength);
 
