@@ -72,7 +72,7 @@ int getNextToken(string *attr) {
 
             case 2: // ID or Keyword
                 if (isalnum(c)) {
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                 } else {
                     ungetc(c, source);
                 }
