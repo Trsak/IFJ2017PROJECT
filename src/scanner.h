@@ -3,8 +3,8 @@
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
-#ifndef UNTITLED_SCANER_H
-#define UNTITLED_SCANER_H
+#ifndef SCANNER_H
+#define SCANNER_H
 
 // Lexems
 #define ID 0
@@ -27,7 +27,7 @@
  * The last value "True" is set to 54.
  * All the values can be found in keyWordsHelper.txt
  */
-char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
+extern char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
                     "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
                     "Return", "Scope", "String", "SubStr", "Then", "While", "And",
                     "Boolean", "Continue", "Elseif", "Exit", "False", "For", "Next",
