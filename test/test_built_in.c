@@ -32,55 +32,57 @@ void test_built_in_asc(void) {
 void test_built_in_subStr(void) {
     char str[] = "Testovaci";
 
-    char *test = subStr(str, 0, 5);
+    char *test;
+
+    test = subStr(str, 0, 5);
     TEST_ASSERT_EQUAL_STRING("", test);
     free(test);
 
-    char *test = subStr(str, -2, 5);
+    test = subStr(str, -2, 5);
     TEST_ASSERT_EQUAL_STRING("", test);
     free(test);
 
-    char *test = subStr("", 1, 1);
+    test = subStr("", 1, 1);
     TEST_ASSERT_EQUAL_STRING("", test);
     free(test);
 
-    char *test = subStr(str, 1, 0);
+    test = subStr(str, 1, 0);
     TEST_ASSERT_EQUAL_STRING("", test);
     free(test);
 
-    char *test = subStr(str, 1, 0);
+    test = subStr(str, 1, 0);
     TEST_ASSERT_EQUAL_STRING("", test);
     free(test);
 
-    char *test = subStr(str, 1, -2);
+    test = subStr(str, 1, -2);
     TEST_ASSERT_EQUAL_STRING("Testovaci", test);
     free(test);
 
-    char *test = subStr(str, 3, -2);
+    test = subStr(str, 3, -2);
     TEST_ASSERT_EQUAL_STRING("stovaci", test);
     free(test);
 
-    char *test = subStr(str, 1, 50);
+    *test = subStr(str, 1, 50);
     TEST_ASSERT_EQUAL_STRING("Testovaci", test);
     free(test);
 
-    char *test = subStr(str, 3, 50);
+    test = subStr(str, 3, 50);
     TEST_ASSERT_EQUAL_STRING("stovaci", test);
     free(test);
 
-    char *test = subStr(str, 3, 1);
+    test = subStr(str, 3, 1);
     TEST_ASSERT_EQUAL_STRING("s", test);
     free(test);
 
-    char *test = subStr(str, 3, 2);
+    test = subStr(str, 3, 2);
     TEST_ASSERT_EQUAL_STRING("st", test);
     free(test);
 
-    char *test = subStr(str, 1, 2);
+    test = subStr(str, 1, 2);
     TEST_ASSERT_EQUAL_STRING("Te", test);
     free(test);
 
-    char *test = subStr(str, 4, 4);
+    test = subStr(str, 4, 4);
     TEST_ASSERT_EQUAL_STRING("tova", test);
     free(test);
 }
