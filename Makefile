@@ -15,7 +15,8 @@ OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -f
 
 .PHONY: build
-build: $(TARGET): $(OBJECTS)
+build:
+	$(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	make clean
 
