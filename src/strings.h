@@ -3,8 +3,8 @@
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
-#ifndef UNTITLED_STRING_H
-#define UNTITLED_STRING_H
+#ifndef IFJ_STRINGS_H
+#define IFJ_STRINGS_H
 
 typedef struct {
     char *str;        // string that ends with /0 char

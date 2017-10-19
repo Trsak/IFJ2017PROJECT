@@ -7,7 +7,13 @@
 #include <ctype.h>
 #include <string.h>
 #include "scanner.h"
-#include "string.h"
+#include "strings.h"
+
+char *keyWords[] = {"As", "Asc", "Declare", "Dim", "Do", "Double", "Else", "End", "Chr",
+                    "Function", "If", "Input", "Integer", "Length", "Loop", "Print",
+                    "Return", "Scope", "String", "SubStr", "Then", "While", "And",
+                    "Boolean", "Continue", "Elseif", "Exit", "False", "For", "Next",
+                    "Not", "Or", "Shared", "Static", "True"};
 
 string attr; // Global variable used for attribute sending
 
@@ -18,10 +24,10 @@ void setSourceFile(FILE *f) {
     strInit(&attr);
 }
 
-int getNextToken() {
+int getNextToken(string *attr) {
     int state = 0;
     int c;
-    strClear(&attr);
+    strClear(attr);
 
     while (1) {
         c = getc(source);
@@ -32,10 +38,10 @@ int getNextToken() {
                 else if (c == '{') { // It's a comment
                     state = 1;
                 } else if (isalpha(c)) { // It's an ID or keyword
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                     state = 2;
                 } else if (isdigit(c)) { // It's a number
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                     state = 3;
                 } else if (c == ':') { // It's an assignment
                     state = 4;
@@ -66,12 +72,12 @@ int getNextToken() {
 
             case 2: // ID or Keyword
                 if (isalnum(c)) {
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                 } else {
                     ungetc(c, source);
                 }
-                for (int i = 0; i < sizeof(keyWords); i++) {
-                    if (strcmp(&attr.str, keyWords[i])) {
+                for (unsigned int i = 0; i < sizeof(keyWords); i++) {
+                    if (strcmp(attr->str, keyWords[i])) {
                         return 20 + i;
                     }
                 }
@@ -79,7 +85,7 @@ int getNextToken() {
 
             case 3: // Number
                 if (isdigit(c)) {
-                    strAddChar(&attr, c);
+                    strAddChar(attr, c);
                 } else if (isalpha(c)) {
                     return LEX_ERROR;
                 } else {

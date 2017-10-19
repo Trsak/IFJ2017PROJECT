@@ -1,51 +1,52 @@
-ifeq ($(OS),Windows_NT)
-  ifeq ($(shell uname -s),) # not in a bash-like shell
-	CLEANUP = del /F /Q
-	MKDIR = mkdir
-  else # in a bash-like shell, like msys
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-  endif
-	TARGET_EXTENSION=.exe
-else
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-	TARGET_EXTENSION=.out
-endif
+TARGET   = ifj2017
+TRG_TEST = tests
 
-C_COMPILER=gcc
-ifeq ($(shell uname -s), Darwin)
-C_COMPILER=clang
-endif
+SRCDIR   = src
+TESTDIR  = test
+OBJDIR   = .
 
-UNITY_ROOT=./test
+CC       = gcc
+CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -s -Wextra -c -Wno-unused-function -O3
 
-CFLAGS=-std=c99
-CFLAGS += -Wall
-CFLAGS += -Wextra
+LINKER   = gcc
+LFLAGS   = -Wall -s -I$(SRCDIR)/ -lm
 
-TARGET_BASE1=all_tests
-TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
-SRC_FILES1=\
-  $(UNITY_ROOT)/src/unity.c \
-  src/built_in.c \
-  src/error_codes.c \
-  src/parser.c \
-  src/scanner.c \
-  src/string.c \
-  src/symtable.c \
-  test/test_built_in.c
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
-SYMBOLS=
+SOURCES  := $(wildcard $(SRCDIR)/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+rm       = rm -f
 
-all: clean default
+SRC_TEST = \
+  $(wildcard $(TESTDIR)/src/*.c) \
+  $(filter-out src/main.c, $(SOURCES)) \
+  $(wildcard $(TESTDIR)/*.c)
+INC_DIRS = -Isrc -I$(TESTDIR)/src
 
-default:
-	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES1) -o $(TARGET1)
-	- ./$(TARGET1) -v
+all: $(TARGET) clean
 
+.PHONY: test
+test: run_tests clean_tests
+
+$(TARGET): $(OBJECTS)
+	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
+
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+.PHONY: run_tests
+run_tests: CFLAGS = -std=c99 -Wall -Wextra -s
+run_tests:
+	@$(CC) -include $(TESTDIR)/src/unity_fixture_malloc_overrides.h $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
+	- ./$(TRG_TEST)
+
+.PHONY: clean_tests
+clean_tests:
+	@$(rm) $(TRG_TEST)
+
+.PHONY: clean
 clean:
-	$(CLEANUP) $(TARGET1)
+	@$(rm) $(OBJECTS)
 
-ci: CFLAGS += -Werror
-ci: default
+.PHONY: remove
+remove: clean
+	@$(rm) $(TARGET)

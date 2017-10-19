@@ -15,7 +15,7 @@
  * @copydoc print
  */
 void print(char **stringsToPrint) {
-
+    (void) stringsToPrint;
 }
 
 /**
@@ -29,6 +29,7 @@ char *input() {
  * @copydoc stringLength
  */
 int stringLength(char *string) {
+    (void) string;
     return 0;
 }
 
@@ -36,20 +37,29 @@ int stringLength(char *string) {
  * @copydoc subStr
  */
 char *subStr(char *string, int startChar, int stringLength) {
-    if (string == NULL || string == "" || stringLength <= 0) {
-        return "";
+    if (string == NULL || string[0] == '\0' || startChar <= 0) {
+        char *out = (char *) malloc(sizeof(char));
+        if (out == NULL) {
+            return NULL;
+        }
+
+        out[0] = '\0';
+        return out;
     }
 
     int len = strlen(string);
 
-    if (startChar < 0 || stringLength > (len - startChar)) {
-
+    if (stringLength < 0 || stringLength > (len - startChar)) {
+        stringLength = len - startChar + 1;
     }
 
-    char *out = (char *) malloc((stringLength) * sizeof(char));
+    char *out = (char *) malloc((stringLength + 1) * sizeof(char));
+    if (out == NULL) {
+        return NULL;
+    }
 
-    for (unsigned int i = 0; i < stringLength; i++) {
-        out[i] = string[startChar + i];
+    for (int i = 0; i < stringLength; i++) {
+        out[i] = string[startChar + i - 1];
     }
 
     out[stringLength] = '\0';
