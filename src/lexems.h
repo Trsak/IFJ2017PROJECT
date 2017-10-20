@@ -1,7 +1,7 @@
 /**
  * @file lexems.h
  * @author Roman Bartl (xbartl06)
- * @brief TODO
+ * @brief Defition of tokens (lexems)
  */
 
 
