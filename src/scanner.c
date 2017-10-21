@@ -179,7 +179,7 @@ int getNextToken(string *attr) {
 					while (1){
 						c = getc(source);
 						if (c == 34){
-							return STRING;
+							return STRING_EXPRESSION;
 						} else if (c == EOF){
 							return  LEX_ERROR; // Never-ending string
 						} else {
