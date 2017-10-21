@@ -10,10 +10,17 @@
 //static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, BRACKET_RIGHT, AS, DOUBLE, EOL};
 //static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, BRACKET_RIGHT, AS, DOUBLE, EOL};
 //static int tokens[50] = {DECLARE, FUNCTION, ID, AS, DOUBLE, EOL};
-
 //static int tokens[50] = {FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL};
+//static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, DOUBLE, BRACKET_RIGHT, AS, STRING, EOL, SCOPE};
 
-static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, DOUBLE, AS, STRING, EOL};
+
+static int tokens[50] = {
+        FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL,
+        FUNCTION, ID, AS, STRING, EOL, END, FUNCTION, EOL,
+        DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, STRING, BRACKET_RIGHT, AS, DOUBLE, EOL,
+        SCOPE, EOL, END, SCOPE, EOL};
+
+
 
 static int tree[50];
 static int last = -1;
@@ -55,7 +62,9 @@ bool program() {
     }
 
 
-    if(main_body()) printf("\ntrue\n");
+    if(!main_body())
+        return false;
+
 
     return true;
 }
@@ -77,21 +86,14 @@ bool functions() {
         token = getNextToken();
 
 
-    if(token == DECLARE) { // TODO skip if token is in the tree
-        //TODO - add token to tree
+    if(token != DECLARE) {
 
-        //last++;
-        //tree[last] = token;
 
-        if(!function_header())
+        if(token != FUNCTION) {
+            print_err_msg(ERROR_SYNTAX, "DECLARE or FUNCTION was expected");
             return false;
+        }
 
-        if(!function_next())
-            return false;
-
-        return true;
-
-    } else if (token == FUNCTION) { // TODO skip if token is in the tree
 
         if(!function_header())
             return false;
@@ -108,8 +110,20 @@ bool functions() {
         return true;
     }
 
+    //TODO - add token to tree
 
-    return false;
+    //last++;
+    //tree[last] = token;
+
+    if(!function_header())
+        return false;
+
+    if(!function_next())
+        return false;
+
+    return true;
+
+
 }
 
 
@@ -255,9 +269,7 @@ bool function_next() {
         return true;
     }
 
-    if(!functions())
-        return false;
-    /*
+
     if(!function_first(token)) {
         print_err_msg(ERROR_SYNTAX, "");  //TODO - add err msg
 
@@ -270,7 +282,7 @@ bool function_next() {
 
     if(!functions())
         return false;
-    */
+
 
     return true;
 }
@@ -318,12 +330,6 @@ bool function_follow(int token) {
 
     return false;
 }
-
-/*bool function_follow(int token) {
-    if(token == DIM || token == STATIC || token == SHARED ||
-            token == ID || token == PRINT || token == INPUT || token == DO || token == IF);
-    return true;
-}*/
 
 
 bool declare_params() {
@@ -411,27 +417,79 @@ bool statement() {
     return true;
 }
 
+bool end() {
+    int token = getNextToken();
 
 
+    if(token != END) {
+        print_err_msg(ERROR_SYNTAX, "");
+        return false;
+    }
 
-bool main_body(int token) { //TODO - find if token is already in derivation tree, then skip conditions
-    printf("Ahoj\n");
+    last++;
+    tree[last] = token;
 
-    /*if(main_body_it());
+    return true;
+}
+
+bool main_body() { //TODO - find if token is already in derivation tree, then skip conditions
+
+
+    if(!main_body_it())
+        return false;
+
+
+    if(!statement()) {
+        return false;
+    }
+
+    if(!end()) {
+        return false;
+    }
+
+    if(!main_body_it())
+        return false;
+/*
+    if(main_body_it());
     if(statement());
     if(end());
     if(main_body_it());
-    */
+*/
+    return true;
+}
+
+
+
+bool main_body_it() {
+    int token = tree[last];
+
+    if(token != SCOPE) {
+        token = getNextToken();
+
+        if(token != SCOPE) {
+            print_err_msg(ERROR_SYNTAX, "");
+            return false;
+        }
+
+        last++;
+        tree[last] = token;
+    }
+
+
+    token = getNextToken();
+
+    if(token != EOL){
+        print_err_msg(ERROR_SYNTAX, "");
+        return false;
+    }
+
+    last++;
+    tree[last] = token;
+
     return true;
 }
 
 /*
-bool main_body_it() {
-    if(getNextToken() == SCOPE);
-    if(getNextToken() == EOL);
-    return true;
-}
-
 bool statement() {
     return true;
 }
