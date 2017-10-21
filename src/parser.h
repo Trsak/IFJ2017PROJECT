@@ -53,3 +53,7 @@ bool data_type();
 bool statement();
 
 bool main_body();
+
+bool main_body_it();
+
+bool end();
