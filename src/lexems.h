@@ -21,8 +21,9 @@
 #define LEQ 9 // <=
 #define NEQ 10 // <>
 #define LTN 11 // <
-#define BRACKET_RIGHT 12
-#define BRACKET_LEFT 13
+#define BRACKET_RIGHT 12 // (
+#define BRACKET_LEFT 13 // )
+#define COMMA 14 // ,
 
 #define AS 20
 #define ASC 21
