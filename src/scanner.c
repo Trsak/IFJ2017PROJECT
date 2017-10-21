@@ -31,7 +31,6 @@ int getNextToken(string *attr) {
 
 	while (1) {
 		c = getc(source);
-
 		switch (state) {
 			case 0: // The beggining
 				if (c == EOL) {
@@ -54,18 +53,18 @@ int getNextToken(string *attr) {
 				} else if (isdigit(c)) { // It's a number
 					strAddChar(attr, c);
 					state = 3;
-				} else if (c == ':') { // It's an assignment
-					state = 4;
 				} else if (c == '+') { // It's plus or increment
-					state = 5;
+					state = 4;
 				} else if (c == '-') { // It's minus or decrement
-					state = 6;
+					state = 5;
 				} else if (c == '<') { // It's one of compare operators
-					state = 7;
+					state = 6;
 				} else if (c == '!') { // It's a string
-					state = 8;
+					state = 7;
 				} else if (c == '*') {
 					return MUL;
+				} else if (c == 92) { /* ASCII 92 == \ */
+					return BACK_DIV;
 				} else if (c == '(') {
 					return BRACKET_LEFT;
 				} else if (c == ')') {
@@ -149,13 +148,7 @@ int getNextToken(string *attr) {
 				}
 				break;
 
-			case 4: // Assignment
-				if (c == '=') {
-					return ASSIGNMENT;
-				}
-				return LEX_ERROR;
-
-			case 5: // Plus or Increment
+			case 4: // Plus or Increment
 				if (c == '+') {
 					return INC;
 				} else {
@@ -163,7 +156,7 @@ int getNextToken(string *attr) {
 					return PLUS;
 				}
 
-			case 6: // Minus or Decrement
+			case 5: // Minus or Decrement
 				if (c == '-') {
 					return DEC;
 				} else {
@@ -171,7 +164,7 @@ int getNextToken(string *attr) {
 					return MINUS;
 				}
 
-			case 7: // <= or <> or <
+			case 6: // <= or <> or <
 				if (c == '=') {
 					return LEQ;
 				} else if (c == '>') {
@@ -180,7 +173,8 @@ int getNextToken(string *attr) {
 					ungetc(c, source);
 					return LTN;
 				}
-			case 8: // String
+
+			case 7: // String
 				if (c == 34){ // ASCII 34 == "
 					while (1){
 						c = getc(source);
@@ -193,7 +187,6 @@ int getNextToken(string *attr) {
 						}
 					}
 				}
-
 		}
 	}
 }

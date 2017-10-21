@@ -15,7 +15,7 @@
 #define DIV 5 // /
 #define INC 6 // ++
 #define DEC 7 // --
-#define ASSIGNMENT 8 // :=
+#define ASSIGNMENT 8 // =
 #define LEQ 9 // <=
 #define NEQ 10 // <>
 #define LTN 11 // <
@@ -24,6 +24,7 @@
 #define BRACKET_LEFT 14 // (
 #define BRACKET_RIGHT 15 // )
 #define COMMA 16 // ,
+#define BACK_DIV 17 // \
 
 // Keywords
 /*
