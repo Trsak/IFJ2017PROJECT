@@ -20,7 +20,7 @@
 #define NEQ 10 // <>
 #define LTN 11 // <
 #define DECIMAL_NUM 12 // 123.456 or 123e456 or 123.456E-789
-#define STRING 13 // Has to start: !"my string" .. returns only my String.
+#define STRING_EXPRESSION 13 // Has to start: !"my string" .. returns only my String.
 #define BRACKET_LEFT 14 // (
 #define BRACKET_RIGHT 15 // )
 #define COMMA 16 // ,
