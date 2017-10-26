@@ -8,6 +8,8 @@
 #include <string.h>
 #include "scanner.h"
 #include "strings.h"
+#include <stdbool.h>
+
 
 char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end", "chr",
                     "function", "if", "input", "integer", "length", "loop", "print",
@@ -29,6 +31,9 @@ int getNextToken(string *attr) {
 	int c;
 	strClear(attr);
 
+	bool decimal = false; //TODO
+	bool decimal_e = false; //TODO
+
 	while (1) {
 		c = getc(source);
 		switch (state) {
@@ -48,7 +53,7 @@ int getNextToken(string *attr) {
 				} else if (c == '/') { // It's a multi line comment or division
 					state = 1;
 				} else if (isalpha(c) || c == '_') { // It's an ID or keyword
-					strAddChar(attr, toLower(c));
+					strAddChar(attr, tolower(c));
 					state = 2;
 				} else if (isdigit(c)) { // It's a number
 					strAddChar(attr, c);
@@ -103,7 +108,7 @@ int getNextToken(string *attr) {
 
 			case 2: // ID or Keyword
 				if (isalnum(c) || c == '_') {
-					strAddChar(attr, toLower(c));
+					strAddChar(attr, tolower(c));
 				} else {
 					ungetc(c, source);
 				}
@@ -115,8 +120,7 @@ int getNextToken(string *attr) {
 				return ID;
 
 			case 3: // Number
-				static bool decimal = false;
-				static bool decimal_e = false;
+
 				if (isdigit(c)) {
 					strAddChar(attr, c);
 				} else if (c == '.'){
