@@ -9,9 +9,8 @@
 #include <stdbool.h>
 #include <malloc.h>
 #include "scanner.h"
-#include "lexems.h"
-#include "derivation_tree.c"
-#include "error_codes.c"
+#include "derivation_tree.h"
+#include "error_codes.h"
 
 
 bool program();

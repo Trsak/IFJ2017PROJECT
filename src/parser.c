@@ -13,7 +13,7 @@
 //static int tokens[50] = {FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL};
 //static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, DOUBLE, BRACKET_RIGHT, AS, STRING, EOL, SCOPE};
 
-
+/*
 static int tokens[50] = {
         FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL,
         FUNCTION, ID, AS, STRING, EOL, END, FUNCTION, EOL,
@@ -22,8 +22,7 @@ static int tokens[50] = {
 
 
 
-static int tree[50];
-static int last = -1;
+
 
 int getNextToken() {
     static int id = -1;
@@ -32,7 +31,10 @@ int getNextToken() {
 
     return tokens[id];
 }
+*/
+static int last = -1;
 
+static int tree[50];
 
 bool program() {
     int token = getNextToken();
