@@ -7,39 +7,15 @@
 
 #include "parser.h"
 
-//static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, BRACKET_RIGHT, AS, DOUBLE, EOL};
-//static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, BRACKET_RIGHT, AS, DOUBLE, EOL};
-//static int tokens[50] = {DECLARE, FUNCTION, ID, AS, DOUBLE, EOL};
-//static int tokens[50] = {FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL};
-//static int tokens[50] = {DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, DOUBLE, BRACKET_RIGHT, AS, STRING, EOL, SCOPE};
 
-/*
-static int tokens[50] = {
-        FUNCTION, ID, AS, DOUBLE, EOL, END, FUNCTION, EOL,
-        FUNCTION, ID, AS, STRING, EOL, END, FUNCTION, EOL,
-        DECLARE, FUNCTION, ID, BRACKET_LEFT, ID, AS, INTEGER, COMMA, ID, AS, STRING, BRACKET_RIGHT, AS, DOUBLE, EOL,
-        SCOPE, EOL, END, SCOPE, EOL};
-
-
-
-
-
-int getNextToken() {
-    static int id = -1;
-
-    id++;
-
-    return tokens[id];
-}
-*/
 static int last = -1;
-
 static int tree[50];
+
 
 bool program() {
     int token = getNextToken();
 
-    if(function_follow(token)) {     // block 'functions' is empty (epsilon)
+    if(functionFollow(token)) {     // block 'functions' is empty (epsilon)
         //TODO - add to derivation tree
 
         last++;
@@ -47,8 +23,8 @@ bool program() {
 
 
     } else {
-        if(!function_first(token)) {
-            print_err_msg(ERROR_SYNTAX, "");  //TODO - add err msg
+        if(!functionFirst(token)) {
+            printErrMsg(ERROR_SYNTAX, "");  //TODO - add err msg
 
             return false;
         }
@@ -64,7 +40,7 @@ bool program() {
     }
 
 
-    if(!main_body())
+    if(!mainBody())
         return false;
 
 
@@ -72,7 +48,7 @@ bool program() {
 }
 
 
-bool function_first(int token) {
+bool functionFirst(int token) {
     if (token == DECLARE || token == FUNCTION)
         return true;
 
@@ -92,21 +68,21 @@ bool functions() {
 
 
         if(token != FUNCTION) {
-            print_err_msg(ERROR_SYNTAX, "DECLARE or FUNCTION was expected");
+            printErrMsg(ERROR_SYNTAX, "DECLARE or FUNCTION was expected");
             return false;
         }
 
 
-        if(!function_header())
+        if(!functionHeader())
             return false;
 
         if(!statement())
             return false;
 
-        if(!function_end())
+        if(!functionEnd())
             return false;
 
-        if(!function_next())
+        if(!functionNext())
             return false;
 
         return true;
@@ -117,10 +93,10 @@ bool functions() {
     //last++;
     //tree[last] = token;
 
-    if(!function_header())
+    if(!functionHeader())
         return false;
 
-    if(!function_next())
+    if(!functionNext())
         return false;
 
     return true;
@@ -129,14 +105,14 @@ bool functions() {
 }
 
 
-bool function_header() {
+bool functionHeader() {
     int token;
 
     if(tree[last] != FUNCTION) {
         token = getNextToken();
 
         if (token != FUNCTION) { // TODO skip this condition if token is in the tree
-            print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
             return false;
         }
 
@@ -150,7 +126,7 @@ bool function_header() {
     token = getNextToken();
 
     if(token != ID) {
-        print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
         return false;
     }
 
@@ -160,9 +136,9 @@ bool function_header() {
 
     token = getNextToken();
 
-    if(!function_as_first(token)) {
-        if (!function_it_first(token)) {
-            print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+    if(!functionAsFirst(token)) {
+        if (!functionItFirst(token)) {
+            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
             return false;
         }
 
@@ -170,7 +146,7 @@ bool function_header() {
         last++;
         tree[last] = token;
 
-        if(!function_it())
+        if(!functionIt())
             return false;
 
     } else {
@@ -179,7 +155,7 @@ bool function_header() {
         tree[last] = token;
     }
 
-    if(!function_as())
+    if(!functionAs())
         return false;
 
 
@@ -187,7 +163,7 @@ bool function_header() {
 
 
     if(token != EOL) {
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 
@@ -197,12 +173,12 @@ bool function_header() {
     return true;
 }
 
-bool function_it() {
+bool functionIt() {
     //TODO - is this necessary?
     // if(getNextToken() == BRACKET_LEFT); // TODO - if token is in tree, skip this condition
 
 
-    if(!declare_params()) {
+    if(!declareParams()) {
         return false;
     }
 
@@ -212,7 +188,7 @@ bool function_it() {
     int token = getNextToken();
 
     if(token != BRACKET_RIGHT){
-        print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
         return false;
     }
 
@@ -222,14 +198,14 @@ bool function_it() {
     return true;
 }
 
-bool function_it_first(int token) {
+bool functionItFirst(int token) {
     if(token == BRACKET_LEFT)
         return true;
 
     return false;
 }
 
-bool function_as_first(int token) {
+bool functionAsFirst(int token) {
     if(token == AS)
         return true;
 
@@ -237,13 +213,13 @@ bool function_as_first(int token) {
 }
 
 
-bool function_as() {
+bool functionAs() {
 
     if(tree[last] != AS) {
         int token = getNextToken();
 
         if (token != AS) {
-            print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
             return false;
         } //TODO - if token is already in tree, skip this condition
 
@@ -252,18 +228,18 @@ bool function_as() {
 
     }
 
-    if(!data_type())
+    if(!dataType())
         return false;
 
     return true;
 }
 
-bool function_next() {
+bool functionNext() {
 
 
     int token = getNextToken();
 
-    if(function_follow(token)) {
+    if(functionFollow(token)) {
         //TODO - add into tree
         last++;
         tree[last] = token;
@@ -272,8 +248,8 @@ bool function_next() {
     }
 
 
-    if(!function_first(token)) {
-        print_err_msg(ERROR_SYNTAX, "");  //TODO - add err msg
+    if(!functionFirst(token)) {
+        printErrMsg(ERROR_SYNTAX, "");  //TODO - add err msg
 
         return false;
     }
@@ -289,11 +265,11 @@ bool function_next() {
     return true;
 }
 
-bool function_end() {
+bool functionEnd() {
     int token = getNextToken();
 
     if(token != END) {
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 
@@ -304,7 +280,7 @@ bool function_end() {
     token = getNextToken();
 
     if(token != FUNCTION) {
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 
@@ -315,7 +291,7 @@ bool function_end() {
     token = getNextToken();
 
     if(token != EOL) {
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 
@@ -326,7 +302,7 @@ bool function_end() {
 }
 
 
-bool function_follow(int token) {
+bool functionFollow(int token) {
     if(token == SCOPE)
         return true;
 
@@ -334,12 +310,12 @@ bool function_follow(int token) {
 }
 
 
-bool declare_params() {
+bool declareParams() {
     int token = getNextToken();
 
     //TODO - if last added is comma, skip this condition
     if(tree[last] != COMMA) {
-        if (declare_params_follow(token)) {
+        if (declareParamsFollow(token)) {
             //TODO - add to derivation tree
 
             last++;
@@ -349,28 +325,28 @@ bool declare_params() {
     }
 
     if(token != ID) {
-        print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
         return false;
     }
 
     last++;
     tree[last] = token;
 
-    if(!function_as()) {
+    if(!functionAs()) {
         return false;
     }
 
-    if(!declare_params_next()) {
+    if(!declareParamsNext()) {
         return false;
     }
 
     return true;
 }
 
-bool declare_params_next() {
+bool declareParamsNext() {
     int token = getNextToken();
 
-    if(declare_params_follow(token)) {
+    if(declareParamsFollow(token)) {
         //TODO - add to derivation tree
 
         last++;
@@ -379,20 +355,20 @@ bool declare_params_next() {
     }
 
     if(token != COMMA) {
-        print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
         return false;
     }
 
     last++;
     tree[last] = token;
 
-    if(!declare_params())
+    if(!declareParams())
         return false;
 
     return true;
 }
 
-bool declare_params_follow(int token) {
+bool declareParamsFollow(int token) {
     if(token == BRACKET_RIGHT)
         return true;
 
@@ -400,11 +376,11 @@ bool declare_params_follow(int token) {
 }
 
 
-bool data_type() {
+bool dataType() {
     int token = getNextToken();
 
     if(token != INTEGER && token != DOUBLE && token != STRING) {
-        print_err_msg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
         return false;
     }
 
@@ -424,7 +400,7 @@ bool end() {
 
 
     if(token != END) {
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 
@@ -434,10 +410,10 @@ bool end() {
     return true;
 }
 
-bool main_body() { //TODO - find if token is already in derivation tree, then skip conditions
+bool mainBody() { //TODO - find if token is already in derivation tree, then skip conditions
 
 
-    if(!main_body_it())
+    if(!mainBodyIt())
         return false;
 
 
@@ -449,27 +425,27 @@ bool main_body() { //TODO - find if token is already in derivation tree, then sk
         return false;
     }
 
-    if(!main_body_it())
+    if(!mainBodyIt())
         return false;
 /*
-    if(main_body_it());
+    if(mainBodyIt());
     if(statement());
     if(end());
-    if(main_body_it());
+    if(mainBodyIt());
 */
     return true;
 }
 
 
 
-bool main_body_it() {
+bool mainBodyIt() {
     int token = tree[last];
 
     if(token != SCOPE) {
         token = getNextToken();
 
         if(token != SCOPE) {
-            print_err_msg(ERROR_SYNTAX, "");
+            printErrMsg(ERROR_SYNTAX, "");
             return false;
         }
 
@@ -481,7 +457,7 @@ bool main_body_it() {
     token = getNextToken();
 
     if(token != EOL){
-        print_err_msg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "");
         return false;
     }
 

@@ -11,11 +11,11 @@
 int main(int argc, char **argv) {
     FILE *f;
     if (argc == 1) {
-        print_err_msg(ERROR_FILE, "No input file.");
+        printErrMsg(ERROR_FILE, "No input file.");
         return ERROR_FILE;
     }
     if ((f = fopen(argv[1], "r")) == NULL) {
-        print_err_msg(ERROR_FILE, "File '%s' could not be opened.", argv[1]);
+        printErrMsg(ERROR_FILE, "File '%s' could not be opened.", argv[1]);
         return ERROR_FILE;
     }
 

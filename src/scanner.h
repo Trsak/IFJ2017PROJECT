@@ -28,6 +28,7 @@
 #define BRACKET_RIGHT 15 // )
 #define COMMA 16 // ,
 #define BACK_DIV 17 // backslash
+#define SEMICOLON // ;
 
 #define AS 20
 #define ASC 21
