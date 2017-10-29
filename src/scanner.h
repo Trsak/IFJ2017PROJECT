@@ -2,7 +2,7 @@
  * @file main.c
  * @author Jan Bartosek (xbarto92)
  * @author Roman Bartl (xbartl06)
- * @brief
+ * @brief Defines the values for every lexem that can show in an input file.
  */
 
 
@@ -23,13 +23,14 @@
 #define NEQ 10 // <>
 #define LTN 11 // <
 #define DECIMAL_NUM 12 // 123.456 or 123e456 or 123.456E-789
-#define STRING_EXPRESSION 13 // Has to start: !"my string" .. returns only my String.
+#define STRING_EXPRESSION 13 // Has to start: !"my string" .. returns only my string.
 #define BRACKET_LEFT 14 // (
 #define BRACKET_RIGHT 15 // )
 #define COMMA 16 // ,
 #define BACK_DIV 17 // backslash
-#define SEMICOLON // ;
+#define SEMICOLON 18 // ;
 
+// Keywords
 #define AS 20
 #define ASC 21
 #define DECLARE 22
@@ -84,8 +85,18 @@ extern char *keyWords[];
 // Error codes
 #define LEX_ERROR -1
 
-// Fce
+/**
+ * @param FILE - this is an input file in IFJ2017 language.
+ */
 void setSourceFile(FILE *f);
+
+/**
+ * @return - integer value of the last unread lexem
+ *
+ * The value can be found above in file scanner.h
+ *
+ * @brief Function is called in parser for every single word from input file.
+ */
 int getNextToken();
 
 #endif

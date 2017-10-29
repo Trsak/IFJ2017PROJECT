@@ -21,18 +21,21 @@ string attr; // Global variable used for attribute sending
 
 FILE *source;
 
+/**
+ * @copydoc setSourceFile
+ */
 void setSourceFile(FILE *f) {
 	source = f;
 	strInit(&attr);
 }
 
+/**
+ * @copydoc getNextToken
+ */
 int getNextToken(string *attr) {
 	int state = 0;
 	int c;
 	strClear(attr);
-
-	bool decimal = false; //TODO
-	bool decimal_e = false; //TODO
 
 	while (1) {
 		c = getc(source);
@@ -76,6 +79,8 @@ int getNextToken(string *attr) {
 					return BRACKET_RIGHT;
 				} else if (c == ',') {
 					return COMMA;
+				} else if (c == ';'){
+					return SEMICOLON;
 				} else if (c == EOF) {
 					return END_OF_FILE;
 				} else {
@@ -120,6 +125,9 @@ int getNextToken(string *attr) {
 				return ID;
 
 			case 3: // Number
+
+				bool decimal = false; //TODO
+				bool decimal_e = false; //TODO
 
 				if (isdigit(c)) {
 					strAddChar(attr, c);
