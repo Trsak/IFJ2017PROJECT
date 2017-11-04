@@ -9,51 +9,49 @@
 #include <stdbool.h>
 #include <malloc.h>
 #include "scanner.h"
-#include "lexems.h"
-#include "derivation_tree.c"
-#include "error_codes.c"
+#include "error_codes.h"
 
 
 bool program();
 
 bool functions();
 
-bool main_body();
+bool mainBody();
 
-bool main_body_it();
-
-bool statement();
-
-bool function_follow(int token);
-
-bool function_first(int token);
-
-bool function_header();
-
-bool function_it();
-
-bool function_it_first(int token);
-
-bool function_as_first(int token);
-
-bool function_as();
-
-bool function_next();
-
-bool function_end();
-
-bool declare_params();
-
-bool declare_params_next();
-
-bool declare_params_follow(int token);
-
-bool data_type();
+bool mainBodyIt();
 
 bool statement();
 
-bool main_body();
+bool functionFollow(int token);
 
-bool main_body_it();
+bool functionFirst(int token);
+
+bool functionHeader();
+
+bool functionIt();
+
+bool functionItFirst(int token);
+
+bool functionAsFirst(int token);
+
+bool functionAs();
+
+bool functionNext();
+
+bool functionEnd();
+
+bool declareParams();
+
+bool declareParamsNext();
+
+bool declareParamsFollow(int token);
+
+bool dataType();
+
+bool statement();
+
+bool mainBody();
+
+bool mainBodyIt();
 
 bool end();

@@ -1,8 +1,11 @@
 /**
  * @file main.c
  * @author Jan Bartosek (xbarto92)
+ * @author Roman Bartl (xbartl06)
  * @brief
  */
+
+
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
@@ -24,7 +27,46 @@
 #define BRACKET_LEFT 14 // (
 #define BRACKET_RIGHT 15 // )
 #define COMMA 16 // ,
-#define BACK_DIV 17 // \
+#define BACK_DIV 17 // backslash
+#define SEMICOLON // ;
+
+#define AS 20
+#define ASC 21
+#define DECLARE 22
+#define DIM 23
+#define DO 24
+#define DOUBLE 25
+#define ELSE 26
+#define END 27
+#define CHR 28
+#define FUNCTION 29
+#define IF 30
+#define INPUT 31
+#define INTEGER 32
+#define LENGTH 33
+#define LOOP 34
+#define PRINT 35
+#define RETURN 36
+#define SCOPE 37
+#define STRING 38
+#define SUBSTR 39
+#define THEN 40
+#define WHILE 41
+#define AND 42
+#define BOOLEAN 43
+#define CONTINUE 44
+#define ELSEIF 45
+#define EXIT 46
+#define FALSE 47
+#define FOR 48
+#define NEXT 49
+#define NOT 50
+#define OR 51
+#define SHARED 52
+#define STATIC 53
+#define TRUE 54
+#define EOL 55
+
 
 // Keywords
 /*
