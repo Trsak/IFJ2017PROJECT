@@ -10,10 +10,12 @@
 
 int main(int argc, char **argv) {
     FILE *f;
-    if (argc == 1) {
-        printErrMsg(ERROR_FILE, "No input file.");
+
+    if (argc != 2) {
+        printErrMsg(ERROR_FILE, "Bad arguments! Use /ifj2017 <file>!");
         return ERROR_FILE;
     }
+
     if ((f = fopen(argv[1], "r")) == NULL) {
         printErrMsg(ERROR_FILE, "File '%s' could not be opened.", argv[1]);
         return ERROR_FILE;
