@@ -50,7 +50,7 @@ int getNextToken(string *attr) {
 					return EOL;
 				} else if (c == EOF) {
 					return EOF;
-				} else if (c == 39){ // It's an one-line comment
+				} else if (c == 39) { // It's an one-line comment
 					state = 1;
 				} else if (c == '/') { // It's a multi-line comment or division
 					state = 2;
@@ -71,56 +71,56 @@ int getNextToken(string *attr) {
 					}
 				} else if (c == '+') { // It's a plus
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return PLUS;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return PLUS_ASSIGNMENT;
 					}
 					ungetc(c, source);
 					return PLUS;
 				} else if (c == '-') { // It's minus or decrement
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return MINUS;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return MINUS_ASSIGNMENT;
 					}
 					ungetc(c, source);
 					return MINUS;
 				} else if (c == '*') {
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return MULTIPLY;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return MULTIPLY_ASSIGNMENT;
 					}
 					ungetc(c, source);
-					return  MULTIPLY;
+					return MULTIPLY;
 				} else if (c == 92) {
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return BACKSLASH;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return BACKSLASH_ASSIGNMENT;
 					}
 					ungetc(c, source);
@@ -131,37 +131,37 @@ int getNextToken(string *attr) {
 					return BRACKET_RIGHT;
 				} else if (c == ',') {
 					return COMMA;
-				} else if (c == ';'){
+				} else if (c == ';') {
 					return SEMICOLON;
-				} else if (c == '='){
+				} else if (c == '=') {
 					return ASSIGNMENT;
-				} else if (c == '<'){
+				} else if (c == '<') {
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return LESS;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return LESS_EQUAL;
-					} else if (c == '>'){
+					} else if (c == '>') {
 						return NOT_EQUAL;
 					} else {
 						ungetc(c, source);
 						return LESS;
 					}
-				} else if (c == '>'){
+				} else if (c == '>') {
 					c = getc(source);
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return GREATER;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return GREATER_EQUAL;
 					} else {
 						ungetc(c, source);
@@ -173,9 +173,9 @@ int getNextToken(string *attr) {
 				break;
 
 			case 1: // One-Line Comment
-				if (c == EOL){
+				if (c == EOL) {
 					state = 0;
-				} else if (c == EOF){
+				} else if (c == EOF) {
 					return EOF;
 				}
 				break;
@@ -184,15 +184,15 @@ int getNextToken(string *attr) {
 				if (c == 39) {  // ASCII 39 == '
 					state = 3;
 					break;
-				} else{
-					while (isspace(c)){
-						if (c == EOL || c == EOF){
+				} else {
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
 							ungetc(c, source);
 							return DIVISION;
 						}
 						c = getc(source);
 					}
-					if (c == '='){
+					if (c == '=') {
 						return DIVISION_ASSIGNMENT;
 					}
 					ungetc(c, source);
@@ -200,12 +200,12 @@ int getNextToken(string *attr) {
 				}
 
 			case 3: // Multi-Line Comment
-				if (c == 39){
+				if (c == 39) {
 					c = getc(source);
-					if (c == '/'){
+					if (c == '/') {
 						state = 0;
 					}
-				} else if (c == EOF){
+				} else if (c == EOF) {
 					return LEX_ERROR; // Never-Ending Comment
 				}
 				break;
@@ -221,33 +221,31 @@ int getNextToken(string *attr) {
 						return i;
 					}
 				}
-
-
 				return ID;
 
 			case 5: // It's a Number
 				if (isdigit(c)) {
 					strAddChar(attr, c);
-				} else if (c == '.'){
-					if (decimal || decimal_e){
+				} else if (c == '.') {
+					if (decimal || decimal_e) {
 						return LEX_ERROR;
 					}
 					strAddChar(attr, c);
 					c = getc(source);
-					if (isdigit(c)){
+					if (isdigit(c)) {
 						strAddChar(attr, c);
 					} else {
 						return LEX_ERROR;
 					}
 					decimal = true;
-				} else if (c == 'e' || c == 'E'){
-					if (decimal_e){
+				} else if (c == 'e' || c == 'E') {
+					if (decimal_e) {
 						return LEX_ERROR;
 					}
 					decimal_e = true;
 					strAddChar(attr, c);
 					c = getc(source);
-					if (isdigit(c) || c == '+' || c == '-'){
+					if (isdigit(c) || c == '+' || c == '-') {
 						strAddChar(attr, c);
 					} else {
 						return LEX_ERROR;
@@ -256,7 +254,7 @@ int getNextToken(string *attr) {
 					return LEX_ERROR;
 				} else {
 					ungetc(c, source);
-					if (decimal || decimal_e){
+					if (decimal || decimal_e) {
 						return DECIMAL_NUMBER;
 					}
 					return NUMBER;
@@ -264,9 +262,9 @@ int getNextToken(string *attr) {
 				break;
 
 			case 6: // String
-				if (c == EOL || c == EOF){
+				if (c == EOL || c == EOF) {
 					return LEX_ERROR;
-				} else if (c == 34){
+				} else if (c == 34) {
 					return STRING_EXPRESSION;
 				}
 				strAddChar(attr, c);
