@@ -1,7 +1,7 @@
 /**
  * @file symtable.c
  * @author Jan Bartosek (xbarto92)
- * @brief
+ * @brief Operations with Binary Tree and Pointer Stack
  */
 
 #include <string.h>
@@ -43,19 +43,19 @@ void treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 	int compare;
 	bool equal = false;
 
-	while (rootPtr != NULL){
+	while (rootPtr != NULL) {
 		compare = strcmp(rootPtr->data.name, data.name);
-		if (compare == 0){
+		if (compare == 0) {
 			rootPtr->data.value = data.value;
 			equal = true;
 			break;
-		} else if (compare < 0){
+		} else if (compare < 0) {
 			*rootPtr = *rootPtr->LPtr;
 		} else {
 			*rootPtr = *rootPtr->RPtr;
 		}
 	}
-	if (!equal){
+	if (!equal) {
 		BinaryTreePtr newPtr = (BinaryTreePtr) malloc(sizeof(struct BinaryTree));
 		//TODO check malloc
 		newPtr->LPtr = NULL;
@@ -63,6 +63,21 @@ void treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 		newPtr->data = data;
 		*rootPtr = *newPtr;
 	}
+}
+
+struct Values *getVariable(BinaryTreePtr rootPtr, const char *name) {
+	int compare;
+	while (rootPtr != NULL) {
+		compare = strcmp(rootPtr->data.name, name);
+		if (compare == 0) {
+			return &rootPtr->data;
+		} else if (compare < 0) {
+			*rootPtr = *rootPtr->LPtr;
+		} else {
+			*rootPtr = *rootPtr->RPtr;
+		}
+	}
+	return NULL;
 }
 
 void DisposeTree(BinaryTreePtr *rootPtr) {

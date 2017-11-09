@@ -1,7 +1,7 @@
 /**
  * @file symtable.h
  * @author Jan Bartosek (xbarto92)
- * @brief
+ * @brief Symbol Table is used to store every identifier or number and it's value, datatype, etc..
  */
 
 #ifndef IFJ2017_SYMTABLE_H
@@ -11,7 +11,7 @@
 
 #define MAXSTACK 30
 
-typedef enum{
+typedef enum {
 	STRING,
 	INTEGER,
 	FLOAT,
@@ -29,22 +29,13 @@ typedef struct Values {
 
 typedef struct BinaryTree {
 	struct Values data;
-	struct BinaryTree * LPtr;
-	struct BinaryTree * RPtr;
+	struct BinaryTree *LPtr;
+	struct BinaryTree *RPtr;
 } *BinaryTreePtr;
 
 typedef struct {
 	BinaryTreePtr a[MAXSTACK];
 	int top;
 } PointerStack;
-
-/*
-typedef struct {
-	bool a[MAXSTACK];
-	int top;
-} tStackB;*/
-
-
-
 
 #endif //IFJ2017_SYMTABLE_H
