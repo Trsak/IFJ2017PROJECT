@@ -1,5 +1,5 @@
 /**
- * @file main.c
+ * @file scanner.c
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
@@ -17,96 +17,199 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
                     "boolean", "continue", "elseif", "exit", "false", "for", "next",
                     "not", "or", "shared", "static", "true"};
 
-string attr; // Global variable used for attribute sending
+string *attr; // Global variable used for attribute sending
 
 FILE *source;
 
+/**
+ * @copydoc setSourceFile
+ */
 void setSourceFile(FILE *f) {
 	source = f;
-	strInit(&attr);
+	strInit(attr);
 }
 
-int getNextToken(string *attr) {
+/**
+ * @copydoc getNextToken
+ */
+lexems getNextToken() {
 	int state = 0;
 	int c;
 	strClear(attr);
 
-	bool decimal = false; //TODO
-	bool decimal_e = false; //TODO
+	bool decimal = false;
+	bool decimal_e = false;
 
 	while (1) {
 		c = getc(source);
 		switch (state) {
-			case 0: // The beggining
+			case 0: // The beginning
+
 				if (c == EOL) {
 					return EOL;
-				}
-				else if (isspace(c)) {  // It's a white space (ignore that!)
-					break;
-				} else if (c == 39){ // It's an one line comment
-					while (c == EOL){
-						c = getc(source);
-						if (c == EOF){
-							return END_OF_FILE;
-						}
-					}
-				} else if (c == '/') { // It's a multi line comment or division
+				} else if (c == EOF) {
+					return EOF;
+				} else if (c == 39) { // It's an one-line comment
 					state = 1;
-				} else if (isalpha(c) || c == '_') { // It's an ID or keyword
-					strAddChar(attr, tolower(c));
+				} else if (c == '/') { // It's a multi-line comment or division
 					state = 2;
+				} else if (isspace(c)) {  // It's a white space (ignore that!)
+					break;
+				} else if (isalpha(c) || c == '_') { // It's an ID or a keyword
+					strAddChar(attr, tolower(c));
+					state = 4;
 				} else if (isdigit(c)) { // It's a number
 					strAddChar(attr, c);
-					state = 3;
-				} else if (c == '+') { // It's plus or increment
-					state = 4;
-				} else if (c == '-') { // It's minus or decrement
 					state = 5;
-				} else if (c == '<') { // It's one of compare operators
-					state = 6;
-				} else if (c == '!') { // It's a string
-					state = 7;
+				} else if (c == 33) { // It's a string
+					c = getc(source);
+					if (c == 34) { // ASCII 34 == "
+						state = 6;
+					} else if (c == EOL || c == EOF) {
+						return LEX_ERROR;
+					}
+				} else if (c == '+') { // It's a plus
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return PLUS;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return PLUS_ASSIGNMENT;
+					}
+					ungetc(c, source);
+					return PLUS;
+				} else if (c == '-') { // It's minus or decrement
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return MINUS;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return MINUS_ASSIGNMENT;
+					}
+					ungetc(c, source);
+					return MINUS;
 				} else if (c == '*') {
-					return MUL;
-				} else if (c == 92) { /* ASCII 92 == \ */
-					return BACK_DIV;
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return MULTIPLY;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return MULTIPLY_ASSIGNMENT;
+					}
+					ungetc(c, source);
+					return MULTIPLY;
+				} else if (c == 92) {
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return BACKSLASH;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return BACKSLASH_ASSIGNMENT;
+					}
+					ungetc(c, source);
+					return BACKSLASH;
 				} else if (c == '(') {
 					return BRACKET_LEFT;
 				} else if (c == ')') {
 					return BRACKET_RIGHT;
 				} else if (c == ',') {
 					return COMMA;
-				} else if (c == EOF) {
-					return END_OF_FILE;
+				} else if (c == ';') {
+					return SEMICOLON;
+				} else if (c == '=') {
+					return ASSIGNMENT;
+				} else if (c == '<') {
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return LESS;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return LESS_EQUAL;
+					} else if (c == '>') {
+						return NOT_EQUAL;
+					} else {
+						ungetc(c, source);
+						return LESS;
+					}
+				} else if (c == '>') {
+					c = getc(source);
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return GREATER;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return GREATER_EQUAL;
+					} else {
+						ungetc(c, source);
+						return GREATER;
+					}
 				} else {
 					return LEX_ERROR;
 				}
 				break;
 
-			case 1: // Comment
-				if (c == 39) {  // ASCII 39 == '
-					c = getc(source);
-					while (c == 39){
-						c = getc(source);
-						if (c == EOF) {
-							return LEX_ERROR; // Never-ending comment
-						}
-					}
-					c = getc(source);
-					if (c == '/'){
-						state = 0;
-					}
-					else {
-						ungetc(c, source);
-						ungetc(c, source);
-					}
-				} else{
-					ungetc(c, source);
-					return DIV;
+			case 1: // One-Line Comment
+				if (c == EOL) {
+					state = 0;
+				} else if (c == EOF) {
+					return EOF;
 				}
 				break;
 
-			case 2: // ID or Keyword
+			case 2: // Multi-Line Comment or Division
+				if (c == 39) {  // ASCII 39 == '
+					state = 3;
+					break;
+				} else {
+					while (isspace(c)) {
+						if (c == EOL || c == EOF) {
+							ungetc(c, source);
+							return DIVISION;
+						}
+						c = getc(source);
+					}
+					if (c == '=') {
+						return DIVISION_ASSIGNMENT;
+					}
+					ungetc(c, source);
+					return DIVISION;
+				}
+
+			case 3: // Multi-Line Comment
+				if (c == 39) {
+					c = getc(source);
+					if (c == '/') {
+						state = 0;
+					}
+				} else if (c == EOF) {
+					return LEX_ERROR; // Never-Ending Comment
+				}
+				break;
+
+			case 4: // ID or Keyword
 				if (isalnum(c) || c == '_') {
 					strAddChar(attr, tolower(c));
 				} else {
@@ -114,83 +217,57 @@ int getNextToken(string *attr) {
 				}
 				for (unsigned int i = 0; i < sizeof(keyWords); i++) {
 					if (strcmp(attr->str, keyWords[i])) {
-						return 20 + i;
+						return i;
 					}
 				}
 				return ID;
 
-			case 3: // Number
-
+			case 5: // It's a Number
 				if (isdigit(c)) {
 					strAddChar(attr, c);
-				} else if (c == '.'){
-					if (decimal || decimal_e){
+				} else if (c == '.') {
+					if (decimal || decimal_e) {
+						return LEX_ERROR;
+					}
+					strAddChar(attr, c);
+					c = getc(source);
+					if (isdigit(c)) {
+						strAddChar(attr, c);
+					} else {
 						return LEX_ERROR;
 					}
 					decimal = true;
-					strAddChar(attr, c);
-				} else if (c == 'e' || c == 'E'){
-					if (decimal_e){
+				} else if (c == 'e' || c == 'E') {
+					if (decimal_e) {
 						return LEX_ERROR;
 					}
 					decimal_e = true;
 					strAddChar(attr, c);
 					c = getc(source);
-					if (isdigit(c) || c == '+' || c == '-'){
+					if (isdigit(c) || c == '+' || c == '-') {
 						strAddChar(attr, c);
 					} else {
 						return LEX_ERROR;
 					}
-				} else if (isalpha(c)) {
+				} else if (isalpha(c) || c == '_') {
 					return LEX_ERROR;
 				} else {
 					ungetc(c, source);
-					if (decimal || decimal_e){
-						return DECIMAL_NUM;
+					if (decimal || decimal_e) {
+						return DECIMAL_NUMBER;
 					}
-					return NUM;
+					return NUMBER;
 				}
 				break;
 
-			case 4: // Plus or Increment
-				if (c == '+') {
-					return INC;
-				} else {
-					ungetc(c, source);
-					return PLUS;
+			case 6: // String
+				if (c == EOL || c == EOF) {
+					return LEX_ERROR;
+				} else if (c == 34) {
+					return STRING_EXPRESSION;
 				}
-
-			case 5: // Minus or Decrement
-				if (c == '-') {
-					return DEC;
-				} else {
-					ungetc(c, source);
-					return MINUS;
-				}
-
-			case 6: // <= or <> or <
-				if (c == '=') {
-					return LEQ;
-				} else if (c == '>') {
-					return NEQ;
-				} else {
-					ungetc(c, source);
-					return LTN;
-				}
-
-			case 7: // String
-				if (c == 34){ // ASCII 34 == "
-					while (1){
-						c = getc(source);
-						if (c == 34){
-							return STRING_EXPRESSION;
-						} else if (c == EOF){
-							return  LEX_ERROR; // Never-ending string
-						} else {
-							strAddChar(attr, c);
-						}
-					}
-				}
+				strAddChar(attr, c);
+				break;
 		}
 	}
 }

@@ -1,91 +1,146 @@
 /**
- * @file main.c
+ * @file scanner.h
  * @author Jan Bartosek (xbarto92)
  * @author Roman Bartl (xbartl06)
- * @brief
+ * @brief Defines the values for every lexem that can show in an input file.
  */
 
 
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
-// Lexems
-#define ID 0
-#define NUM 1
-#define PLUS 2 // +
-#define MINUS 3 // -
-#define MUL 4 // *
-#define DIV 5 // /
-#define INC 6 // ++
-#define DEC 7 // --
-#define ASSIGNMENT 8 // =
-#define LEQ 9 // <=
-#define NEQ 10 // <>
-#define LTN 11 // <
-#define DECIMAL_NUM 12 // 123.456 or 123e456 or 123.456E-789
-#define STRING_EXPRESSION 13 // Has to start: !"my string" .. returns only my String.
-#define BRACKET_LEFT 14 // (
-#define BRACKET_RIGHT 15 // )
-#define COMMA 16 // ,
-#define BACK_DIV 17 // backslash
-#define SEMICOLON // ;
+typedef enum {
+	ID, // _ or ABC_abc95
+	NUMBER, // int value 123456
+	DECIMAL_NUMBER, // float value 123.456 or 123e456 or 123.456E-789
+	STRING_EXPRESSION, // Has to start: !"my string" .. returns only my string.
 
-#define AS 20
-#define ASC 21
-#define DECLARE 22
-#define DIM 23
-#define DO 24
-#define DOUBLE 25
-#define ELSE 26
-#define END 27
-#define CHR 28
-#define FUNCTION 29
-#define IF 30
-#define INPUT 31
-#define INTEGER 32
-#define LENGTH 33
-#define LOOP 34
-#define PRINT 35
-#define RETURN 36
-#define SCOPE 37
-#define STRING 38
-#define SUBSTR 39
-#define THEN 40
-#define WHILE 41
-#define AND 42
-#define BOOLEAN 43
-#define CONTINUE 44
-#define ELSEIF 45
-#define EXIT 46
-#define FALSE 47
-#define FOR 48
-#define NEXT 49
-#define NOT 50
-#define OR 51
-#define SHARED 52
-#define STATIC 53
-#define TRUE 54
-#define EOL 55
+	PLUS, // +
+	MINUS, // -
+	MULTIPLY, // *
+	DIVISION, // /
+	BACKSLASH, // \.
+	ASSIGNMENT, // =
 
+	PLUS_ASSIGNMENT, // +=
+	MINUS_ASSIGNMENT, // -=
+	MULTIPLY_ASSIGNMENT, // *=
+	DIVISION_ASSIGNMENT, // /=
+	BACKSLASH_ASSIGNMENT, // \=
+
+	LESS, // <
+	LESS_EQUAL, // <=
+	GREATER, // >
+	GREATER_EQUAL, // >=
+	NOT_EQUAL,// <>
+
+	BRACKET_LEFT, // (
+	BRACKET_RIGHT, // )
+	COMMA, // ,
+	SEMICOLON, // ;
+
+
+	AS = 0,
+	ASC = 1,
+	DECLARE = 2,
+	DIM = 3,
+	DO = 4,
+	DOUBLE = 5,
+	ELSE = 6,
+	END = 7,
+	CHR = 8,
+	FUNCTION = 9,
+	IF = 10,
+	INPUT = 11,
+	INTEGER = 12,
+	LENGTH = 13,
+	LOOP = 14,
+	PRINT = 15,
+	RETURN = 16,
+	SCOPE = 17,
+	STRING = 18,
+	SUBSTR = 19,
+	THEN = 20,
+	WHILE = 21,
+	AND = 22,
+	BOOLEAN = 23,
+	CONTINUE = 24,
+	ELSEIF = 25,
+	EXIT = 26,
+	FALSE = 27,
+	FOR = 28,
+	NEXT = 29,
+	NOT = 30,
+	OR = 31,
+	SHARED = 32,
+	STATIC = 33,
+	TRUE = 34,
+} lexems;
+/*
+typedef enum {
+	AS = 0,
+	ASC = 1,
+	DECLARE = 2,
+	DIM = 3,
+	DO = 4,
+	DOUBLE = 5,
+	ELSE = 6,
+	END = 7,
+	CHR = 8,
+	FUNCTION = 9,
+	IF = 10,
+	INPUT = 11,
+	INTEGER = 12,
+	LENGTH = 13,
+	LOOP = 14,
+	PRINT = 15,
+	RETURN = 16,
+	SCOPE = 17,
+	STRING = 18,
+	SUBSTR = 19,
+	THEN = 20,
+	WHILE = 21,
+	AND = 22,
+	BOOLEAN = 23,
+	CONTINUE = 24,
+	ELSEIF = 25,
+	EXIT = 26,
+	FALSE = 27,
+	FOR = 28,
+	NEXT = 29,
+	NOT = 30,
+	OR = 31,
+	SHARED = 32,
+	STATIC = 33,
+	TRUE = 34,
+} keywords;*/
+
+#define EOL '\n'
 
 // Keywords
 /*
  * The value of keywords increments depending on position in array.
- * The value of the keyword "As" is 20, then "Asc" is equal to 21 ...
- * The last value "True" is set to 54.
+ * The value of the keyword "As" is 0, then "Asc" is equal to 1 ...
+ * The last value "True" is set to 34.
  * All the values can be found in keyWordsHelper.txt
  */
 extern char *keyWords[];
 
-// Special chars
-#define END_OF_LINE 55
-#define END_OF_FILE 56
-
 // Error codes
 #define LEX_ERROR -1
 
-// Fce
+/**
+ * @param FILE - this is an input file in IFJ2017 language.
+ */
 void setSourceFile(FILE *f);
-int getNextToken();
+
+/**
+ * @return - integer value of the last unread lexem
+ *
+ * The value can be found above in file scanner.h
+ *
+ * @brief Function is called in parser for every single word from input file.
+ */
+lexems getNextToken();
 
 #endif
