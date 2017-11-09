@@ -211,23 +211,16 @@ int getNextToken(string *attr) {
 				break;
 
 			case 4: // ID or Keyword
-
-
-
 				if (isalnum(c) || c == '_') {
 					strAddChar(attr, tolower(c));
 				} else {
 					ungetc(c, source);
 				}
-				//TODO KEYWORDS
-				if (attr->str)
-
-				/*
 				for (unsigned int i = 0; i < sizeof(keyWords); i++) {
 					if (strcmp(attr->str, keyWords[i])) {
-						return 20 + i;
+						return i;
 					}
-				}*/
+				}
 
 
 				return ID;

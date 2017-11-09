@@ -1,43 +1,43 @@
-As          20
-Asc         21
-Declare     22
-Dim         23
+As          0
+Asc         1
+Declare     2
+Dim         3
 
-Do          24
-Double      25
-Else        26
-End         27
+Do          4
+Double      5
+Else        6
+End         7
 
-Chr         28
-Function    29
-If          30
-Input       31
+Chr         8
+Function    9
+If          10
+Input       11
 
-Integer     32
-Length      33
-Loop        34
-Print       35
+Integer     12
+Length      13
+Loop        14
+Print       15
 
-Return      36
-Scope       37
-String      38
-SubStr      39
+Return      16
+Scope       17
+String      18
+SubStr      19
 
-Then        40
-While       41
-And         42
-Boolean     43
+Then        20
+While       21
+And         22
+Boolean     23
 
-Continue    44
-Elseif      45
-Exit        46
-False       47
+Continue    24
+Elseif      25
+Exit        26
+False       27
 
-For         48
-Next        49
-Not         50
-Or          51
+For         28
+Next        29
+Not         30
+Or          31
 
-Shared      52
-Static      53
-True        54
+Shared      32
+Static      33
+True        34
