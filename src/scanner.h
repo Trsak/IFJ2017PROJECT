@@ -1,5 +1,5 @@
 /**
- * @file main.c
+ * @file scanner.h
  * @author Jan Bartosek (xbarto92)
  * @author Roman Bartl (xbartl06)
  * @brief Defines the values for every lexem that can show in an input file.
@@ -9,8 +9,7 @@
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
-typedef enum
-{
+typedef enum {
 	ID, // _ or ABC_abc95
 	NUMBER, // int value 123456
 	DECIMAL_NUMBER, // float value 123.456 or 123e456 or 123.456E-789
@@ -21,6 +20,7 @@ typedef enum
 	MULTIPLY, // *
 	DIVISION, // /
 	BACKSLASH, // \.
+	ASSIGNMENT, // =
 
 	PLUS_ASSIGNMENT, // +=
 	MINUS_ASSIGNMENT, // -=
@@ -28,21 +28,18 @@ typedef enum
 	DIVISION_ASSIGNMENT, // /=
 	BACKSLASH_ASSIGNMENT, // \=
 
-	ASSIGNMENT, // =
 	LESS, // <
 	LESS_EQUAL, // <=
 	GREATER, // >
 	GREATER_EQUAL, // >=
-	NOT_EQUAL ,// <>
+	NOT_EQUAL,// <>
 
 	BRACKET_LEFT, // (
 	BRACKET_RIGHT, // )
 	COMMA, // ,
-	SEMICOLON // ;
-} lexems;
+	SEMICOLON, // ;
 
-typedef enum
-{
+
 	AS = 0,
 	ASC = 1,
 	DECLARE = 2,
@@ -77,11 +74,48 @@ typedef enum
 	OR = 31,
 	SHARED = 32,
 	STATIC = 33,
-	TRUE = 34
-} keywords;
+	TRUE = 34,
+} lexems;
+/*
+typedef enum {
+	AS = 0,
+	ASC = 1,
+	DECLARE = 2,
+	DIM = 3,
+	DO = 4,
+	DOUBLE = 5,
+	ELSE = 6,
+	END = 7,
+	CHR = 8,
+	FUNCTION = 9,
+	IF = 10,
+	INPUT = 11,
+	INTEGER = 12,
+	LENGTH = 13,
+	LOOP = 14,
+	PRINT = 15,
+	RETURN = 16,
+	SCOPE = 17,
+	STRING = 18,
+	SUBSTR = 19,
+	THEN = 20,
+	WHILE = 21,
+	AND = 22,
+	BOOLEAN = 23,
+	CONTINUE = 24,
+	ELSEIF = 25,
+	EXIT = 26,
+	FALSE = 27,
+	FOR = 28,
+	NEXT = 29,
+	NOT = 30,
+	OR = 31,
+	SHARED = 32,
+	STATIC = 33,
+	TRUE = 34,
+} keywords;*/
 
 #define EOL '\n'
-#define EOF '\0'
 
 // Keywords
 /*
@@ -107,6 +141,6 @@ void setSourceFile(FILE *f);
  *
  * @brief Function is called in parser for every single word from input file.
  */
-int getNextToken();
+lexems getNextToken();
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * @file main.c
+ * @file scanner.c
  * @author Jan Bartosek (xbarto92)
  * @brief
  */
@@ -17,7 +17,7 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
                     "boolean", "continue", "elseif", "exit", "false", "for", "next",
                     "not", "or", "shared", "static", "true"};
 
-string attr; // Global variable used for attribute sending
+string *attr; // Global variable used for attribute sending
 
 FILE *source;
 
@@ -26,20 +26,19 @@ FILE *source;
  */
 void setSourceFile(FILE *f) {
 	source = f;
-	strInit(&attr);
+	strInit(attr);
 }
 
 /**
  * @copydoc getNextToken
  */
-int getNextToken(string *attr) {
+lexems getNextToken() {
 	int state = 0;
 	int c;
 	strClear(attr);
 
 	bool decimal = false;
 	bool decimal_e = false;
-	bool valid_number = true;
 
 	while (1) {
 		c = getc(source);
