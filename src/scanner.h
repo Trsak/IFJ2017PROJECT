@@ -9,6 +9,74 @@
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
+typedef enum
+{
+	ID,
+	NUMBER,
+	PLUS, // +
+	MINUS, // -
+	MULTIPLY, // *
+	DIVISION, // /
+	INCREMENT, // ++
+	DECREMENT, // --
+	ASSIGNMENT, // =
+	LESS, // <
+	LESS_EQUAL, // <=
+	GREATER, // >
+	GREATER_EQUAL, // >=
+	NOT_EQUAL ,// <>
+	DECIMAL_NUMBER, // 123.456 or 123e456 or 123.456E-789
+	STRING_EXPRESSION, // Has to start: !"my string" .. returns only my string.
+	BRACKET_LEFT, // (
+	BRACKET_RIGHT, // )
+	COMMA, // ,
+	BACKSLASH, // backslash
+	SEMICOLON, // ;
+} lexems;
+
+typedef enum
+{
+	AS,
+	ASC,
+	DECLARE,
+	DIM,
+	DO,
+	DOUBLE,
+	ELSE,
+	END,
+	CHR,
+	FUNCTION,
+	IF,
+	INPUT,
+	INTEGER,
+	LENGTH,
+	LOOP,
+	PRINT,
+	RETURN,
+	SCOPE,
+	STRING,
+	SUBSTR,
+	THEN,
+	WHILE,
+	AND,
+	BOOLEAN,
+	CONTINUE,
+	ELSEIF,
+	EXIT,
+	FALSE,
+	FOR,
+	NEXT,
+	NOT,
+	OR,
+	SHARED,
+	STATIC,
+	TRUE,
+} keywords;
+
+#define EOL '\n'
+#define EOF '\0'
+
+/*
 // Lexems
 #define ID 0
 #define NUM 1
@@ -67,7 +135,7 @@
 #define STATIC 53
 #define TRUE 54
 #define EOL 55
-
+*/
 
 // Keywords
 /*
@@ -77,10 +145,6 @@
  * All the values can be found in keyWordsHelper.txt
  */
 extern char *keyWords[];
-
-// Special chars
-#define END_OF_LINE 55
-#define END_OF_FILE 56
 
 // Error codes
 #define LEX_ERROR -1

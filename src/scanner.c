@@ -37,24 +37,37 @@ int getNextToken(string *attr) {
 	int c;
 	strClear(attr);
 
+	bool decimal = false;
+	bool decimal_e = false;
+
 	while (1) {
 		c = getc(source);
 		switch (state) {
 			case 0: // The beggining
-				if (c == EOL) {
-					return EOL;
-				}
-				else if (isspace(c)) {  // It's a white space (ignore that!)
-					break;
-				} else if (c == 39){ // It's an one line comment
-					while (c == EOL){
-						c = getc(source);
-						if (c == EOF){
-							return END_OF_FILE;
-						}
-					}
-				} else if (c == '/') { // It's a multi line comment or division
+
+
+				if (c == 39){ // It's an one line comment
 					state = 1;
+				} else if (c == '/') { // It's a multi line comment or division
+					state = 2;
+				}
+
+
+
+
+
+
+
+
+
+
+
+
+
+				else if (c == EOL) {
+					return EOL;
+				} else if (isspace(c)) {  // It's a white space (ignore that!)
+					break;
 				} else if (isalpha(c) || c == '_') { // It's an ID or keyword
 					strAddChar(attr, tolower(c));
 					state = 2;
@@ -87,6 +100,16 @@ int getNextToken(string *attr) {
 					return LEX_ERROR;
 				}
 				break;
+
+
+
+
+
+
+
+
+
+
 
 			case 1: // Comment
 				if (c == 39) {  // ASCII 39 == '
@@ -125,9 +148,6 @@ int getNextToken(string *attr) {
 				return ID;
 
 			case 3: // Number
-
-				bool decimal = false; //TODO
-				bool decimal_e = false; //TODO
 
 				if (isdigit(c)) {
 					strAddChar(attr, c);
