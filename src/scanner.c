@@ -1,8 +1,9 @@
 /**
  * @file scanner.c
  * @author Jan Bartosek (xbarto92)
- * @brief
+ * @brief Returns "tokens" that represent each word or char from the input file to the parser or the LEX_ERROR if a lexical error occurred
  */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -10,7 +11,7 @@
 #include "strings.h"
 #include <stdbool.h>
 
-
+//array of all the keywords for an easy return implementation
 char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end", "chr",
                     "function", "if", "input", "integer", "length", "loop", "print",
                     "return", "scope", "string", "substr", "then", "while", "and",
@@ -19,7 +20,7 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
 
 string *attr; // Global variable used for attribute sending
 
-FILE *source;
+FILE *source; // The input file
 
 /**
  * @copydoc setSourceFile
@@ -209,7 +210,7 @@ lexems getNextToken() {
 				}
 				break;
 
-			case 4: // ID or Keyword
+			case 4: // ID or Keyword TODO the length of ID and save it to the binary tree!!
 				if (isalnum(c) || c == '_') {
 					strAddChar(attr, tolower(c));
 				} else {
@@ -217,7 +218,7 @@ lexems getNextToken() {
 				}
 				for (unsigned int i = 0; i < sizeof(keyWords); i++) {
 					if (strcmp(attr->str, keyWords[i])) {
-						return i;
+						return 30 + i;
 					}
 				}
 				return ID;
