@@ -1,16 +1,17 @@
 /**
  * @file scanner.c
  * @author Jan Bartosek (xbarto92)
- * @brief Returns "tokens" that represent each word or char from the input file to the parser or the ERROR_SCANNER if a lexical error occurred
+ * @brief Returns "tokens" that represent each word or char from the input file to the parser or the LEX_ERROR if a lexical error occurred
  */
 
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #include "scanner.h"
 #include "strings.h"
-#include <stdbool.h>
 #include "error_codes.h"
+#include "symtable.h"
 
 //array of all the keywords for an easy return implementation
 char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end", "chr",
@@ -20,7 +21,7 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
                     "not", "or", "shared", "static", "true"};
 
 string attr; // Global variable used for attribute sending
-//TODO - CALL FREE ON ATTR !!
+//TODO - CALL function strFree(attr) !!
 
 FILE *source; // The input file
 
@@ -31,6 +32,8 @@ void setSourceFile(FILE *f) {
 	source = f;
 	strInit(&attr);
 }
+
+//TODO Every calling of printErrMsg should have as the first argument 1, but it doesn't work for any reason. Temporary replaced by 1.
 
 /**
  * @copydoc getNextToken
@@ -69,8 +72,8 @@ lexems getNextToken() {
 					if (c == 34) { // ASCII 34 == "
 						state = 6;
 					} else if (c == EOL || c == EOF) {
-						printErrMsg(ERROR_FILE, "The '!' was given and the following should be '\"' but %c was given", c);
-						return ERROR_SCANNER;
+						printErrMsg(1, "The '!' was given and the following should be '\"' but %c was given", c);
+						return LEX_ERROR;
 					}
 				} else if (c == '+') { // It's a plus
 					c = getc(source);
@@ -171,8 +174,8 @@ lexems getNextToken() {
 						return GREATER;
 					}
 				} else {
-					printErrMsg(ERROR_FILE, "Unknown character was given: %c", c);
-					return ERROR_SCANNER;
+					printErrMsg(1, "Unknown character was given: %c", c);
+					return LEX_ERROR;
 				}
 				break;
 
@@ -210,8 +213,8 @@ lexems getNextToken() {
 						state = 0;
 					}
 				} else if (c == EOF) {
-					printErrMsg(ERROR_FILE, "Never-Ending Multi-Line Comment");
-					return ERROR_SCANNER;
+					printErrMsg(1, "Never-Ending Multi-Line Comment");
+					return LEX_ERROR;
 				}
 				break;
 
@@ -236,22 +239,22 @@ lexems getNextToken() {
 					strAddChar(&attr, c);
 				} else if (c == '.') {
 					if (decimal || decimal_e) {
-						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. Multiple dots were used.");
-						return ERROR_SCANNER;
+						printErrMsg(1, "Wrong format of a decimal number. Multiple dots were used.");
+						return LEX_ERROR;
 					}
 					strAddChar(&attr, c);
 					c = getc(source);
 					if (isdigit(c)) {
 						strAddChar(&attr, c);
 					} else {
-						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. A number is required after a dot, but %c was given", c);
-						return ERROR_SCANNER;
+						printErrMsg(1, "Wrong format of a decimal number. A number is required after a dot, but %c was given", c);
+						return LEX_ERROR;
 					}
 					decimal = true;
 				} else if (c == 'e' || c == 'E') {
 					if (decimal_e) {
-						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. Multiple exponent expressions were used.");
-						return ERROR_SCANNER;
+						printErrMsg(1, "Wrong format of a decimal number. Multiple exponent expressions were used.");
+						return LEX_ERROR;
 					}
 					decimal_e = true;
 					strAddChar(&attr, c);
@@ -259,12 +262,12 @@ lexems getNextToken() {
 					if (isdigit(c) || c == '+' || c == '-') {
 						strAddChar(&attr, c);
 					} else {
-						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. A number or '+' or '-' is required after an exponent expression, but %c was given", c);
-						return ERROR_SCANNER;
+						printErrMsg(1, "Wrong format of a decimal number. A number or '+' or '-' is required after an exponent expression, but %c was given", c);
+						return LEX_ERROR;
 					}
 				} else if (isalpha(c) || c == '_') {
-					printErrMsg(ERROR_FILE, "Wrong number format. %c char was given but a number is required", c);
-					return ERROR_SCANNER;
+					printErrMsg(1, "Wrong number format. %c char was given but a number is required", c);
+					return LEX_ERROR;
 				} else {
 					ungetc(c, source);
 					if (decimal || decimal_e) {
@@ -276,8 +279,8 @@ lexems getNextToken() {
 
 			case 6: // String
 				if (c == EOL || c == EOF) {
-					printErrMsg(ERROR_FILE, "Wrong string format. '\"' is required to end the string but EOL or EOF was given");
-					return ERROR_SCANNER;
+					printErrMsg(1, "Wrong string format. '\"' is required to end the string but EOL or EOF was given");
+					return LEX_ERROR;
 				} else if (c == 34) {
 					return STRING_EXPRESSION;
 				}
