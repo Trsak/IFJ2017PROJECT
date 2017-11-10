@@ -1,7 +1,7 @@
 /**
  * @file scanner.c
  * @author Jan Bartosek (xbarto92)
- * @brief Returns "tokens" that represent each word or char from the input file to the parser or the ERROR_LEXICAL if a lexical error occurred
+ * @brief Returns "tokens" that represent each word or char from the input file to the parser or the ERROR_SCANNER if a lexical error occurred
  */
 
 #include <stdio.h>
@@ -70,7 +70,7 @@ lexems getNextToken() {
 						state = 6;
 					} else if (c == EOL || c == EOF) {
 						printErrMsg(ERROR_FILE, "The '!' was given and the following should be '\"' but %c was given", c);
-						return ERROR_LEXICAL;
+						return ERROR_SCANNER;
 					}
 				} else if (c == '+') { // It's a plus
 					c = getc(source);
@@ -172,7 +172,7 @@ lexems getNextToken() {
 					}
 				} else {
 					printErrMsg(ERROR_FILE, "Unknown character was given: %c", c);
-					return ERROR_LEXICAL;
+					return ERROR_SCANNER;
 				}
 				break;
 
@@ -211,7 +211,7 @@ lexems getNextToken() {
 					}
 				} else if (c == EOF) {
 					printErrMsg(ERROR_FILE, "Never-Ending Multi-Line Comment");
-					return ERROR_LEXICAL;
+					return ERROR_SCANNER;
 				}
 				break;
 
@@ -237,7 +237,7 @@ lexems getNextToken() {
 				} else if (c == '.') {
 					if (decimal || decimal_e) {
 						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. Multiple dots were used.");
-						return ERROR_LEXICAL;
+						return ERROR_SCANNER;
 					}
 					strAddChar(&attr, c);
 					c = getc(source);
@@ -245,13 +245,13 @@ lexems getNextToken() {
 						strAddChar(&attr, c);
 					} else {
 						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. A number is required after a dot, but %c was given", c);
-						return ERROR_LEXICAL;
+						return ERROR_SCANNER;
 					}
 					decimal = true;
 				} else if (c == 'e' || c == 'E') {
 					if (decimal_e) {
 						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. Multiple exponent expressions were used.");
-						return ERROR_LEXICAL;
+						return ERROR_SCANNER;
 					}
 					decimal_e = true;
 					strAddChar(&attr, c);
@@ -260,11 +260,11 @@ lexems getNextToken() {
 						strAddChar(&attr, c);
 					} else {
 						printErrMsg(ERROR_FILE, "Wrong format of a decimal number. A number or '+' or '-' is required after an exponent expression, but %c was given", c);
-						return ERROR_LEXICAL;
+						return ERROR_SCANNER;
 					}
 				} else if (isalpha(c) || c == '_') {
 					printErrMsg(ERROR_FILE, "Wrong number format. %c char was given but a number is required", c);
-					return ERROR_LEXICAL;
+					return ERROR_SCANNER;
 				} else {
 					ungetc(c, source);
 					if (decimal || decimal_e) {
@@ -277,7 +277,7 @@ lexems getNextToken() {
 			case 6: // String
 				if (c == EOL || c == EOF) {
 					printErrMsg(ERROR_FILE, "Wrong string format. '\"' is required to end the string but EOL or EOF was given");
-					return ERROR_LEXICAL;
+					return ERROR_SCANNER;
 				} else if (c == 34) {
 					return STRING_EXPRESSION;
 				}
