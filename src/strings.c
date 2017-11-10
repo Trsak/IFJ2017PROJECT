@@ -5,7 +5,7 @@
  */
 #include "strings.h"
 #include <malloc.h>
-#include "strings.h"
+#include <string.h>
 
 int strInit(string *s) {
     if ((s->str = (char *) malloc(STR_LEN_INC)) == NULL) {
