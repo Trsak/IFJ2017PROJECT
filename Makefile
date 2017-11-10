@@ -18,7 +18,7 @@ rm       = rm -f
 
 SRC_TEST = \
   $(wildcard $(TESTDIR)/src/*.c) \
-  $(filter-out src/main.c, $(SOURCES)) \
+  $(filter-out $(SRCDIR)/main.c, $(SOURCES)) \
   $(wildcard $(TESTDIR)/*.c)
 INC_DIRS = -Isrc -I$(TESTDIR)/src
 
