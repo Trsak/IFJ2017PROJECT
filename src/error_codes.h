@@ -14,8 +14,12 @@
  *
  */
 enum ERROR_CODES {
-	ERROR_SYNTAX = 2,
-	ERROR_FILE = 5
+	ERROR_SCANNER = 1, /* Lexical analysis error */
+	ERROR_SYNTAX = 2, /* Syntax error */
+	ERROR_PROG_SEM = 3, /* Semantic error in program (undefined function/variable,...) */
+	ERROR_TYPE_SEM = 4, /* Semantic error of type compatibility in arithmetic, string, relational,... expressions */
+	ERROR_OTHER_SEM = 6, /* Other semantic errors */
+	ERROR_INTERNAL = 99 /* Internal errors (opening files, allocating memory,...) */
 };
 
 /**
