@@ -10,11 +10,11 @@
 #include "strings.h"
 
 typedef enum {
-	STRING,
-	INTEGER,
-	FLOAT,
-	DOUBLE,
-	BOOL,
+	TYPE_STRING,
+	TYPE_INTEGER,
+	TYPE_FLOAT,
+	TYPE_DOUBLE,
+	TYPE_BOOL,
 } datatype;
 
 typedef struct Values {
