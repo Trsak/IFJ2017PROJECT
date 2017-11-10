@@ -218,7 +218,7 @@ lexems getNextToken() {
 				}
 				for (unsigned int i = 0; i < sizeof(keyWords); i++) {
 					if (strcmp(attr->str, keyWords[i])) {
-						return i;
+						return 30 + i;
 					}
 				}
 				return ID;

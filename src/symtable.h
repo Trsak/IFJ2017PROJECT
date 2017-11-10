@@ -34,8 +34,9 @@ typedef struct BinaryTree {
 } *BinaryTreePtr;
 
 typedef struct {
-	BinaryTreePtr a[MAXSTACK];
+	BinaryTreePtr *pointer;
+	int currentSize;
 	int top;
-} PointerStack;
+} Stack;
 
 #endif //IFJ2017_SYMTABLE_H

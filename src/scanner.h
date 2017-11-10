@@ -38,41 +38,41 @@ typedef enum {
 	SEMICOLON, // ;
 
 	//Keywords
-	AS = 0,
-	ASC = 1,
-	DECLARE = 2,
-	DIM = 3,
-	DO = 4,
-	DOUBLE = 5,
-	ELSE = 6,
-	END = 7,
-	CHR = 8,
-	FUNCTION = 9,
-	IF = 10,
-	INPUT = 11,
-	INTEGER = 12,
-	LENGTH = 13,
-	LOOP = 14,
-	PRINT = 15,
-	RETURN = 16,
-	SCOPE = 17,
-	STRING = 18,
-	SUBSTR = 19,
-	THEN = 20,
-	WHILE = 21,
-	AND = 22,
-	BOOLEAN = 23,
-	CONTINUE = 24,
-	ELSEIF = 25,
-	EXIT = 26,
-	FALSE = 27,
-	FOR = 28,
-	NEXT = 29,
-	NOT = 30,
-	OR = 31,
-	SHARED = 32,
-	STATIC = 33,
-	TRUE = 34,
+	AS = 30,
+	ASC = 31,
+	DECLARE = 32,
+	DIM = 33,
+	DO = 34,
+	DOUBLE = 35,
+	ELSE = 36,
+	END = 37,
+	CHR = 38,
+	FUNCTION = 39,
+	IF = 40,
+	INPUT = 41,
+	INTEGER = 42,
+	LENGTH = 43,
+	LOOP = 44,
+	PRINT = 45,
+	RETURN = 46,
+	SCOPE = 47,
+	STRING = 48,
+	SUBSTR = 49,
+	THEN = 50,
+	WHILE = 51,
+	AND = 52,
+	BOOLEAN = 53,
+	CONTINUE = 54,
+	ELSEIF = 55,
+	EXIT = 56,
+	FALSE = 57,
+	FOR = 58,
+	NEXT = 59,
+	NOT = 60,
+	OR = 61,
+	SHARED = 62,
+	STATIC = 63,
+	TRUE = 64,
 } lexems;
 
 #define EOL '\n'
@@ -80,8 +80,8 @@ typedef enum {
 // Keywords
 /*
  * The value of keywords increments depending on position in array.
- * The value of the keyword "As" is 0, then "Asc" is equal to 1 ...
- * The last value "True" is set to 34.
+ * The value of the keyword "As" is 30, then "Asc" is equal to 1 ...
+ * The last value "True" is set to 64.
  * All the values can be found above
  */
 extern char *keyWords[];
