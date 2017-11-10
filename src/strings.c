@@ -1,12 +1,15 @@
 /**
  * @file main.c
  * @author Jan Bartosek (xbarto92)
- * @brief
+ * @brief Operations with string structure.
  */
 #include "strings.h"
 #include <malloc.h>
 #include <string.h>
 
+/**
+ * @copydoc strInit
+ */
 int strInit(string *s) {
     if ((s->str = (char *) malloc(STR_LEN_INC)) == NULL) {
         return STR_ERROR;
@@ -17,15 +20,24 @@ int strInit(string *s) {
     return STR_SUCCESS;
 }
 
+/**
+ * @copydoc strFree
+ */
 void strFree(string *s) {
     free(s->str);
 }
 
+/**
+ * @copydoc strClear
+ */
 void strClear(string *s) {
     strFree(s);
     strInit(s);
 }
 
+/**
+ * @copydoc strAddChar
+ */
 int strAddChar(string *s1, char c) {
     if (s1->length + 1 >= s1->allocSize) {
         if ((s1->str = (char *) realloc(s1->str, s1->length + STR_LEN_INC)) == NULL) {

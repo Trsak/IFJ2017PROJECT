@@ -7,10 +7,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #include "scanner.h"
 #include "strings.h"
-#include <stdbool.h>
 #include "error_codes.h"
+#include "symtable.h"
 
 //array of all the keywords for an easy return implementation
 char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end", "chr",
@@ -20,7 +21,7 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
                     "not", "or", "shared", "static", "true"};
 
 string attr; // Global variable used for attribute sending
-//TODO - CALL FREE ON ATTR !!
+//TODO - CALL function strFree(attr) !!
 
 FILE *source; // The input file
 
