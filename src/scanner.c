@@ -18,7 +18,7 @@ char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end"
                     "boolean", "continue", "elseif", "exit", "false", "for", "next",
                     "not", "or", "shared", "static", "true"};
 
-string *attr; // Global variable used for attribute sending
+string attr; // Global variable used for attribute sending
 
 FILE *source; // The input file
 
@@ -27,7 +27,7 @@ FILE *source; // The input file
  */
 void setSourceFile(FILE *f) {
 	source = f;
-	strInit(attr);
+	strInit(&attr);
 }
 
 /**
@@ -36,7 +36,7 @@ void setSourceFile(FILE *f) {
 lexems getNextToken() {
 	int state = 0;
 	int c;
-	strClear(attr);
+	strClear(&attr);
 
 	bool decimal = false;
 	bool decimal_e = false;
@@ -57,10 +57,10 @@ lexems getNextToken() {
 				} else if (isspace(c)) {  // It's a white space (ignore that!)
 					break;
 				} else if (isalpha(c) || c == '_') { // It's an ID or a keyword
-					strAddChar(attr, tolower(c));
+					strAddChar(&attr, tolower(c));
 					state = 4;
 				} else if (isdigit(c)) { // It's a number
-					strAddChar(attr, c);
+					strAddChar(&attr, c);
 					state = 5;
 				} else if (c == 33) { // It's a string
 					c = getc(source);
@@ -211,29 +211,32 @@ lexems getNextToken() {
 				break;
 
 			case 4: // ID or Keyword TODO the length of ID and save it to the binary tree!!
+
 				if (isalnum(c) || c == '_') {
-					strAddChar(attr, tolower(c));
+					strAddChar(&attr, tolower(c));
 				} else {
 					ungetc(c, source);
+                    for (unsigned int i = 0; i < sizeof(keyWords) / sizeof(char*); i++) {
+                        if (strcmp((&attr)->str, keyWords[i]) == 0) {
+                            return 30 + i;
+                        }
+                    }
+                    return ID;
 				}
-				for (unsigned int i = 0; i < sizeof(keyWords); i++) {
-					if (strcmp(attr->str, keyWords[i])) {
-						return 30 + i;
-					}
-				}
-				return ID;
+                break;
+
 
 			case 5: // It's a Number
 				if (isdigit(c)) {
-					strAddChar(attr, c);
+					strAddChar(&attr, c);
 				} else if (c == '.') {
 					if (decimal || decimal_e) {
 						return LEX_ERROR;
 					}
-					strAddChar(attr, c);
+					strAddChar(&attr, c);
 					c = getc(source);
 					if (isdigit(c)) {
-						strAddChar(attr, c);
+						strAddChar(&attr, c);
 					} else {
 						return LEX_ERROR;
 					}
@@ -243,10 +246,10 @@ lexems getNextToken() {
 						return LEX_ERROR;
 					}
 					decimal_e = true;
-					strAddChar(attr, c);
+					strAddChar(&attr, c);
 					c = getc(source);
 					if (isdigit(c) || c == '+' || c == '-') {
-						strAddChar(attr, c);
+						strAddChar(&attr, c);
 					} else {
 						return LEX_ERROR;
 					}
@@ -267,7 +270,7 @@ lexems getNextToken() {
 				} else if (c == 34) {
 					return STRING_EXPRESSION;
 				}
-				strAddChar(attr, c);
+				strAddChar(&attr, c);
 				break;
 		}
 	}
