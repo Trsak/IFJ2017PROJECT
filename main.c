@@ -26,25 +26,19 @@ int main(int argc, char **argv) {
 
     setSourceFile(f);
 
-    if(!program()) {
-        //return 1;
-        //TODO - uncomment
-    }
+
+    int returnValue = parse();
+
 
     //only for debug
     //TODO - delete after
-    int i;
-
-    for(i = 0; i < 200; i++) {
+    for(int i = 0; i < 200; i++) {
         printf("%d, ", tree[i]);
     }
-
-    if(i == 200) printf("Uspesny preklad");
-
     printf("\n");
 
 
-
     fclose(f);
-    return 0;
+
+    return returnValue;
 }

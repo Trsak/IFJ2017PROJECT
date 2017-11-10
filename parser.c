@@ -6,13 +6,49 @@
 
 
 //TODO instead of array, use global variable
+//TODO expressions
+//TODO return errors (even from scanner) to main
+//TODO adding identifiers into symtable binary tree
+//TODO return statement
+//TODO function for id check
+//TODO add statement (id = expr)
 
 
 #include "parser.h"
 
+int last = -1; //TODO delete - only for debug
 
-int tokenGlob;
-int last = -1;
+
+
+/**
+ * @copydoc parse
+ */
+int parse() {
+
+    if(!program()) {
+        return returnError;
+    }
+
+    return 0;
+}
+
+
+/**
+ * @copydoc nextToken
+ */
+bool nextToken(int *returnToken) {
+
+    int token = getNextToken();
+
+    if (token == -1) {
+        returnError = ERROR_SCANNER;
+        return false;
+    }
+
+    *returnToken = token;
+
+    return true;
+}
 
 
 /**
@@ -20,9 +56,11 @@ int last = -1;
  */
 bool program() {
 
-    int token = getNextToken();
+    int token;
 
-    if (functionFollow(token)) {     // block 'functions' is empty (epsilon)
+    token = getNextToken();
+
+    if (functionFollow(token)) {
 
         last++;
         tree[last] = token;
@@ -30,14 +68,11 @@ bool program() {
     } else {
 
         if (!functionFirst(token)) {
-            printErrMsg(ERROR_SYNTAX, "");  //TODO - add err msg
-
             return false;
         }
 
         last++;
         tree[last] = token;
-
 
         if (!functions())
             return false;
@@ -57,6 +92,10 @@ bool functionFirst(int token) {
     if (token == DECLARE || token == FUNCTION)
         return true;
 
+
+    printErrMsg(ERROR_SYNTAX, "Function statement was expected");
+    returnError = ERROR_SYNTAX;
+
     return false;
 }
 
@@ -66,16 +105,19 @@ bool functionFirst(int token) {
  */
 bool functions() {
 
-    int token = tree[last]; // TODO get last added token from tree and compare it
+    int token = tree[last];
 
     if (token != DECLARE && token != FUNCTION) {
         token = getNextToken();
     }
 
+
     if (token != DECLARE) {
 
         if (token != FUNCTION) {
-            printErrMsg(ERROR_SYNTAX, "DECLARE or FUNCTION was expected");
+            printErrMsg(ERROR_SYNTAX, "'Declare' or 'Function' was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
 
@@ -84,7 +126,6 @@ bool functions() {
             return false;
         }
 
-        //TODO return
         if (!statement()) {
             return false;
         }
@@ -117,14 +158,16 @@ bool functions() {
  * @copydoc functionHeader
  */
 bool functionHeader() {
-    int token;
+    int token = tree[last];
 
-    if (tree[last] != FUNCTION) {
+    if (token != FUNCTION) {
+
         token = getNextToken();
 
-
         if (token != FUNCTION) { // TODO skip this condition if token is in the tree DO-NOT-KNOW
-            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+            printErrMsg(ERROR_SYNTAX, "'Function' was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
 
@@ -132,21 +175,29 @@ bool functionHeader() {
         tree[last] = token;
     }
 
-    token = getNextToken();
+    //Here parser expects that identifier can be wrong formatted
+    if(!nextToken(&token)) {
+        return false;
+    }
 
     if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, "Identifier was expected");
+        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
     last++;
     tree[last] = token;
 
+
     token = getNextToken();
 
     if (!functionAsFirst(token)) {
         if (!functionItFirst(token)) {
             printErrMsg(ERROR_SYNTAX, "'(' was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
 
@@ -168,9 +219,7 @@ bool functionHeader() {
 
     token = getNextToken();
 
-
-    if (token != EOL) {
-        printErrMsg(ERROR_SYNTAX, "");
+    if (!eol(token)) {
         return false;
     }
 
@@ -190,13 +239,17 @@ bool functionIt() {
         return false;
     }
 
-    if (tree[last] == BRACKET_RIGHT)
+    int token = tree[last];
+
+    if (token == BRACKET_RIGHT)
         return true;
 
-    int token = getNextToken();
+    token = getNextToken();
 
     if (token != BRACKET_RIGHT) {
-        printErrMsg(ERROR_SYNTAX, "pico"); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "')' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -238,7 +291,9 @@ bool functionAs() {
         int token = getNextToken();
 
         if (token != AS) {
-            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+            printErrMsg(ERROR_SYNTAX, "'As' was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
 
@@ -262,7 +317,7 @@ bool functionNext() {
 
     do
         token = getNextToken();
-    while (token == 10);
+    while (token == 10);            //TODO - this is not nice!!!
 
 
     if (functionFollow(token)) {
@@ -274,8 +329,6 @@ bool functionNext() {
 
 
     if (!functionFirst(token)) {
-        printErrMsg(ERROR_SYNTAX, "ahoj");  //TODO - add err msg
-
         return false;
     }
 
@@ -284,7 +337,6 @@ bool functionNext() {
 
     if (!functions())
         return false;
-
 
     return true;
 }
@@ -298,8 +350,8 @@ bool functionEnd() {
     int token = getNextToken();
 
     if (tree[last] != END) {
-        if (token != END) {
-            printErrMsg(ERROR_SYNTAX, "");
+
+        if (!end(token)) {
             return false;
         }
 
@@ -311,7 +363,9 @@ bool functionEnd() {
 
 
     if (token != FUNCTION) {
-        printErrMsg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "'Function' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -320,8 +374,7 @@ bool functionEnd() {
 
     token = getNextToken();
 
-    if (token != EOL) {
-        printErrMsg(ERROR_SYNTAX, "");
+    if (eol(token)) {
         return false;
     }
 
@@ -347,7 +400,12 @@ bool functionFollow(int token) {
  * @copydoc declareParams
  */
 bool declareParams() {
-    int token = getNextToken();
+    int token;
+
+    //Here parser expects that identifier can be wrong formatted
+    if(!nextToken(&token)) {
+        return false;
+    }
 
     if (tree[last] != COMMA) {
 
@@ -361,7 +419,9 @@ bool declareParams() {
     }
 
     if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -395,7 +455,9 @@ bool declareParamsNext() {
     }
 
     if (token != COMMA) {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "',' was expected"); //TODO - err msg
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -427,7 +489,9 @@ bool dataType() {
     int token = getNextToken();
 
     if (token != INTEGER && token != DOUBLE && token != STRING) {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "Data type was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -445,10 +509,12 @@ bool statement() {
 
     int token;
 
-    token = getNextToken();
+    //Here parser expects that identifier can be wrong formatted
+    if(!nextToken(&token)) {
+        return false;
+    }
 
     if (statementFollow(token)) {
-
         return true;
     }
 
@@ -470,10 +536,15 @@ bool statement() {
             last++;
             tree[last] = token;
 
-            token = getNextToken();
+            //Here parser expects that identifier can be wrong formatted
+            if(!nextToken(&token)) {
+                return false;
+            }
 
             if (token != ID) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
@@ -496,11 +567,14 @@ bool statement() {
 
             last++;
             tree[last] = token;
+
             token = getNextToken(); //TODO delete, only for debug  DO-NOT-KNOW
 
 
             if (token != SEMICOLON) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, "';' was expected");
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
@@ -522,7 +596,7 @@ bool statement() {
             token = getNextToken();
 
             if (token != WHILE) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, "'While' was expected");
                 return false;
             }
 
@@ -535,9 +609,7 @@ bool statement() {
 
             token = getNextToken();
 
-
-            if (token != EOL) {
-                printErrMsg(ERROR_SYNTAX, "");
+            if(!eol(token)) {
                 return false;
             }
 
@@ -550,10 +622,11 @@ bool statement() {
 
             token = getNextToken();
 
-
             if (tree[last] != LOOP) {
                 if (token != LOOP) {
-                    printErrMsg(ERROR_SYNTAX, "");
+                    printErrMsg(ERROR_SYNTAX, "'Loop' was expected");
+                    returnError = ERROR_SYNTAX;
+
                     return false;
                 }
             }
@@ -577,7 +650,9 @@ bool statement() {
             token = getNextToken();
 
             if (token != THEN) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, "'Then' was expected");
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
@@ -586,10 +661,8 @@ bool statement() {
 
             token = getNextToken();
 
-            if (token != EOL) {
-                printErrMsg(ERROR_SYNTAX, "");
+            if (!eol(token)) {
                 return false;
-
             }
 
             last++;
@@ -607,18 +680,23 @@ bool statement() {
 
 
             if (tree[last] != END) {
+                token = getNextToken();
 
-                if (!end()) {
+                if (!end(token)) {
                     return false;
                 }
 
+                last++;
+                tree[last] = token;
             }
 
             token = getNextToken();
 
 
             if (token != IF) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, "'If' was expected");
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
@@ -633,11 +711,9 @@ bool statement() {
     if (tree[last] != EOL) {
         token = getNextToken();
 
-        if (token != EOL) {
-            printErrMsg(ERROR_SYNTAX, "");
+        if (!eol(token)) {
             return false;
         }
-
 
         last++;
         tree[last] = token;
@@ -646,6 +722,59 @@ bool statement() {
 
     if (!statement())
         return false;
+
+
+    return true;
+}
+
+
+/**
+ * @copydoc printNext
+ */
+bool printNext() {
+
+    int token = getNextToken();
+
+    if (eol(token)) {
+        last++;
+        tree[last] = token;
+
+        return true;
+    }
+
+
+    if (expressionFirst(token)) {
+        last++;
+        tree[last] = token;
+
+        if (!expression()) {
+            return false;
+        }
+
+    } else {
+        printErrMsg(ERROR_SYNTAX, ""); //TODO - it's expression and that's not done yet
+        returnError = ERROR_SYNTAX;
+
+        return false;
+
+    }
+
+    token = getNextToken();
+
+    if (token != SEMICOLON) {
+        printErrMsg(ERROR_SYNTAX, "';' was expected");
+        returnError = ERROR_SYNTAX;
+
+        return false;
+    }
+
+    last++;
+    tree[last] = token;
+
+
+    if (!printNext()) {
+        return false;
+    }
 
     return true;
 }
@@ -659,7 +788,7 @@ bool ifNext() {
     int token = tree[last];
 
 
-    if(token != ELSE && token != ELSEIF) {
+    if (token != ELSE && token != ELSEIF) {
         token = getNextToken();
 
         if (ifNextFollow(token)) {
@@ -671,15 +800,14 @@ bool ifNext() {
 
         token = getNextToken();
 
-        if (token != EOL) {
-            printErrMsg(ERROR_SYNTAX, "");
+        if (!eol(token)) {
             return false;
         }
 
         last++;
         tree[last] = token;
 
-        if(!statement()){
+        if (!statement()) {
             return false;
         }
 
@@ -691,7 +819,9 @@ bool ifNext() {
 
     } else {
 
-        printErrMsg(ERROR_SYNTAX, ""); //TODO
+        printErrMsg(ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
@@ -712,18 +842,18 @@ bool elseIf() {
 
 
     if (token != THEN) {
-        printErrMsg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "'Then' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
 
     last++;
     tree[last] = token;
-
 
     token = getNextToken();
 
-    if (token != EOL) {
-        printErrMsg(ERROR_SYNTAX, "");
+    if (!eol(token)) {
         return false;
     }
 
@@ -731,7 +861,7 @@ bool elseIf() {
     tree[last] = token;
 
 
-    if(!statement()) {
+    if (!statement()) {
         return false;
     }
 
@@ -752,7 +882,7 @@ bool elseIfNext() {
 
     int token = tree[last];
 
-    if(token == ELSEIF) {
+    if (token == ELSEIF) {
 
         if (!elseIf()) {
             return false;
@@ -765,7 +895,6 @@ bool elseIfNext() {
 
         } else {
 
-            printErrMsg(ERROR_SYNTAX, "");
             return false;
         }
 
@@ -787,6 +916,9 @@ bool ifNextFollow(int token) {
 
         return true;
     }
+
+    printErrMsg(ERROR_SYNTAX, "'End' was expected");
+    returnError = ERROR_SYNTAX;
 
     return false;
 }
@@ -811,62 +943,28 @@ bool statementFollow(int token) {
 /**
  * @copydoc end
  */
-bool end() {
-    int token = getNextToken();
-
+bool end(int token) {
 
     if (token != END) {
-        printErrMsg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "'End' was expected");
+        returnError = ERROR_SYNTAX;
+
         return false;
     }
-
-    last++;
-    tree[last] = token;
 
     return true;
 }
 
 
 /**
- * @copydoc printNext
+ * @copydoc eol
  */
-bool printNext() {
+bool eol(int token) {
 
-    int token = getNextToken();
+    if (token != EOL) {
+        printErrMsg(ERROR_SYNTAX, "'End-Of-Line' was expected");
+        returnError = ERROR_SYNTAX;
 
-    if (token == EOL) {
-        last++;
-        tree[last] = token;
-
-        return true;
-    }
-
-
-    if (expressionFirst(token)) {
-        last++;
-        tree[last] = token;
-
-        if (!expression()) {
-            return false;
-        }
-    } else {
-        printErrMsg(ERROR_SYNTAX, "");
-        return false;
-
-    }
-
-    token = getNextToken();
-
-    if (token != SEMICOLON) {
-        printErrMsg(ERROR_SYNTAX, "");
-        return false;
-    }
-
-    last++;
-    tree[last] = token;
-
-
-    if (!printNext()) {
         return false;
     }
 
@@ -880,10 +978,13 @@ bool printNext() {
 bool varDeclaration() {
     int token;
 
-    token = getNextToken();
+    //Here parser expects that identifier can be wrong formatted
+    if(!nextToken(&token)) {
+        return false;
+    }
 
     if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
         return false;
     }
 
@@ -911,7 +1012,7 @@ bool assignment() {
     if (tree[last] != ASSIGNMENT) {
         token = getNextToken();
 
-        if (token == EOL) {
+        if (eol(token)) {
             last++;
             tree[last] = token;
 
@@ -927,7 +1028,10 @@ bool assignment() {
                 return false;
 
         } else {
-            printErrMsg(ERROR_SYNTAX, "");
+
+            printErrMsg(ERROR_SYNTAX, "Assignment was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
     } else {
@@ -976,7 +1080,9 @@ bool assignmentMark() {
 
         if (token != ASSIGNMENT) {
             if (!expressionFirst(token)) {
-                printErrMsg(ERROR_SYNTAX, "");
+                printErrMsg(ERROR_SYNTAX, ""); //TODO - expression is not done
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
@@ -1002,6 +1108,7 @@ bool assignmentMark() {
 bool params() {
     //int token = getNextToken();
 
+    //dont know what this 'todo' is for
     //if() TODO
 
 
@@ -1046,7 +1153,7 @@ bool expression() {
  * @copydoc  expressionFirst
  */
 bool expressionFirst(int token) {
-     //TODO - delete after implementation this function
+    //TODO - delete after implementation this function
     token = token + 1;
     return true;
 }
@@ -1057,7 +1164,6 @@ bool expressionFirst(int token) {
  */
 bool mainBody() {
 
-
     if (!mainBodyIt())
         return false;
 
@@ -1067,9 +1173,14 @@ bool mainBody() {
     }
 
     if (tree[last] != END) {
-        if (!end()) {
+        int token = getNextToken();
+
+        if (!end(token)) {
             return false;
         }
+
+        last++;
+        tree[last] = token;
     }
 
     if (!mainBodyIt())
@@ -1090,7 +1201,7 @@ bool mainBodyIt() {
         token = getNextToken();
 
         if (token != SCOPE) {
-            printErrMsg(ERROR_SYNTAX, "ahojky");
+            printErrMsg(ERROR_SYNTAX, "'Scope' was expected");
             return false;
         }
 
@@ -1101,8 +1212,7 @@ bool mainBodyIt() {
 
     token = getNextToken();
 
-    if (token != EOL) {
-        printErrMsg(ERROR_SYNTAX, "ahoj");
+    if (!eol(token)) {
         return false;
     }
 
@@ -1111,19 +1221,3 @@ bool mainBodyIt() {
 
     return true;
 }
-
-/*
-bool end_token() {
-    if (getNextToken() == END) {
-        // TODO insert into derivation tree
-        return true;
-    }
-
-    return false;
-}
-
-//bool eol_token() {
-    //if (getNextToken() == EOL) TODO
-  //  return true;
-//}
-*/

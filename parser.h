@@ -11,7 +11,28 @@
 #include "scanner.h"
 #include "error_codes.h"
 
-int tree[200];
+
+int tree[200];          // array for debugging TODO delete after
+
+bool inFunction;        // flag for checking if parser is in body of function (for return statement)
+int tokenGlob;          // global variable where is stored last token for check
+int returnError;    // global variable where is stored error code
+
+
+/**
+ *
+ * @return
+ */
+int parse();
+
+
+/**
+ *
+ * @return
+ */
+bool nextToken(int *returnToken);
+
+
 /**
  *
  * @return
@@ -177,6 +198,13 @@ bool printNext();
  * @return
  */
 bool end();
+
+
+/**
+ *
+ * @return
+ */
+bool eol();
 
 
 /**
