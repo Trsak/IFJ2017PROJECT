@@ -14,8 +14,9 @@
  *
  */
 enum ERROR_CODES {
+	ERROR_LEXICAL = 1,
 	ERROR_SYNTAX = 2,
-	ERROR_FILE = 5
+	ERROR_FILE = 5,
 };
 
 /**
