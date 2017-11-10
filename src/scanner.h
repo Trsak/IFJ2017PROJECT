@@ -90,7 +90,7 @@ extern char *keyWords[];
 #define LEX_ERROR -1
 
 /**
- * @param FILE - this is an input file in IFJ2017 language.
+ * @param f - this is an input file in IFJ2017 language.
  *
  * Gets input file from main and initialise global variable.
  */
