@@ -11,7 +11,7 @@
 #include "scanner.h"
 #include "error_codes.h"
 
-
+int tree[200];
 /**
  *
  * @return

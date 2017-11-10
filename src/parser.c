@@ -12,8 +12,7 @@
 
 
 int tokenGlob;
-static int tree[200];
-static int last = -1;
+int last = -1;
 
 
 /**
@@ -38,6 +37,7 @@ bool program() {
 
         last++;
         tree[last] = token;
+
 
         if (!functions())
             return false;
@@ -74,24 +74,29 @@ bool functions() {
 
     if (token != DECLARE) {
 
-
         if (token != FUNCTION) {
             printErrMsg(ERROR_SYNTAX, "DECLARE or FUNCTION was expected");
             return false;
         }
 
-        if (!functionHeader())
+
+        if (!functionHeader()) {
             return false;
+        }
 
         //TODO return
-        if (!statement())
+        if (!statement()) {
             return false;
+        }
 
-        if (!functionEnd())
+        if (!functionEnd()) {
             return false;
+        }
 
-        if (!functionNext())
+        if (!functionNext()) {
             return false;
+        }
+
 
         return true;
     }
@@ -117,6 +122,7 @@ bool functionHeader() {
     if (tree[last] != FUNCTION) {
         token = getNextToken();
 
+
         if (token != FUNCTION) { // TODO skip this condition if token is in the tree DO-NOT-KNOW
             printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
             return false;
@@ -129,7 +135,7 @@ bool functionHeader() {
     token = getNextToken();
 
     if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "Identifier was expected");
         return false;
     }
 
@@ -140,7 +146,7 @@ bool functionHeader() {
 
     if (!functionAsFirst(token)) {
         if (!functionItFirst(token)) {
-            printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+            printErrMsg(ERROR_SYNTAX, "'(' was expected");
             return false;
         }
 
@@ -190,7 +196,7 @@ bool functionIt() {
     int token = getNextToken();
 
     if (token != BRACKET_RIGHT) {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - err msg
+        printErrMsg(ERROR_SYNTAX, "pico"); //TODO - err msg
         return false;
     }
 
@@ -252,8 +258,12 @@ bool functionAs() {
  * @copydoc functionNext
  */
 bool functionNext() {
+    int token;
 
-    int token = getNextToken();
+    do
+        token = getNextToken();
+    while (token == 10);
+
 
     if (functionFollow(token)) {
         last++;
@@ -264,7 +274,7 @@ bool functionNext() {
 
 
     if (!functionFirst(token)) {
-        printErrMsg(ERROR_SYNTAX, "");  //TODO - add err msg
+        printErrMsg(ERROR_SYNTAX, "ahoj");  //TODO - add err msg
 
         return false;
     }
@@ -1036,8 +1046,8 @@ bool expression() {
  * @copydoc  expressionFirst
  */
 bool expressionFirst(int token) {
-    printf("%d", token); //TODO - delete after implementation this function
-
+     //TODO - delete after implementation this function
+    token = token + 1;
     return true;
 }
 
@@ -1080,7 +1090,7 @@ bool mainBodyIt() {
         token = getNextToken();
 
         if (token != SCOPE) {
-            printErrMsg(ERROR_SYNTAX, "");
+            printErrMsg(ERROR_SYNTAX, "ahojky");
             return false;
         }
 
@@ -1092,7 +1102,7 @@ bool mainBodyIt() {
     token = getNextToken();
 
     if (token != EOL) {
-        printErrMsg(ERROR_SYNTAX, "");
+        printErrMsg(ERROR_SYNTAX, "ahoj");
         return false;
     }
 
