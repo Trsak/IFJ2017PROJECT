@@ -30,7 +30,7 @@ test: run_tests clean_tests
 
 .PHONY: pack
 pack:
-    @echo "\033[92mHello World\033[0m"
+	@echo "\033[92mHello World\033[0m"
 
 $(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
