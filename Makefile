@@ -29,7 +29,7 @@ all: $(TARGET) clean
 pack: test $(TARGET) clean
 pack:
 	@echo "\033[0;33mCreating .zip file...\033[0m"
-	find $(SRCDIR) -maxdepth 1 -name '*.c' -o -name '*.h' -o -name 'rozdeleni' -o -name 'rozsireni' | zip $(LEADER).zip -@
+	@find $(SRCDIR) -maxdepth 1 -name '*.c' -o -name '*.h' -o -name 'rozdeleni' -o -name 'rozsireni' | zip $(LEADER).zip -@
 	@echo "\032[0;33mFile $(LEADER).zip created!\033[0m"
 	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
 
