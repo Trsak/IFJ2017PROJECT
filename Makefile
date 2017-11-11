@@ -1,5 +1,6 @@
 TARGET   = ifj2017
 TRG_TEST = tests
+LEADER   = xbartl06
 
 SRCDIR   = .
 TESTDIR  = test
@@ -26,6 +27,10 @@ all: $(TARGET) clean
 
 .PHONY: test
 test: run_tests clean_tests
+
+.PHONY: pack
+pack:
+    @echo "\033[92mHello World\033[0m"
 
 $(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
