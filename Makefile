@@ -29,14 +29,11 @@ all: $(TARGET) clean
 pack:
 	@echo "\034[0;33m1. Running unit tests...\033[0m"
 	@echo "-----------------------------------------"
-pack: test
-pack:
+	test
 	@echo "\034[0;33m2. Trying to build the project...\033[0m"
-pack: $(TARGET)
-pack:
+	$(TARGET)
 	@echo "\034[0;33m3. Removing binary file...\033[0m"
-pack: clean
-pack:
+	clean
 	@echo "\034[0;33m4. Removing binary file...\033[0m"
 
 .PHONY: test
