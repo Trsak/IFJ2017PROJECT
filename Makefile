@@ -21,7 +21,7 @@ SRC_TEST = \
   $(wildcard $(TESTDIR)/src/*.c) \
   $(filter-out $(SRCDIR)/main.c, $(SOURCES)) \
   $(wildcard $(TESTDIR)/*.c)
-INC_DIRS = -Isrc -I$(TESTDIR)/src
+INC_DIRS = -I$(SRCDIR) -I$(TESTDIR)/src
 
 all: $(TARGET) clean
 
@@ -34,11 +34,10 @@ test: run_tests clean_tests
 
 $(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
-	@echo "\033[0;33mTest...\033[0m"
+	@echo "\033[0;33mBinary file created...\033[0m"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo "\033[0;33mTeste...\033[0m"
 
 .PHONY: run_tests
 run_tests: CFLAGS = -std=c99 -Wall -Wextra -s
