@@ -27,7 +27,17 @@ all: $(TARGET) clean
 
 .PHONY: pack
 pack:
-	@echo "\033[0;33mRunning unit tests...\033[0m"
+	@echo "\034[0;33m1. Running unit tests...\033[0m"
+	@echo "-----------------------------------------"
+pack: test
+pack:
+	@echo "\034[0;33m2. Trying to build the project...\033[0m"
+pack: $(TARGET)
+pack:
+	@echo "\034[0;33m3. Removing binary file...\033[0m"
+pack: clean
+pack:
+	@echo "\034[0;33m4. Removing binary file...\033[0m"
 
 .PHONY: test
 test: run_tests clean_tests
