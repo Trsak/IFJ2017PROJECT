@@ -26,15 +26,7 @@ INC_DIRS = -I$(SRCDIR) -I$(TESTDIR)/src
 all: $(TARGET) clean
 
 .PHONY: pack
-pack:
-	@echo "\034[0;33m1. Running unit tests...\033[0m"
-	@echo "-----------------------------------------"
-	test
-	@echo "\034[0;33m2. Trying to build the project...\033[0m"
-	$(TARGET)
-	@echo "\034[0;33m3. Removing binary file...\033[0m"
-	clean
-	@echo "\034[0;33m4. Removing binary file...\033[0m"
+pack: test $(TARGET) clean
 
 .PHONY: test
 test: run_tests clean_tests
