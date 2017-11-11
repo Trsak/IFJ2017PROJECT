@@ -27,6 +27,11 @@ all: $(TARGET) clean
 
 .PHONY: pack
 pack: test $(TARGET) clean
+pack:
+	@echo "\033[0;33mCreating .zip file...\033[0m"
+	find $(SRCDIR) -name '*.c' -o -name '*.h' -o -name 'rozdeleni' -o -name 'rozsireni' -maxdepth 1 | zip $(LEADER).zip -@
+	@echo "\032[0;33mFile $(LEADER).zip created!\033[0m"
+	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
 
 .PHONY: test
 test: run_tests clean_tests
@@ -60,6 +65,7 @@ clean:
 
 .PHONY: remove
 remove: clean
-	@echo "\033[0;33mRemoving binary file...\033[0m"
+	@echo "\033[0;33mRemoving all generated files...\033[0m"
 	@$(rm) $(TARGET)
-	@echo "\033[0;32mBinary file removed!\033[0m"
+	@$(rm) $(LEADER).zip
+	@echo "\033[0;32mAll generated files removed!\033[0m"
