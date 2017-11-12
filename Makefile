@@ -71,6 +71,7 @@ clean:
 
 .PHONY: remove
 remove: clean
+remove:
 	@echo "\033[0;33mRemoving all generated files...\033[0m"
 	@$(rm) $(TARGET)
 	@$(rm) $(LEADER).zip
