@@ -7,6 +7,7 @@
 
 struct AllAllocations gcGlobal;
 
+
 void *gcmalloc(unsigned size) {
 	if(gcGlobal.firstItem->ptr == NULL && gcGlobal.firstItem == gcGlobal.lastItem) {
 		gcGlobal.lastItem->ptr = malloc(size);
@@ -22,6 +23,7 @@ void *gcmalloc(unsigned size) {
 	return gcGlobal.lastItem->ptr;
 }
 
+
 void *gcrealloc(void *ptr, unsigned size) {
 	struct AllocatingItem *temp = gcGlobal.firstItem;
 
@@ -34,6 +36,7 @@ void *gcrealloc(void *ptr, unsigned size) {
 	}
 	return NULL;
 }
+
 
 void gcfree(void *ptr) {
 	struct AllocatingItem *temp = gcGlobal.firstItem;
@@ -70,6 +73,7 @@ void gcfree(void *ptr) {
 	ptr = NULL;
 }
 
+
 void gcInit() {
 	gcGlobal.firstItem = malloc(sizeof(struct AllocatingItem));
 	gcGlobal.firstItem->ptr = NULL;
@@ -80,6 +84,7 @@ void gcInit() {
 
 	//TODO: treeInit(gcGlobal.binTree);
 }
+
 
 void gcFreeAll() {
 	struct AllocatingItem *temp = gcGlobal.firstItem;
