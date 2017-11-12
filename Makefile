@@ -26,10 +26,10 @@ INC_DIRS = -I$(SRCDIR) -I$(TESTDIR)/src
 all: $(TARGET) clean
 
 .PHONY: pack
-pack: test $(TARGET) clean
+pack: test $(TARGET) remove
 pack:
 	@echo "\033[0;33mCreating .zip file...\033[0m"
-	@find $(SRCDIR) -maxdepth 1 -name '*.c' -o -name '*.h' -o -name 'rozdeleni' -o -name 'rozsireni' | zip $(LEADER).zip -@
+	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni
 	@echo "\032[0;33mFile $(LEADER).zip created!\033[0m"
 	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
 
