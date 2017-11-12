@@ -7,6 +7,8 @@
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
+#include "strings.h"
+
 typedef enum {
     ID, // _ or ABC_abc95
     NUMBER, // int value 123456

@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include "scanner.h"
-#include "strings.h"
 #include "error_codes.h"
 #include "symtable.h"
 
