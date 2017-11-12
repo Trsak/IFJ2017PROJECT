@@ -33,7 +33,7 @@ pack:
 	@echo "\033[0;32mZip archive created!\033[0m"
 	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
 	@chmod +x $(LEADER).zip
-	./is_it_ok.sh
+	./is_it_ok.sh $(LEADER).zip testdir
 
 .PHONY: test
 test: run_tests clean_tests
