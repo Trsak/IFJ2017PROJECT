@@ -78,9 +78,9 @@ typedef enum {
 } lexems;
 
 typedef struct {
-    lexems lexem;   // type of the read word
-    unsigned line;  // line counter
-    string value;   // if an ID was found, contains it's name, if it was a number it has it's value. The same with a string.
+	lexems lexem;   // type of the read word
+	unsigned line;  // line counter
+	string value;   // if an ID was found, contains it's name, if it was a number it has it's value. The same with a string.
 } token;
 
 #define EOL '\n'
