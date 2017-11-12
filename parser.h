@@ -15,8 +15,8 @@
 int tree[200];          // array for debugging TODO delete after
 
 bool inFunction;        // flag for checking if parser is in body of function (for return statement)
-int previousToken;      // global variable where is stored last token for check
 int returnError;        // global variable where is stored error code
+token PreviousToken;    // global variable where is stored last token for check
 
 
 /**
@@ -30,7 +30,7 @@ int parse();
  *
  * @return
  */
-bool nextToken(int *returnToken);
+bool nextToken(token *returnToken);
 
 
 /**
@@ -70,10 +70,10 @@ bool statement();
 
 /**
  *
- * @param token
+ * @param lexem
  * @return
  */
-bool functionFirst(int token);
+bool functionFirst(int lexem);
 
 
 /**
@@ -144,7 +144,7 @@ bool statementNext();
  * @param token
  * @return
  */
-bool statementFirst(int token);
+bool statementFirst(token Token);
 
 
 /**
@@ -158,14 +158,14 @@ bool printNext();
  *
  * @return
  */
-bool end(int token);
+bool end(token Token);
 
 
 /**
  *
  * @return
  */
-bool eol(int token);
+bool eol(token Token);
 
 
 /**
@@ -187,7 +187,7 @@ bool assignment();
  * @param token
  * @return
  */
-bool expressionFirst(int token);
+bool expressionFirst(token Token);
 
 
 /**
