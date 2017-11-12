@@ -15,8 +15,8 @@
 int tree[200];          // array for debugging TODO delete after
 
 bool inFunction;        // flag for checking if parser is in body of function (for return statement)
-int tokenGlob;          // global variable where is stored last token for check
-int returnError;    // global variable where is stored error code
+int returnError;        // global variable where is stored error code
+token PreviousToken;    // global variable where is stored last token for check
 
 
 /**
@@ -30,7 +30,7 @@ int parse();
  *
  * @return
  */
-bool nextToken(int *returnToken);
+bool nextToken(token *returnToken);
 
 
 /**
@@ -70,18 +70,10 @@ bool statement();
 
 /**
  *
- * @param token
+ * @param lexem
  * @return
  */
-bool functionFollow(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool functionFirst(int token);
+bool functionFirst(int lexem);
 
 
 /**
@@ -89,29 +81,6 @@ bool functionFirst(int token);
  * @return
  */
 bool functionHeader();
-
-
-/**
- *
- * @return
- */
-bool functionIt();
-
-
-/**
- *
- * @param token
- * @return
- */
-bool functionItFirst(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool functionAsFirst(int token);
 
 
 /**
@@ -151,14 +120,6 @@ bool declareParamsNext();
 
 /**
  *
- * @param token
- * @return
- */
-bool declareParamsFollow(int token);
-
-
-/**
- *
  * @return
  */
 bool dataType();
@@ -183,7 +144,7 @@ bool statementNext();
  * @param token
  * @return
  */
-bool statementFirst(int token);
+bool statementFirst(token Token);
 
 
 /**
@@ -197,14 +158,14 @@ bool printNext();
  *
  * @return
  */
-bool end();
+bool end(token Token);
 
 
 /**
  *
  * @return
  */
-bool eol();
+bool eol(token Token);
 
 
 /**
@@ -218,45 +179,15 @@ bool expression();
  *
  * @return
  */
-bool varDeclaration();
-
-
-/**
- *
- * @return
- */
 bool assignment();
 
 
 /**
  *
- * @return
- */
-bool assignmentMark();
-
-
-/**
- *
  * @param token
  * @return
  */
-bool assignmentMarkFirst(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool statementFollow(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool expressionFirst(int token);
+bool expressionFirst(token Token);
 
 
 /**
@@ -275,24 +206,9 @@ bool paramsNext();
 
 /**
  *
- * @param token
- * @return
- */
-bool paramsFollow(int token);
-
-
-/**
- *
  * @return
  */
 bool ifNext();
-
-
-/**
- *
- * @return
- */
-bool ifNextFollow();
 
 
 /**

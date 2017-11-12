@@ -12,7 +12,13 @@
 //TODO return statement
 //TODO function for id check
 //TODO add statement (id = expr)
+//TODO declare assignment
+//TODO rename functionAs() to something else
+//TODO comments
 
+//TODO - end function takes argument with statement of what end is expected
+
+//TODO - free every Token to avoid memory leaks
 
 #include "parser.h"
 
@@ -24,8 +30,7 @@ int last = -1; //TODO delete - only for debug
  * @copydoc parse
  */
 int parse() {
-
-    if(!program()) {
+    if (!program()) {
         return returnError;
     }
 
@@ -36,16 +41,15 @@ int parse() {
 /**
  * @copydoc nextToken
  */
-bool nextToken(int *returnToken) {
+bool nextToken(token *ReturnToken) {
+    token Token = getNextToken();
 
-    int token = getNextToken();
-
-    if (token == -1) {
+    if (Token.lexem == -1) {
         returnError = ERROR_SCANNER;
         return false;
     }
 
-    *returnToken = token;
+    *ReturnToken = Token;
 
     return true;
 }
@@ -55,31 +59,22 @@ bool nextToken(int *returnToken) {
  * @copydoc program
  */
 bool program() {
+    token Token = getNextToken();
 
-    int token;
+    if (functionFirst(Token.lexem)) {
+        PreviousToken = Token;
 
-    token = getNextToken();
-
-    if (functionFollow(token)) {
-
-        last++;
-        tree[last] = token;
-
-    } else {
-
-        if (!functionFirst(token)) {
+        if (!functions()) {
             return false;
         }
 
-        last++;
-        tree[last] = token;
-
-        if (!functions())
-            return false;
+    } else {
+        PreviousToken = Token;
     }
 
-    if (!mainBody())
+    if (!mainBody()) {
         return false;
+    }
 
     return true;
 }
@@ -88,13 +83,10 @@ bool program() {
 /**
  * @copydoc functionFirst
  */
-bool functionFirst(int token) {
-    if (token == DECLARE || token == FUNCTION)
+bool functionFirst(int lexem) {
+    if (lexem == DECLARE || lexem == FUNCTION) {
         return true;
-
-
-    printErrMsg(ERROR_SYNTAX, "Function statement was expected");
-    returnError = ERROR_SYNTAX;
+    }
 
     return false;
 }
@@ -104,24 +96,9 @@ bool functionFirst(int token) {
  * @copydoc functions
  */
 bool functions() {
+    token Token = PreviousToken;
 
-    int token = tree[last];
-
-    if (token != DECLARE && token != FUNCTION) {
-        token = getNextToken();
-    }
-
-
-    if (token != DECLARE) {
-
-        if (token != FUNCTION) {
-            printErrMsg(ERROR_SYNTAX, "'Declare' or 'Function' was expected");
-            returnError = ERROR_SYNTAX;
-
-            return false;
-        }
-
-
+    if (Token.lexem != DECLARE) {
         if (!functionHeader()) {
             return false;
         }
@@ -134,21 +111,19 @@ bool functions() {
             return false;
         }
 
-        if (!functionNext()) {
+    } else {
+        //only for debug
+        last++;
+        tree[last] = Token.lexem;
+
+        if (!functionHeader()) {
             return false;
         }
-
-
-        return true;
     }
 
-
-    if (!functionHeader())
+    if (!functionNext()) {
         return false;
-
-    if (!functionNext())
-        return false;
-
+    }
 
     return true;
 }
@@ -158,127 +133,84 @@ bool functions() {
  * @copydoc functionHeader
  */
 bool functionHeader() {
-    int token = tree[last];
+    token Token = PreviousToken;
 
-    if (token != FUNCTION) {
+    if (Token.lexem != FUNCTION) {
+        Token = getNextToken();
 
-        token = getNextToken();
-
-        if (token != FUNCTION) { // TODO skip this condition if token is in the tree DO-NOT-KNOW
+        if (Token.lexem != FUNCTION) {
             printErrMsg(ERROR_SYNTAX, "'Function' was expected");
             returnError = ERROR_SYNTAX;
 
             return false;
         }
-
-        last++;
-        tree[last] = token;
     }
 
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
     //Here parser expects that identifier can be wrong formatted
-    if(!nextToken(&token)) {
+    if (!nextToken(&Token)) {
         return false;
     }
 
-    if (token != ID) {
+    if (Token.lexem != ID) {
         printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
+    Token = getNextToken();
 
-    token = getNextToken();
+    if (Token.lexem != BRACKET_LEFT) {
+        printErrMsg(ERROR_SYNTAX, "'(' was expected");
+        returnError = ERROR_SYNTAX;
 
-    if (!functionAsFirst(token)) {
-        if (!functionItFirst(token)) {
-            printErrMsg(ERROR_SYNTAX, "'(' was expected");
-            returnError = ERROR_SYNTAX;
-
-            return false;
-        }
-
-        last++;
-        tree[last] = token;
-
-        if (!functionIt())
-            return false;
-
-    } else {
-
-        last++;
-        tree[last] = token;
-    }
-
-    if (!functionAs())
-        return false;
-
-
-    token = getNextToken();
-
-    if (!eol(token)) {
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
-
-    return true;
-}
-
-
-/**
- * @copydoc functionIt
- */
-bool functionIt() {
+    tree[last] = Token.lexem;
 
     if (!declareParams()) {
         return false;
     }
 
-    int token = tree[last];
+    Token = PreviousToken;
 
-    if (token == BRACKET_RIGHT)
-        return true;
-
-    token = getNextToken();
-
-    if (token != BRACKET_RIGHT) {
+    if (Token.lexem != BRACKET_RIGHT) {
         printErrMsg(ERROR_SYNTAX, "')' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
+
+    if (!functionAs()) {
+        return false;
+    }
+
+    Token = getNextToken();
+
+    if (!eol(Token)) {
+        return false;
+    }
+
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
 
     return true;
-}
-
-
-/**
- * @copydoc functionItFirst
- */
-bool functionItFirst(int token) {
-    if (token == BRACKET_LEFT)
-        return true;
-
-    return false;
-}
-
-
-/**
- * @copydoc functionAsFirst
- */
-bool functionAsFirst(int token) {
-    if (token == AS)
-        return true;
-
-    return false;
 }
 
 
@@ -286,24 +218,22 @@ bool functionAsFirst(int token) {
  * @copydoc functionAs
  */
 bool functionAs() {
+    token Token = getNextToken();
 
-    if (tree[last] != AS) {
-        int token = getNextToken();
+    if (Token.lexem != AS) {
+        printErrMsg(ERROR_SYNTAX, "'As' was expected");
+        returnError = ERROR_SYNTAX;
 
-        if (token != AS) {
-            printErrMsg(ERROR_SYNTAX, "'As' was expected");
-            returnError = ERROR_SYNTAX;
-
-            return false;
-        }
-
-        last++;
-        tree[last] = token;
-
+        return false;
     }
 
-    if (!dataType())
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
+    if (!dataType()) {
         return false;
+    }
 
     return true;
 }
@@ -313,30 +243,23 @@ bool functionAs() {
  * @copydoc functionNext
  */
 bool functionNext() {
-    int token;
+    token Token = getNextToken();
 
-    do
-        token = getNextToken();
-    while (token == 10);            //TODO - this is not nice!!!
-
-
-    if (functionFollow(token)) {
-        last++;
-        tree[last] = token;
+    if (!functionFirst(Token.lexem)) {
+        PreviousToken = Token;
 
         return true;
     }
 
+    PreviousToken = Token;
 
-    if (!functionFirst(token)) {
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
+    if (!functions()) {
         return false;
     }
-
-    last++;
-    tree[last] = token;
-
-    if (!functions())
-        return false;
 
     return true;
 }
@@ -346,53 +269,44 @@ bool functionNext() {
  * @copydoc functionEnd
  */
 bool functionEnd() {
+    token Token = PreviousToken;
 
-    int token = getNextToken();
+    if (PreviousToken.lexem != END) {
+        Token = getNextToken();
 
-    if (tree[last] != END) {
-
-        if (!end(token)) {
+        if (!end(Token)) {
             return false;
         }
-
-        last++;
-        tree[last] = token;
-
-        token = getNextToken();
     }
 
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
 
-    if (token != FUNCTION) {
+    Token = getNextToken();
+
+    if (Token.lexem != FUNCTION) {
         printErrMsg(ERROR_SYNTAX, "'Function' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
-    token = getNextToken();
+    Token = getNextToken();
 
-    if (eol(token)) {
+    if (!eol(Token)) {
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
     return true;
-}
-
-
-/**
- * @copydoc functionFollow
- */
-bool functionFollow(int token) {
-    if (token == SCOPE)
-        return true;
-
-    return false;
 }
 
 
@@ -400,33 +314,29 @@ bool functionFollow(int token) {
  * @copydoc declareParams
  */
 bool declareParams() {
-    int token;
+    token Token;
 
     //Here parser expects that identifier can be wrong formatted
-    if(!nextToken(&token)) {
+    if (!nextToken(&Token)) {
         return false;
     }
 
-    if (tree[last] != COMMA) {
+    if (Token.lexem != ID) {
+        if (PreviousToken.lexem == COMMA) {
+            printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
+            returnError = ERROR_SYNTAX;
 
-        if (declareParamsFollow(token)) {
-
-            last++;
-            tree[last] = token;
-
-            return true;
+            return false;
         }
+
+        PreviousToken = Token;
+
+        return true;
     }
 
-    if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
-        returnError = ERROR_SYNTAX;
-
-        return false;
-    }
-
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
     if (!functionAs()) {
         return false;
@@ -444,41 +354,25 @@ bool declareParams() {
  * @copydoc declareParamsNext
  */
 bool declareParamsNext() {
-    int token = getNextToken();
+    token Token = getNextToken();
 
-    if (declareParamsFollow(token)) {
-
-        last++;
-        tree[last] = token;
-
+    if (Token.lexem != COMMA) {
+        PreviousToken = Token;
         return true;
     }
 
-    if (token != COMMA) {
-        printErrMsg(ERROR_SYNTAX, "',' was expected"); //TODO - err msg
-        returnError = ERROR_SYNTAX;
+    PreviousToken = Token;
 
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
+
+    if (!declareParams()) {
         return false;
     }
-
-    last++;
-    tree[last] = token;
-
-    if (!declareParams())
-        return false;
 
     return true;
-}
-
-
-/**
- * @copydoc declareParamsFollow
- */
-bool declareParamsFollow(int token) {
-    if (token == BRACKET_RIGHT)
-        return true;
-
-    return false;
 }
 
 
@@ -486,17 +380,18 @@ bool declareParamsFollow(int token) {
  * @copydoc dataType
  */
 bool dataType() {
-    int token = getNextToken();
+    token Token = getNextToken();
 
-    if (token != INTEGER && token != DOUBLE && token != STRING) {
+    if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
         printErrMsg(ERROR_SYNTAX, "Data type was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
     return true;
 }
@@ -506,80 +401,91 @@ bool dataType() {
  * @copydoc statement
  */
 bool statement() {
-
-    int token;
+    token Token;
 
     //Here parser expects that identifier can be wrong formatted
-    if(!nextToken(&token)) {
+    if (!nextToken(&Token)) {
         return false;
     }
 
-    if (statementFollow(token)) {
-        return true;
-    }
-
-    switch (token) {
+    switch (Token.lexem) {
         case DIM:
         case STATIC:
         case SHARED:
-
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
-            if (!varDeclaration())
+            //Here parser expects that identifier can be wrong formatted
+            if (!nextToken(&Token)) {
                 return false;
+            }
+
+            if (Token.lexem != ID) {
+                printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
+                returnError = ERROR_SYNTAX;
+
+                return false;
+            }
+
+            //only for debug
+            last++;
+            tree[last] = Token.lexem;
+
+            if (!functionAs()) {
+                return false;
+            }
+
+            //if (!assignment()) { TODO
+            //   return false;
+            //}
 
             break;
 
         case INPUT:
-
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
             //Here parser expects that identifier can be wrong formatted
-            if(!nextToken(&token)) {
+            if (!nextToken(&Token)) {
                 return false;
             }
 
-            if (token != ID) {
+            if (Token.lexem != ID) {
                 printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
                 returnError = ERROR_SYNTAX;
 
                 return false;
             }
 
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
             break;
 
         case PRINT:
-
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
             if (!expression()) {
                 return false;
             }
 
-            token = getNextToken();
+            Token = getNextToken();
 
-
-            last++;
-            tree[last] = token;
-
-            token = getNextToken(); //TODO delete, only for debug  DO-NOT-KNOW
-
-
-            if (token != SEMICOLON) {
+            if (Token.lexem != SEMICOLON) {
                 printErrMsg(ERROR_SYNTAX, "';' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
             }
 
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
             if (!printNext()) {
                 return false;
@@ -587,43 +493,44 @@ bool statement() {
 
             break;
 
-
         case DO:
-
+            //only for bebug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
-            token = getNextToken();
+            Token = getNextToken();
 
-            if (token != WHILE) {
+            if (Token.lexem != WHILE) {
                 printErrMsg(ERROR_SYNTAX, "'While' was expected");
+                returnError = ERROR_SYNTAX;
+
                 return false;
             }
 
+            //only for bebug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
-            if (!expression()) {
+            if (!expression()) { //TODO - expression
                 return false;
             }
 
-            token = getNextToken();
+            Token = getNextToken();
 
-            if(!eol(token)) {
+            if (!eol(Token)) {
                 return false;
             }
-
-            last++;
-            tree[last] = token;
 
             if (!statement()) {
                 return false;
             }
 
-            token = getNextToken();
+            Token = PreviousToken;
 
-            if (tree[last] != LOOP) {
-                if (token != LOOP) {
+            if (Token.lexem != LOOP) {
+                Token = getNextToken();
+
+                if (Token.lexem != LOOP) {
                     printErrMsg(ERROR_SYNTAX, "'Loop' was expected");
                     returnError = ERROR_SYNTAX;
 
@@ -631,98 +538,103 @@ bool statement() {
                 }
             }
 
+            //only for bebug
             last++;
-            tree[last] = token;
-
+            tree[last] = Token.lexem;
 
             break;
 
-
         case IF:
-
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
             if (!expression()) {
                 return false;
             }
 
-            token = getNextToken();
+            Token = getNextToken();
 
-            if (token != THEN) {
+            if (Token.lexem != THEN) {
                 printErrMsg(ERROR_SYNTAX, "'Then' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
             }
 
+            //only for debug
             last++;
-            tree[last] = token;
+            tree[last] = Token.lexem;
 
-            token = getNextToken();
+            Token = getNextToken();
 
-            if (!eol(token)) {
+            if (!eol(Token)) {
                 return false;
             }
 
+            //only for debug
             last++;
-            tree[last] = token;
-
+            tree[last] = Token.lexem;
 
             if (!statement()) {
                 return false;
             }
 
-
             if (!ifNext()) {
                 return false;
             }
 
+            Token = PreviousToken;
 
-            if (tree[last] != END) {
-                token = getNextToken();
+            if (Token.lexem != END) {
+                Token = getNextToken();
 
-                if (!end(token)) {
+                if (!end(Token)) {
                     return false;
                 }
-
-                last++;
-                tree[last] = token;
             }
 
-            token = getNextToken();
+            //only for debug
+            last++;
+            tree[last] = Token.lexem;
 
+            Token = getNextToken();
 
-            if (token != IF) {
+            if (Token.lexem != IF) {
                 printErrMsg(ERROR_SYNTAX, "'If' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
             }
 
+            //only for debug
             last++;
-            tree[last] = token;
-
+            tree[last] = Token.lexem;
 
             break;
 
+        default:
+            PreviousToken = Token;
+            return true;
     }
 
-    if (tree[last] != EOL) {
-        token = getNextToken();
+    Token = PreviousToken;
 
-        if (!eol(token)) {
+    if (Token.lexem != EOL) {
+        Token = getNextToken();
+
+        if (!eol(Token)) {
             return false;
         }
-
-        last++;
-        tree[last] = token;
     }
 
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
 
-    if (!statement())
+    if (!statement()) {
         return false;
-
+    }
 
     return true;
 }
@@ -732,45 +644,31 @@ bool statement() {
  * @copydoc printNext
  */
 bool printNext() {
+    token Token = getNextToken();
 
-    int token = getNextToken();
-
-    if (eol(token)) {
-        last++;
-        tree[last] = token;
-
+    if (Token.lexem == EOL) {
+        PreviousToken = Token;
         return true;
     }
 
-
-    if (expressionFirst(token)) {
-        last++;
-        tree[last] = token;
-
-        if (!expression()) {
+    if (Token.lexem == 999) {
+        if (!expression()) {        //TODO - delete because expression
             return false;
         }
-
-    } else {
-        printErrMsg(ERROR_SYNTAX, ""); //TODO - it's expression and that's not done yet
-        returnError = ERROR_SYNTAX;
-
-        return false;
-
     }
 
-    token = getNextToken();
+    Token = getNextToken();
 
-    if (token != SEMICOLON) {
+    if (Token.lexem != SEMICOLON) {
         printErrMsg(ERROR_SYNTAX, "';' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
-
+    tree[last] = Token.lexem;
 
     if (!printNext()) {
         return false;
@@ -784,45 +682,36 @@ bool printNext() {
  * @copydoc ifNext
  */
 bool ifNext() {
+    token Token = PreviousToken;
 
-    int token = tree[last];
+    if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
+        printErrMsg(ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
+        returnError = ERROR_SYNTAX;
 
-
-    if (token != ELSE && token != ELSEIF) {
-        token = getNextToken();
-
-        if (ifNextFollow(token)) {
-            return true;
-        }
+        return false;
     }
 
-    if (token == ELSE) {
+    if (Token.lexem == ELSE) {
+        Token = getNextToken();
 
-        token = getNextToken();
-
-        if (!eol(token)) {
+        if (!eol(Token)) {
             return false;
         }
 
+        //only for debug
         last++;
-        tree[last] = token;
+        tree[last] = Token.lexem;
+
 
         if (!statement()) {
             return false;
         }
 
-    } else if (token == ELSEIF) {
-
+    } else {
+        //Always will be ELSEIF
         if (!elseIf()) {
             return false;
         }
-
-    } else {
-
-        printErrMsg(ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
-        returnError = ERROR_SYNTAX;
-
-        return false;
     }
 
     return true;
@@ -833,43 +722,41 @@ bool ifNext() {
  * @copydoc elseIf
  */
 bool elseIf() {
-
     if (!expression()) {
         return false;
     }
 
-    int token = getNextToken();
+    token Token = getNextToken();
 
-
-    if (token != THEN) {
+    if (Token.lexem != THEN) {
         printErrMsg(ERROR_SYNTAX, "'Then' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
-    token = getNextToken();
+    Token = getNextToken();
 
-    if (!eol(token)) {
+    if (!eol(Token)) {
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
 
     if (!statement()) {
         return false;
     }
 
-
     if (!elseIfNext()) {
         return false;
     }
-
 
     return true;
 }
@@ -879,26 +766,15 @@ bool elseIf() {
  * @copydoc elseIfNext
  */
 bool elseIfNext() {
+    token Token = PreviousToken;
 
-    int token = tree[last];
-
-    if (token == ELSEIF) {
-
+    if (Token.lexem == ELSEIF) {
         if (!elseIf()) {
             return false;
         }
 
     } else {
-
-        if (ifNextFollow(token)) {
-            return true;
-
-        } else {
-
-            return false;
-        }
-
-
+        return true;
     }
 
     return true;
@@ -906,46 +782,10 @@ bool elseIfNext() {
 
 
 /**
- * @copydoc ifNextFollow
- */
-bool ifNextFollow(int token) {
-    if (token == END) {
-
-        last++;
-        tree[last] = token;
-
-        return true;
-    }
-
-    printErrMsg(ERROR_SYNTAX, "'End' was expected");
-    returnError = ERROR_SYNTAX;
-
-    return false;
-}
-
-
-/**
- * @copydoc statementFollow
- */
-bool statementFollow(int token) {
-    if (token == END || token == LOOP || token == ELSE || token == ELSEIF) {
-
-        last++;
-        tree[last] = token;
-
-        return true;
-    }
-
-    return false;
-}
-
-
-/**
  * @copydoc end
  */
-bool end(int token) {
-
-    if (token != END) {
+bool end(token Token) {
+    if (Token.lexem != END) {
         printErrMsg(ERROR_SYNTAX, "'End' was expected");
         returnError = ERROR_SYNTAX;
 
@@ -959,9 +799,8 @@ bool end(int token) {
 /**
  * @copydoc eol
  */
-bool eol(int token) {
-
-    if (token != EOL) {
+bool eol(token Token) {
+    if (Token.lexem != EOL) {
         printErrMsg(ERROR_SYNTAX, "'End-Of-Line' was expected");
         returnError = ERROR_SYNTAX;
 
@@ -973,131 +812,31 @@ bool eol(int token) {
 
 
 /**
- * @copydoc varDeclaration
- */
-bool varDeclaration() {
-    int token;
-
-    //Here parser expects that identifier can be wrong formatted
-    if(!nextToken(&token)) {
-        return false;
-    }
-
-    if (token != ID) {
-        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
-        return false;
-    }
-
-    last++;
-    tree[last] = token;
-
-    if (!functionAs()) {
-        return false;
-    }
-
-    if (!assignment()) {
-        return false;
-    }
-
-    return true;
-}
-
-
-/**
  * @copydoc assignment
  */
 bool assignment() {
-    int token;
+    /*
+    int token = getNextToken();
 
-    if (tree[last] != ASSIGNMENT) {
-        token = getNextToken();
+    printf("%d\n\n\n", token);
 
-        if (eol(token)) {
-            last++;
-            tree[last] = token;
+    if (token != ASSIGNMENT && token != PLUS_ASSIGNMENT && token != MINUS_ASSIGNMENT &&
+        token != BACKSLASH_ASSIGNMENT && token != DIVISION_ASSIGNMENT && token != MULTIPLY_ASSIGNMENT) {
 
-            return true;
-        }
+        printf("Ahoj");
+        PreviousToken = token;
 
-
-        if (assignmentMarkFirst(token)) {
-            last++;
-            tree[last] = token;
-
-            if (!assignmentMark())
-                return false;
-
-        } else {
-
-            printErrMsg(ERROR_SYNTAX, "Assignment was expected");
-            returnError = ERROR_SYNTAX;
-
-            return false;
-        }
-    } else {
-
-        if (!assignmentMark())
-            return false;
-    }
-
-
-    token = getNextToken();
-    last++;
-    tree[last] = token; //TODO delete this ... only for debuging (expression)
-
-
-    if (!expression())
-        return false;
-
-    return true;
-}
-
-
-/**
- * @copydoc assignmentMarkFirst
- */
-bool assignmentMarkFirst(int token) {
-    if (token == ASSIGNMENT || token == PLUS || token == MINUS ||
-        token == MULTIPLY || token == DIVISION || token == BACKSLASH)
         return true;
-
-
-    return false;
-}
-
-
-/**
- * @copydoc assignmentMark
- */
-bool assignmentMark() {
-    int token = tree[last];
-
-
-    if (token == PLUS || token == MINUS ||
-        token == MULTIPLY || token == DIVISION || token == BACKSLASH) {
-
-        token = getNextToken();
-
-        if (token != ASSIGNMENT) {
-            if (!expressionFirst(token)) {
-                printErrMsg(ERROR_SYNTAX, ""); //TODO - expression is not done
-                returnError = ERROR_SYNTAX;
-
-                return false;
-            }
-
-            last++;
-            tree[last] = token; //TODO concatenate these two tokens
-
-            return true;
-
-        }
-
-        last++;
-        tree[last] = token;
     }
 
+    //only for debug
+    last++;
+    tree[last] = token;
 
+    if (!expression()) {
+        return false;
+    }
+    */
     return true;
 }
 
@@ -1106,38 +845,12 @@ bool assignmentMark() {
  * @copydoc params
  */
 bool params() {
-    //int token = getNextToken();
-
-    //dont know what this 'todo' is for
-    //if() TODO
-
+    //TODO
 
     if (!expression())
         return false;
 
-    if (!paramsNext())
-        return false;
-
     return true;
-}
-
-
-/**
- * @copydoc paramsNext
- */
-bool paramsNext() {
-    return true;
-}
-
-
-/**
- * @copydoc paramsFollow
- */
-bool paramsFollow(int token) {
-    if (token == BRACKET_RIGHT)
-        return true;
-
-    return false;
 }
 
 
@@ -1145,6 +858,13 @@ bool paramsFollow(int token) {
  * @copydoc expression
  */
 bool expression() {
+    //TODO expressions are not done ... delete this after
+    token Token = getNextToken();
+
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
     return true;
 }
 
@@ -1152,9 +872,9 @@ bool expression() {
 /**
  * @copydoc  expressionFirst
  */
-bool expressionFirst(int token) {
+bool expressionFirst(token Token) {
     //TODO - delete after implementation this function
-    token = token + 1;
+    Token.lexem = Token.lexem + 1;
     return true;
 }
 
@@ -1163,29 +883,31 @@ bool expressionFirst(int token) {
  * @copydoc mainBody
  */
 bool mainBody() {
-
-    if (!mainBodyIt())
+    if (!mainBodyIt()) {
         return false;
-
+    }
 
     if (!statement()) {
         return false;
     }
 
-    if (tree[last] != END) {
-        int token = getNextToken();
+    token Token = PreviousToken;
 
-        if (!end(token)) {
+    if (Token.lexem != END) {
+        Token = getNextToken();
+
+        if (!end(Token)) {
             return false;
         }
-
-        last++;
-        tree[last] = token;
     }
 
-    if (!mainBodyIt())
-        return false;
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
 
+    if (!mainBodyIt()) {
+        return false;
+    }
 
     return true;
 }
@@ -1195,29 +917,35 @@ bool mainBody() {
  * @copydoc mainBodyIt
  */
 bool mainBodyIt() {
-    int token = tree[last];
+    token Token = PreviousToken;
 
-    if (token != SCOPE) {
-        token = getNextToken();
+    if (PreviousToken.lexem != SCOPE) {
+        Token = getNextToken();
 
-        if (token != SCOPE) {
+        if (Token.lexem != SCOPE) {
             printErrMsg(ERROR_SYNTAX, "'Scope' was expected");
+            returnError = ERROR_SYNTAX;
+
             return false;
         }
 
-        last++;
-        tree[last] = token;
+    } else {
+        PreviousToken.lexem = 1000; // TODO
     }
 
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
 
-    token = getNextToken();
+    Token = getNextToken();
 
-    if (!eol(token)) {
+    if (!eol(Token)) {
         return false;
     }
 
+    //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
     return true;
 }
