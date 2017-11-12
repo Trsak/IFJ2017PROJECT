@@ -15,8 +15,8 @@
 int tree[200];          // array for debugging TODO delete after
 
 bool inFunction;        // flag for checking if parser is in body of function (for return statement)
-int tokenGlob;          // global variable where is stored last token for check
-int returnError;    // global variable where is stored error code
+int previousToken;      // global variable where is stored last token for check
+int returnError;        // global variable where is stored error code
 
 
 /**
@@ -73,14 +73,6 @@ bool statement();
  * @param token
  * @return
  */
-bool functionFollow(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
 bool functionFirst(int token);
 
 
@@ -89,29 +81,6 @@ bool functionFirst(int token);
  * @return
  */
 bool functionHeader();
-
-
-/**
- *
- * @return
- */
-bool functionIt();
-
-
-/**
- *
- * @param token
- * @return
- */
-bool functionItFirst(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool functionAsFirst(int token);
 
 
 /**
@@ -147,14 +116,6 @@ bool declareParams();
  * @return
  */
 bool declareParamsNext();
-
-
-/**
- *
- * @param token
- * @return
- */
-bool declareParamsFollow(int token);
 
 
 /**
@@ -197,14 +158,14 @@ bool printNext();
  *
  * @return
  */
-bool end();
+bool end(int token);
 
 
 /**
  *
  * @return
  */
-bool eol();
+bool eol(int token);
 
 
 /**
@@ -218,37 +179,7 @@ bool expression();
  *
  * @return
  */
-bool varDeclaration();
-
-
-/**
- *
- * @return
- */
 bool assignment();
-
-
-/**
- *
- * @return
- */
-bool assignmentMark();
-
-
-/**
- *
- * @param token
- * @return
- */
-bool assignmentMarkFirst(int token);
-
-
-/**
- *
- * @param token
- * @return
- */
-bool statementFollow(int token);
 
 
 /**
@@ -275,24 +206,9 @@ bool paramsNext();
 
 /**
  *
- * @param token
- * @return
- */
-bool paramsFollow(int token);
-
-
-/**
- *
  * @return
  */
 bool ifNext();
-
-
-/**
- *
- * @return
- */
-bool ifNextFollow();
 
 
 /**
