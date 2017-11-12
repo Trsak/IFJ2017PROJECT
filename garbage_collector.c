@@ -5,7 +5,12 @@
 
 #include "garbage_collector.h"
 
-struct AllAllocations gcGlobal;
+struct GCGlobal gcGlobal;
+
+
+void signalHandler(int signal) {
+	exit(ERROR_INTERNAL);
+}
 
 
 void *gcmalloc(unsigned size) {
@@ -32,7 +37,7 @@ void *gcrealloc(void *ptr, unsigned size) {
 			temp->ptr = realloc(temp->ptr, size);
 			return temp->ptr;
 		}
-		temp->next;
+		temp = temp->next;
 	}
 	return NULL;
 }
@@ -83,6 +88,10 @@ void gcInit() {
 	//TODO: stackInit(gcGlobal.stack);
 
 	//TODO: treeInit(gcGlobal.binTree);
+
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	atexit(gcFreeAll);
 }
 
 
@@ -104,12 +113,14 @@ void main() {
 	int *integer = (int *) gcmalloc(sizeof(int));
 	char *string2 = (char *) gcmalloc(485 * sizeof(char));
 
-	string = gcrealloc(string, 2000 * sizeof(char));
+	integer = gcrealloc(integer, sizeof(int));
 
 	gcfree(string);
 
 	*integer = 42;
+	/*
 	printf("%d\n", *integer);
-
-	gcFreeAll();
+	for (int i = 0; i < 1000000000; ++i) {
+		NULL;
+	}
 }*/

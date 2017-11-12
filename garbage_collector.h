@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include "error_codes.h"
 //#include "symtable.h"
 
 /**
@@ -36,6 +38,13 @@ struct GCGlobal {
  * !You need to include "garbage_collector.h"!
  */
 extern struct GCGlobal gcGlobal;
+
+/**
+ * @brief Handle signal (SIGINT, SIGTERM) and exit program (on exit memory is cleared).
+ *
+ * @param signal Code of signal.
+ */
+void signalHandler(int signal);
 
 /**
  * @brief Function for memory allocation and add pointer into allocation list.
