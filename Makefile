@@ -75,5 +75,5 @@ remove:
 	@echo "\033[0;33mRemoving all generated files...\033[0m"
 	@$(rm) $(TARGET)
 	@$(rm) $(LEADER).zip
-	@$(rm)$(TMPDIR)
+	@$(rm) $(TMPDIR)
 	@echo "\033[0;32mAll generated files removed!\033[0m"
