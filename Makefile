@@ -4,6 +4,7 @@ LEADER   = xbartl06
 
 SRCDIR   = .
 TESTDIR  = test
+TMPDIR   = tmpdir
 OBJDIR   = .
 
 CC       = gcc
@@ -15,7 +16,7 @@ LFLAGS   = -Wall -s -I$(SRCDIR)/ -lm
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
-rm       = rm -f
+rm       = rm -rf
 
 SRC_TEST = \
   $(wildcard $(TESTDIR)/src/*.c) \
@@ -29,11 +30,14 @@ all: $(TARGET) clean
 pack: test $(TARGET) remove
 pack:
 	@echo "\033[0;33mCreating .zip file...\033[0m"
-	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni
+	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni Makefile dokumentace.pdf
 	@echo "\033[0;32mZip archive created!\033[0m"
 	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
 	@chmod +x $(LEADER).zip
-	./is_it_ok.sh $(LEADER).zip testdir
+	./is_it_ok.sh $(LEADER).zip $(TMPDIR)
+	@echo "\033[0;33mRemoving temp files...\033[0m"
+	@$(rm) $(TMPDIR)
+	@echo "\033[0;32mAll done, check for errors and warnings!\033[0m"
 
 .PHONY: test
 test: run_tests clean_tests
@@ -70,4 +74,5 @@ remove: clean
 	@echo "\033[0;33mRemoving all generated files...\033[0m"
 	@$(rm) $(TARGET)
 	@$(rm) $(LEADER).zip
+	@$(rm)$(TMPDIR)
 	@echo "\033[0;32mAll generated files removed!\033[0m"
