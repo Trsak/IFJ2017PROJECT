@@ -30,8 +30,10 @@ pack: test $(TARGET) remove
 pack:
 	@echo "\033[0;33mCreating .zip file...\033[0m"
 	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni
-	@echo "\032[0;33mFile $(LEADER).zip created!\033[0m"
+	@echo "\033[0;32mZip archive created!\033[0m"
 	@echo "\033[0;33mRunning is_it_ok.sh...\033[0m"
+	@chmod +x $(LEADER).zip
+	./is_it_ok.sh
 
 .PHONY: test
 test: run_tests clean_tests
