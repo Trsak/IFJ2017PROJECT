@@ -17,6 +17,8 @@ int main(int argc, char **argv) {
         return ERROR_INTERNAL;
     }
 
+    (void) argv;
+
     strInit(&attr);
 
     int returnValue = parse();
