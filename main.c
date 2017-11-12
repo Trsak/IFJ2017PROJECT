@@ -12,33 +12,21 @@
 #include "parser.h"
 
 int main(int argc, char **argv) {
-    FILE *f;
-
-    if (argc != 2) {
-        printErrMsg(ERROR_INTERNAL, "Bad arguments! Use /ifj2017 <file>!");
+    if (argc != 1) {
+        printErrMsg(ERROR_INTERNAL, "Bad usage! Just call ./ifj2017 without arguments!");
         return ERROR_INTERNAL;
     }
 
-    if ((f = fopen(argv[1], "r")) == NULL) {
-        printErrMsg(ERROR_INTERNAL, "File '%s' could not be opened.", argv[1]);
-        return ERROR_INTERNAL;
-    }
-
-    setSourceFile(f);
-
+    strInit(&attr);
 
     int returnValue = parse();
 
-
     //only for debug
     //TODO - delete after
-    for(int i = 0; i < 200; i++) {
+    for (int i = 0; i < 200; i++) {
         printf("%d, ", tree[i]);
     }
     printf("\n");
-
-
-    fclose(f);
 
     return returnValue;
 }
