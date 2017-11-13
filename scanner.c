@@ -70,8 +70,8 @@ token getNextToken() {
 				if (c ==
 				    EOL) { // If there are multiple EOLs, returns only one and increments line counter with every EOL
 					line++;
-					c = getchar();
-					while (isspace(c) && c != EOF) {
+					while (isspace(c)) {
+						c = getchar();
 						if (c == EOL) {
 							line++;
 						}
