@@ -9,6 +9,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include "garbage_collector.h"
 
 /**
  *
@@ -23,11 +24,11 @@ enum ERROR_CODES {
 };
 
 /**
- * @brief Printf error message with error code (number).
+ * @brief Printf error message with error code (number) and exit program.
  * @param err_code Code (number) of error.
  * @param msg String literal to print.
  * @param ... Any number of parameters, same functionality as printf.
  */
-void printErrMsg(enum ERROR_CODES errCode, const char *msg, ...);
+void printErrAndExit (enum ERROR_CODES errCode, const char *msg, ...);
 
 #endif //IFJ_ERROR_CODES_H

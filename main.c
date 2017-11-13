@@ -10,12 +10,15 @@
 #include "scanner.h"
 #include "error_codes.h"
 #include "parser.h"
+#include "garbage_collector.h"
 
 int main(int argc, char **argv) {
     if (argc != 1) {
-        printErrMsg(ERROR_INTERNAL, "Bad usage! Just call ./ifj2017 without arguments!");
+        printErrAndExit (ERROR_INTERNAL, "Bad usage! Just call ./ifj2017 without arguments!");
         return ERROR_INTERNAL;
     }
+
+    gcInit();
 
     (void) argv;
 

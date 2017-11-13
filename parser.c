@@ -139,7 +139,7 @@ bool functionHeader() {
         Token = getNextToken();
 
         if (Token.lexem != FUNCTION) {
-            printErrMsg(ERROR_SYNTAX, "'Function' was expected");
+            printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
             returnError = ERROR_SYNTAX;
 
             return false;
@@ -156,7 +156,7 @@ bool functionHeader() {
     }
 
     if (Token.lexem != ID) {
-        printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -169,7 +169,7 @@ bool functionHeader() {
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
-        printErrMsg(ERROR_SYNTAX, "'(' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'(' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -186,7 +186,7 @@ bool functionHeader() {
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
-        printErrMsg(ERROR_SYNTAX, "')' was expected");
+        printErrAndExit (ERROR_SYNTAX, "')' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -221,7 +221,7 @@ bool functionAs() {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
-        printErrMsg(ERROR_SYNTAX, "'As' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'As' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -286,7 +286,7 @@ bool functionEnd() {
     Token = getNextToken();
 
     if (Token.lexem != FUNCTION) {
-        printErrMsg(ERROR_SYNTAX, "'Function' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -323,7 +323,7 @@ bool declareParams() {
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
-            printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
+            printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
             returnError = ERROR_SYNTAX;
 
             return false;
@@ -383,7 +383,7 @@ bool dataType() {
     token Token = getNextToken();
 
     if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
-        printErrMsg(ERROR_SYNTAX, "Data type was expected");
+        printErrAndExit (ERROR_SYNTAX, "Data type was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -422,7 +422,7 @@ bool statement() {
             }
 
             if (Token.lexem != ID) {
-                printErrMsg(ERROR_SYNTAX, "'Identifier' was expected");
+                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -453,7 +453,7 @@ bool statement() {
             }
 
             if (Token.lexem != ID) {
-                printErrMsg(ERROR_SYNTAX, "'Identifier' was expected'");
+                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -477,7 +477,7 @@ bool statement() {
             Token = getNextToken();
 
             if (Token.lexem != SEMICOLON) {
-                printErrMsg(ERROR_SYNTAX, "';' was expected");
+                printErrAndExit (ERROR_SYNTAX, "';' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -501,7 +501,7 @@ bool statement() {
             Token = getNextToken();
 
             if (Token.lexem != WHILE) {
-                printErrMsg(ERROR_SYNTAX, "'While' was expected");
+                printErrAndExit (ERROR_SYNTAX, "'While' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -531,7 +531,7 @@ bool statement() {
                 Token = getNextToken();
 
                 if (Token.lexem != LOOP) {
-                    printErrMsg(ERROR_SYNTAX, "'Loop' was expected");
+                    printErrAndExit (ERROR_SYNTAX, "'Loop' was expected");
                     returnError = ERROR_SYNTAX;
 
                     return false;
@@ -556,7 +556,7 @@ bool statement() {
             Token = getNextToken();
 
             if (Token.lexem != THEN) {
-                printErrMsg(ERROR_SYNTAX, "'Then' was expected");
+                printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -601,7 +601,7 @@ bool statement() {
             Token = getNextToken();
 
             if (Token.lexem != IF) {
-                printErrMsg(ERROR_SYNTAX, "'If' was expected");
+                printErrAndExit (ERROR_SYNTAX, "'If' was expected");
                 returnError = ERROR_SYNTAX;
 
                 return false;
@@ -660,7 +660,7 @@ bool printNext() {
     Token = getNextToken();
 
     if (Token.lexem != SEMICOLON) {
-        printErrMsg(ERROR_SYNTAX, "';' was expected");
+        printErrAndExit (ERROR_SYNTAX, "';' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -685,7 +685,7 @@ bool ifNext() {
     token Token = PreviousToken;
 
     if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
-        printErrMsg(ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -729,7 +729,7 @@ bool elseIf() {
     token Token = getNextToken();
 
     if (Token.lexem != THEN) {
-        printErrMsg(ERROR_SYNTAX, "'Then' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -786,7 +786,7 @@ bool elseIfNext() {
  */
 bool end(token Token) {
     if (Token.lexem != END) {
-        printErrMsg(ERROR_SYNTAX, "'End' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'End' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -801,7 +801,7 @@ bool end(token Token) {
  */
 bool eol(token Token) {
     if (Token.lexem != EOL) {
-        printErrMsg(ERROR_SYNTAX, "'End-Of-Line' was expected");
+        printErrAndExit (ERROR_SYNTAX, "'End-Of-Line' was expected");
         returnError = ERROR_SYNTAX;
 
         return false;
@@ -923,7 +923,7 @@ bool mainBodyIt() {
         Token = getNextToken();
 
         if (Token.lexem != SCOPE) {
-            printErrMsg(ERROR_SYNTAX, "'Scope' was expected");
+            printErrAndExit (ERROR_SYNTAX, "'Scope' was expected");
             returnError = ERROR_SYNTAX;
 
             return false;

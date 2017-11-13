@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "stack.h"
 #include "error_codes.h"
+#include "garbage_collector.h"
 
 /**
  * @copydoc stackInit
@@ -18,7 +19,7 @@ int stackInit(Stack *S) {
 	void *pointer;
 	pointer = (void *) calloc(2, sizeof(void));
 	if (pointer == NULL) {
-		printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating stack structure.");
+		printErrAndExit (ERROR_INTERNAL, "There is a memory error while allocating stack structure.");
 		return ERROR_INTERNAL;
 	}
 	S->pointer = pointer;
@@ -31,7 +32,7 @@ int stackInit(Stack *S) {
  * @copydoc stackDestroy
  */
 void stackDestroy(Stack *S) {
-	free(S->pointer);
+	gcfree(S->pointer);
 	S->pointer = NULL;
 	S->currentSize = 0;
 	S->top = -1;
@@ -44,7 +45,7 @@ void stackResize(Stack *S) {
 	void *resizedContent;
 	resizedContent = (void *) calloc(S->currentSize * 2, sizeof(void));
 	memcpy(resizedContent, S->pointer, sizeof(void) * S->top + 1);
-	free(S->pointer);
+	gcfree(S->pointer);
 	S->pointer = resizedContent;
 	S->currentSize = S->currentSize * 2;
 }

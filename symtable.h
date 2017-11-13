@@ -8,6 +8,7 @@
 #define IFJ2017_SYMTABLE_H
 
 #include "strings.h"
+#include "garbage_collector.h"
 
 typedef enum {
 	TYPE_STRING,
