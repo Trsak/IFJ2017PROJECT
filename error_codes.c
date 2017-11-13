@@ -12,4 +12,5 @@ void printErrMsg(enum ERROR_CODES errCode, const char *msg, ...) {
 	vfprintf(stderr, msg, args);
 	va_end(args);
 	fprintf(stderr, "\n");
+	exit(errCode);
 }

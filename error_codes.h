@@ -24,7 +24,7 @@ enum ERROR_CODES {
 };
 
 /**
- * @brief Printf error message with error code (number).
+ * @brief Printf error message with error code (number) and exit program.
  * @param err_code Code (number) of error.
  * @param msg String literal to print.
  * @param ... Any number of parameters, same functionality as printf.
