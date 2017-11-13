@@ -8,7 +8,8 @@
 struct GCGlobal gcGlobal;
 
 
-void signalHandler(int signal) {
+//void signalHandler(int signal) {
+void signalHandler() {
 	exit(ERROR_INTERNAL);
 }
 
@@ -118,7 +119,7 @@ void main() {
 	gcfree(string);
 
 	*integer = 42;
-	/*
+
 	printf("%d\n", *integer);
 	for (int i = 0; i < 1000000000; ++i) {
 		NULL;

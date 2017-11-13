@@ -8,6 +8,7 @@
 #define IFJ_SCANNER_H
 
 #include "strings.h"
+#include "error_codes.h"
 
 typedef enum {
 	LEX_ERROR = -1,
