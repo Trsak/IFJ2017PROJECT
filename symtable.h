@@ -34,13 +34,14 @@ typedef struct BinaryTree {
 /**
  * @param rootPtr - pointer to Binary Tree root.
  * @param data - data ready for insert.
+ * @return - returns ERROR_INTERNAL if there was a memory error, 0 if not
  *
  * Inserts the data into the Binary Tree based on the value of the name of variable.
  * If the value is lower, the data are going left.
  * If the value is higher, the data are going right.
  * If the same variable name is already in the Binary Tree, only it's value is changed.
  */
-void treeInsert(BinaryTreePtr rootPtr, struct Values data);
+int treeInsert(BinaryTreePtr rootPtr, struct Values data);
 
 /**
  * @param rootPtr - pointer to Binary Tree root.
