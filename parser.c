@@ -7,18 +7,15 @@
 
 //TODO instead of array, use global variable
 //TODO expressions
-//TODO return errors (even from scanner) to main
 //TODO adding identifiers into symtable binary tree
 //TODO return statement
 //TODO function for id check
 //TODO add statement (id = expr)
 //TODO declare assignment
-//TODO rename functionAs() to something else
 //TODO comments
 
 //TODO - end function takes argument with statement of what end is expected
 
-//TODO - free every Token to avoid memory leaks
 
 #include "parser.h"
 
@@ -176,7 +173,7 @@ bool functionHeader() {
     last++;
     tree[last] = Token.lexem;
 
-    if (!functionAs()) {
+    if (!asDataType()) {
         return false;
     }
 
@@ -195,9 +192,9 @@ bool functionHeader() {
 
 
 /**
- * @copydoc functionAs
+ * @copydoc asDataType
  */
-bool functionAs() {
+bool asDataType() {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
@@ -313,7 +310,7 @@ bool declareParams() {
     last++;
     tree[last] = Token.lexem;
 
-    if (!functionAs()) {
+    if (!asDataType()) {
         return false;
     }
 
@@ -399,7 +396,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            if (!functionAs()) {
+            if (!asDataType()) {
                 return false;
             }
 

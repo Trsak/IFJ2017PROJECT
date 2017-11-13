@@ -81,7 +81,7 @@ bool functionHeader();
  *
  * @return
  */
-bool functionAs();
+bool asDataType();
 
 
 /**
