@@ -31,13 +31,6 @@ int parse();
  *
  * @return
  */
-bool nextToken(token *returnToken);
-
-
-/**
- *
- * @return
- */
 bool program();
 
 

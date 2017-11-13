@@ -39,24 +39,6 @@ int parse() {
 
 
 /**
- * @copydoc nextToken
- */
-bool nextToken(token *ReturnToken) {
-    token Token = getNextToken();
-
-    /*
-    if (Token.lexem == -1) {
-        returnError = ERROR_SCANNER;
-        return false;
-    }
-    */
-    *ReturnToken = Token;
-
-    return true;
-}
-
-
-/**
  * @copydoc program
  */
 bool program() {
@@ -151,10 +133,7 @@ bool functionHeader() {
     last++;
     tree[last] = Token.lexem;
 
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    Token = getNextToken();
 
     if (Token.lexem != ID) {
         printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
@@ -315,12 +294,7 @@ bool functionEnd() {
  * @copydoc declareParams
  */
 bool declareParams() {
-    token Token;
-
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    token Token = getNextToken();
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
@@ -402,12 +376,7 @@ bool dataType() {
  * @copydoc statement
  */
 bool statement() {
-    token Token;
-
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    token Token = getNextToken();
 
     switch (Token.lexem) {
         case DIM:
@@ -417,10 +386,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            //Here parser expects that identifier can be wrong formatted
-            if (!nextToken(&Token)) {
-                return false;
-            }
+            Token = getNextToken();
 
             if (Token.lexem != ID) {
                 printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
@@ -448,10 +414,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            //Here parser expects that identifier can be wrong formatted
-            if (!nextToken(&Token)) {
-                return false;
-            }
+            Token = getNextToken();
 
             if (Token.lexem != ID) {
                 printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
