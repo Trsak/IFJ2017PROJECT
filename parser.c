@@ -44,11 +44,12 @@ int parse() {
 bool nextToken(token *ReturnToken) {
     token Token = getNextToken();
 
+    /*
     if (Token.lexem == -1) {
         returnError = ERROR_SCANNER;
         return false;
     }
-
+    */
     *ReturnToken = Token;
 
     return true;
