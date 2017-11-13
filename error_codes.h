@@ -9,6 +9,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include "garbage_collector.h"
 
 /**
  *

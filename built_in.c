@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "built_in.h"
+#include "garbage_collector.h"
 
 /**
  * @copydoc print
@@ -38,7 +39,7 @@ int stringLength(char *string) {
  */
 char *subStr(char *string, int startChar, int stringLength) {
     if (string == NULL || string[0] == '\0' || startChar <= 0) {
-        char *out = (char *) malloc(sizeof(char));
+        char *out = (char *) gcmalloc(sizeof(char));
         if (out == NULL) {
             return NULL;
         }
@@ -53,7 +54,7 @@ char *subStr(char *string, int startChar, int stringLength) {
         stringLength = len - startChar + 1;
     }
 
-    char *out = (char *) malloc((stringLength + 1) * sizeof(char));
+    char *out = (char *) gcmalloc((stringLength + 1) * sizeof(char));
     if (out == NULL) {
         return NULL;
     }
@@ -83,7 +84,7 @@ int asc(char *string, int charPosition) {
  * @copydoc chr
  */
 char *chr(int asciiVal) {
-    char *out = (char *) malloc(2 * sizeof(char));
+    char *out = (char *) gcmalloc(2 * sizeof(char));
     if (out == NULL) {
         return NULL;
     }
