@@ -7,18 +7,15 @@
 
 //TODO instead of array, use global variable
 //TODO expressions
-//TODO return errors (even from scanner) to main
 //TODO adding identifiers into symtable binary tree
 //TODO return statement
 //TODO function for id check
 //TODO add statement (id = expr)
 //TODO declare assignment
-//TODO rename functionAs() to something else
 //TODO comments
 
 //TODO - end function takes argument with statement of what end is expected
 
-//TODO - free every Token to avoid memory leaks
 
 #include "parser.h"
 
@@ -35,24 +32,6 @@ int parse() {
     }
 
     return 0;
-}
-
-
-/**
- * @copydoc nextToken
- */
-bool nextToken(token *ReturnToken) {
-    token Token = getNextToken();
-
-    /*
-    if (Token.lexem == -1) {
-        returnError = ERROR_SCANNER;
-        return false;
-    }
-    */
-    *ReturnToken = Token;
-
-    return true;
 }
 
 
@@ -151,10 +130,7 @@ bool functionHeader() {
     last++;
     tree[last] = Token.lexem;
 
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    Token = getNextToken();
 
     if (Token.lexem != ID) {
         printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
@@ -197,7 +173,7 @@ bool functionHeader() {
     last++;
     tree[last] = Token.lexem;
 
-    if (!functionAs()) {
+    if (!asDataType()) {
         return false;
     }
 
@@ -216,9 +192,9 @@ bool functionHeader() {
 
 
 /**
- * @copydoc functionAs
+ * @copydoc asDataType
  */
-bool functionAs() {
+bool asDataType() {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
@@ -315,12 +291,7 @@ bool functionEnd() {
  * @copydoc declareParams
  */
 bool declareParams() {
-    token Token;
-
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    token Token = getNextToken();
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
@@ -339,7 +310,7 @@ bool declareParams() {
     last++;
     tree[last] = Token.lexem;
 
-    if (!functionAs()) {
+    if (!asDataType()) {
         return false;
     }
 
@@ -402,12 +373,7 @@ bool dataType() {
  * @copydoc statement
  */
 bool statement() {
-    token Token;
-
-    //Here parser expects that identifier can be wrong formatted
-    if (!nextToken(&Token)) {
-        return false;
-    }
+    token Token = getNextToken();
 
     switch (Token.lexem) {
         case DIM:
@@ -417,10 +383,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            //Here parser expects that identifier can be wrong formatted
-            if (!nextToken(&Token)) {
-                return false;
-            }
+            Token = getNextToken();
 
             if (Token.lexem != ID) {
                 printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
@@ -433,7 +396,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            if (!functionAs()) {
+            if (!asDataType()) {
                 return false;
             }
 
@@ -448,10 +411,7 @@ bool statement() {
             last++;
             tree[last] = Token.lexem;
 
-            //Here parser expects that identifier can be wrong formatted
-            if (!nextToken(&Token)) {
-                return false;
-            }
+            Token = getNextToken();
 
             if (Token.lexem != ID) {
                 printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");

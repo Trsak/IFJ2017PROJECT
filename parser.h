@@ -31,13 +31,6 @@ int parse();
  *
  * @return
  */
-bool nextToken(token *returnToken);
-
-
-/**
- *
- * @return
- */
 bool program();
 
 
@@ -88,7 +81,7 @@ bool functionHeader();
  *
  * @return
  */
-bool functionAs();
+bool asDataType();
 
 
 /**
