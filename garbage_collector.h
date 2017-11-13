@@ -42,9 +42,8 @@ extern struct GCGlobal gcGlobal;
 /**
  * @brief Handle signal (SIGINT, SIGTERM) and exit program (on exit memory is cleared).
  *
- * @param signal Code of signal.
  */
-void signalHandler(int signal);
+void signalHandler();
 
 /**
  * @brief Function for memory allocation and add pointer into allocation list.
