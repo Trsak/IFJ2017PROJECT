@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "scanner.h"
 #include "error_codes.h"
@@ -31,7 +32,6 @@ int tokenInit(token *T) {
 	}
 	T->value = attr;
 	T->line = line;
-	T->lexem = NULL;
 	return 0;
 }
 
@@ -39,7 +39,7 @@ int tokenInit(token *T) {
  * @copydoc tokenFree
  */
 void tokenFree(token *T) {
-	free(T->str);
+	strFree(&T->value);
 }
 
 //TODO Every calling of printErrMsg should have as the first argument ERROR_SCANNER but it doesn't work for any reason. Temporary replaced by 1.
@@ -52,7 +52,8 @@ token getNextToken() {
 	token T; //TODO - CALL function strFree(attr) !!
 	if (tokenInit(&T) == ERROR_INTERNAL) {
 		printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating token structure.");
-		return ERROR_INTERNAL;
+		T.lexem = ERROR_INTERNAL;
+		return T;
 	}
 
 	int state = 0;

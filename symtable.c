@@ -8,12 +8,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "symtable.h"
+#include "stack.h"
 #include "error_codes.h"
 
 /**
  * @copydoc treeInsert
  */
-void treeInsert(BinaryTreePtr rootPtr, struct Values data) {
+int treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 	int compare;
 	bool equal = false;
 	while (rootPtr != NULL) {
@@ -39,6 +40,7 @@ void treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 		newPtr->data = data;
 		*rootPtr = *newPtr;
 	}
+	return 0;
 }
 
 /**
