@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv) {
     if (argc != 1) {
-        printErrMsg(ERROR_INTERNAL, "Bad usage! Just call ./ifj2017 without arguments!");
+        printErrAndExit (ERROR_INTERNAL, "Bad usage! Just call ./ifj2017 without arguments!");
         return ERROR_INTERNAL;
     }
 

@@ -29,6 +29,6 @@ enum ERROR_CODES {
  * @param msg String literal to print.
  * @param ... Any number of parameters, same functionality as printf.
  */
-void printErrMsg(enum ERROR_CODES errCode, const char *msg, ...);
+void printErrAndExit (enum ERROR_CODES errCode, const char *msg, ...);
 
 #endif //IFJ_ERROR_CODES_H

@@ -42,7 +42,7 @@ void tokenFree(token *T) {
 	strFree(&T->value);
 }
 
-//TODO Every calling of printErrMsg should have as the first argument ERROR_SCANNER but it doesn't work for any reason. Temporary replaced by 1.
+//TODO Every calling of printErrAndExit  should have as the first argument ERROR_SCANNER but it doesn't work for any reason. Temporary replaced by 1.
 
 /**
  * @copydoc getNextToken
@@ -51,7 +51,7 @@ token getNextToken() {
 
 	token T; //TODO - CALL function strFree(attr) !!
 	if (tokenInit(&T) == ERROR_INTERNAL) {
-		printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating token structure.");
+		printErrAndExit (ERROR_INTERNAL, "There is a memory error while allocating token structure.");
 		T.lexem = ERROR_INTERNAL;
 		return T;
 	}
@@ -99,7 +99,7 @@ token getNextToken() {
 					if (c == 34) { // ASCII 34 == "
 						state = 6;
 					} else if (c == EOL || c == EOF) {
-						printErrMsg(ERROR_SCANNER,
+						printErrAndExit (ERROR_SCANNER,
 						            "Error on line: %d - The '!' was given and the following should be '\"' but %c was given",
 						            T.line, c);
 						T.lexem = LEX_ERROR;
@@ -228,7 +228,7 @@ token getNextToken() {
 						return T;
 					}
 				} else {
-					printErrMsg(1, "Error on line: %d - Unknown character was given: %c", T.line, c);
+					printErrAndExit (1, "Error on line: %d - Unknown character was given: %c", T.line, c);
 					T.lexem = LEX_ERROR;
 					return T;
 				}
@@ -273,7 +273,7 @@ token getNextToken() {
 						state = 0;
 					}
 				} else if (c == EOF) {
-					printErrMsg(1, "Error on line: %d - Never-Ending Multi-Line Comment", T.line);
+					printErrAndExit (1, "Error on line: %d - Never-Ending Multi-Line Comment", T.line);
 					T.lexem = LEX_ERROR;
 					return T;
 				}
@@ -302,7 +302,7 @@ token getNextToken() {
 					strAddChar(&T.value, c);
 				} else if (c == '.') {
 					if (decimal || decimal_e) {
-						printErrMsg(1, "Error on line: %d - Wrong format of a decimal number. Multiple dots were used.",
+						printErrAndExit (1, "Error on line: %d - Wrong format of a decimal number. Multiple dots were used.",
 						            T.line);
 						T.lexem = LEX_ERROR;
 						return T;
@@ -312,7 +312,7 @@ token getNextToken() {
 					if (isdigit(c)) {
 						strAddChar(&T.value, c);
 					} else {
-						printErrMsg(1,
+						printErrAndExit (1,
 						            "Error on line: %d - Wrong format of a decimal number. A number is required after a dot, but %c was given",
 						            T.line, c);
 						T.lexem = LEX_ERROR;
@@ -321,7 +321,7 @@ token getNextToken() {
 					decimal = true;
 				} else if (c == 'e' || c == 'E') {
 					if (decimal_e) {
-						printErrMsg(1,
+						printErrAndExit (1,
 						            "Error on line: %d - Wrong format of a decimal number. Multiple exponent expressions were used.",
 						            T.line);
 						T.lexem = LEX_ERROR;
@@ -333,14 +333,14 @@ token getNextToken() {
 					if (isdigit(c) || c == '+' || c == '-') {
 						strAddChar(&T.value, c);
 					} else {
-						printErrMsg(1,
+						printErrAndExit (1,
 						            "Error on line: %d - Wrong format of a decimal number. A number or '+' or '-' is required after an exponent expression, but %c was given",
 						            T.line, c);
 						T.lexem = LEX_ERROR;
 						return T;
 					}
 				} else if (isalpha(c) || c == '_') {
-					printErrMsg(1,
+					printErrAndExit (1,
 					            "Error on line: %d - Wrong number format. %c char was given but a number is required",
 					            T.line, c);
 					T.lexem = LEX_ERROR;
@@ -358,7 +358,7 @@ token getNextToken() {
 
 			case 6: // String
 				if (c == EOL || c == EOF) {
-					printErrMsg(1,
+					printErrAndExit (1,
 					            "Error on line: %d - Wrong string format. '\"' is required to end the string but EOL or EOF was given",
 					            T.line);
 					T.lexem = LEX_ERROR;
