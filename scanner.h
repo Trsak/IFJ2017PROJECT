@@ -12,10 +12,7 @@
 #include "garbage_collector.h"
 
 typedef enum {
-	LEX_ERROR = -1,
-	EOL = '\n',
-
-	ID, // _ or ABC_abc95
+	ID = 0, // _ or ABC_abc95
 	NUMBER, // int value 123456
 	DECIMAL_NUMBER, // float value 123.456 or 123e456 or 123.456E-789
 	STRING_EXPRESSION, // Has to start: !"my string" .. returns only my string.
@@ -80,6 +77,7 @@ typedef enum {
 	SHARED = 62,
 	STATIC = 63,
 	TRUE = 64,
+    EOL = 65
 } lexems;
 
 typedef struct {
