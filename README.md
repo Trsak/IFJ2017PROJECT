@@ -39,3 +39,12 @@ Generates the IFJcode17 and prints it to the standard output.
 * **Bártl Roman** - [xbartl06](https://github.com/romanbartl)
 * **Odehnal Tomáš** - [xodehn08](https://github.com/odehnaltomas)
 * **Šopf Petr** - [xsopfp00](https://github.com/Trsak)
+
+
+## How to run it?
+
+After compiling the project, type 
+
+```bash
+./ifj2017 < test.ifj
+```
