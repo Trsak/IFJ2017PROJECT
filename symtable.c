@@ -32,7 +32,7 @@ int treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 	if (!equal) {
 		BinaryTreePtr newPtr = (BinaryTreePtr) gcmalloc(sizeof(struct BinaryTree));
 		if (newPtr == NULL) {
-			printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating tree structure.");
+			printErrAndExit (ERROR_INTERNAL, "There is a memory error while allocating tree structure.");
 			return ERROR_INTERNAL;
 		}
 		newPtr->LPtr = NULL;

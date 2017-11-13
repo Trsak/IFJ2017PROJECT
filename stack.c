@@ -19,7 +19,7 @@ int stackInit(Stack *S) {
 	void *pointer;
 	pointer = (void *) calloc(2, sizeof(void));
 	if (pointer == NULL) {
-		printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating stack structure.");
+		printErrAndExit (ERROR_INTERNAL, "There is a memory error while allocating stack structure.");
 		return ERROR_INTERNAL;
 	}
 	S->pointer = pointer;
