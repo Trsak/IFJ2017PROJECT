@@ -8,11 +8,12 @@
 //TODO instead of array, use global variable
 //TODO expressions
 //TODO adding identifiers into symtable binary tree
-//TODO return statement
 //TODO function for id check
 //TODO add statement (id = expr)
 //TODO declare assignment
 //TODO comments
+//TODO standardize all error messages (scanner)
+//TODO change return error from 1 to constant ERROR_SCANNER
 
 //TODO - end function takes argument with statement of what end is expected
 
@@ -52,6 +53,8 @@ bool program() {
         PreviousToken = Token;
     }
 
+    inFunction = false;
+
     if (!mainBody()) {
         return false;
     }
@@ -77,6 +80,8 @@ bool functionFirst(int lexem) {
  */
 bool functions() {
     token Token = PreviousToken;
+
+    inFunction = true;
 
     if (Token.lexem != DECLARE) {
         if (!functionHeader()) {
@@ -571,6 +576,21 @@ bool statement() {
             //only for debug
             last++;
             tree[last] = Token.lexem;
+
+            break;
+
+        case RETURN:
+            if (!inFunction) {
+                printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
+            }
+
+            //only for debug
+            last++;
+            tree[last] = Token.lexem;
+
+            if(!expression()) {
+                return false;
+            }
 
             break;
 
