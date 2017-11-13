@@ -30,7 +30,7 @@ int treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 		}
 	}
 	if (!equal) {
-		BinaryTreePtr newPtr = (BinaryTreePtr) malloc(sizeof(struct BinaryTree));
+		BinaryTreePtr newPtr = (BinaryTreePtr) gcmalloc(sizeof(struct BinaryTree));
 		if (newPtr == NULL) {
 			printErrMsg(ERROR_INTERNAL, "There is a memory error while allocating tree structure.");
 			return ERROR_INTERNAL;
@@ -66,7 +66,7 @@ struct Values *getVariable(BinaryTreePtr rootPtr, const char *name) {
  */
 void DisposeTree(BinaryTreePtr *rootPtr) {
 	if (*rootPtr != NULL) {
-		Stack *stack = (Stack *) malloc(sizeof(Stack));
+		Stack *stack = (Stack *) gcmalloc(sizeof(Stack));
 		stackInit(stack);
 		do {
 			if (*rootPtr == NULL) {
@@ -79,9 +79,9 @@ void DisposeTree(BinaryTreePtr *rootPtr) {
 				}
 				BinaryTreePtr helpPtr = *rootPtr;
 				*rootPtr = (*rootPtr)->LPtr;
-				free(helpPtr);
+				gcfree(helpPtr);
 			}
 		} while (*rootPtr != NULL || !stackEmpty(stack));
-		free(stack);
+		gcfree(stack);
 	}
 }

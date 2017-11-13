@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include "scanner.h"
 #include "error_codes.h"
+#include "garbage_collector.h"
 
 
 int tree[200];          // array for debugging TODO delete after

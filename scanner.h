@@ -9,6 +9,7 @@
 
 #include "strings.h"
 #include "error_codes.h"
+#include "garbage_collector.h"
 
 typedef enum {
 	LEX_ERROR = -1,
