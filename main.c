@@ -19,8 +19,6 @@ int main(int argc, char **argv) {
 
     (void) argv;
 
-    strInit(&attr);
-
     int returnValue = parse();
 
     //only for debug
