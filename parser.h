@@ -17,50 +17,50 @@ int tree[200];          // array for debugging TODO delete after
 
 bool inFunction;        // flag for checking if parser is in body of function (for return statement)
 bool unaryOp;           // flag for checking if is possible to do unary operation (for declaration is flag set on false)
-int returnError;        // global variable where is stored error code
 token PreviousToken;    // global variable where is stored last token for check
 
 
-/**
- *
- * @return
- */
-int parse();
-
 
 /**
  *
  * @return
  */
-bool program();
+void program();
 
 
 /**
  *
  * @return
  */
-bool functions();
+void functions();
 
 
 /**
  *
  * @return
  */
-bool mainBody();
+void mainBody();
 
 
 /**
  *
  * @return
  */
-bool mainBodyIt();
+void mainBodyIt();
 
 
 /**
  *
  * @return
  */
-bool statement();
+void statement();
+
+
+/**
+ *
+ * @return
+ */
+void statementNext();
 
 
 /**
@@ -75,63 +75,49 @@ bool functionFirst(int lexem);
  *
  * @return
  */
-bool functionHeader();
+void functionHeader();
 
 
 /**
  *
  * @return
  */
-bool asDataType();
+void asDataType();
 
 
 /**
  *
  * @return
  */
-bool functionNext();
+void functionNext();
 
 
 /**
  *
  * @return
  */
-bool functionEnd();
+void functionEnd();
 
 
 /**
  *
  * @return
  */
-bool declareParams();
+void declareParams();
 
 
 /**
  *
  * @return
  */
-bool declareParamsNext();
+void declareParamsNext();
 
 
 /**
  *
  * @return
  */
-bool dataType();
-
-
-/**
- *
- * @return
- */
-bool statement();
-
-
-/**
- *
- * @return
- */
-bool statementNext();
+void dataType();
 
 
 /**
@@ -146,35 +132,35 @@ bool statementFirst(token Token);
  *
  * @return
  */
-bool printNext();
+void printNext();
 
 
 /**
  *
  * @return
  */
-bool end(token Token);
+void end(token Token);
 
 
 /**
  *
  * @return
  */
-bool eol(token Token);
+void eol(token Token);
 
 
 /**
  *
  * @return
  */
-bool expression();
+void expression();
 
 
 /**
  *
  * @return
  */
-bool assignment();
+void assignment();
 
 
 /**
@@ -211,11 +197,11 @@ bool paramsNext();
  *
  * @return
  */
-bool ifNext();
+void ifNext();
 
 
 /**
  *
  * @return
  */
-bool elseIf();
+void elseIf();
