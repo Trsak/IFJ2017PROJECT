@@ -874,12 +874,10 @@ bool mainBody() {
 
     token Token = PreviousToken;
 
-    if (Token.lexem != END) {
-        Token = getNextToken();
+    Token = getNextToken();
 
-        if (!end(Token)) {
-            return false;
-        }
+    if (!end(Token)) {
+        return false;
     }
 
     //only for debug
