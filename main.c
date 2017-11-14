@@ -24,5 +24,5 @@ int main(int argc, char **argv) {
 
     program();
 
-    return returnValue;
+    return 0;
 }
