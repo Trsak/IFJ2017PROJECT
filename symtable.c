@@ -15,19 +15,19 @@
 /**
  * @copydoc btInsert
  */
-void btInsert(BinaryTreePtr rootPtr, struct Values data) {
+void btInsert(BinaryTreePtr *rootPtr, struct Values data) {
 	int compare;
 	bool equal = false;
-	while (rootPtr != NULL) {
-		compare = strcmp(rootPtr->data.name, data.name);
+	while (*rootPtr != NULL) {
+		compare = strcmp((*rootPtr)->data.name, data.name);
 		if (compare == 0) {
-			rootPtr->data.value = data.value;
+			(*rootPtr)->data.value = data.value;
 			equal = true;
 			break;
 		} else if (compare < 0) {
-			rootPtr = rootPtr->LPtr;
+			*rootPtr = (*rootPtr)->LPtr;
 		} else {
-			rootPtr = rootPtr->RPtr;
+			*rootPtr = (*rootPtr)->RPtr;
 		}
 	}
 	if (!equal) {
@@ -38,7 +38,8 @@ void btInsert(BinaryTreePtr rootPtr, struct Values data) {
 		newPtr->LPtr = NULL;
 		newPtr->RPtr = NULL;
 		newPtr->data = data;
-		rootPtr = newPtr;
+		*rootPtr = newPtr;
+		printf("tady: %s\n", (*rootPtr)->data.name);
 	}
 }
 

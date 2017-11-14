@@ -42,7 +42,7 @@ typedef struct BinaryTree {
  * If the value is higher, the data are going right.
  * If the same variable name is already in the Binary Tree, only it's value is changed.
  */
-void btInsert(BinaryTreePtr rootPtr, struct Values data);
+void btInsert(BinaryTreePtr *rootPtr, struct Values data);
 
 /**
  * @param rootPtr - pointer to Binary Tree root.
