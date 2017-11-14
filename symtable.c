@@ -11,10 +11,11 @@
 #include "stack.h"
 #include "error_codes.h"
 
+
 /**
- * @copydoc treeInsert
+ * @copydoc btInsert
  */
-int treeInsert(BinaryTreePtr rootPtr, struct Values data) {
+void btInsert(BinaryTreePtr rootPtr, struct Values data) {
 	int compare;
 	bool equal = false;
 	while (rootPtr != NULL) {
@@ -24,47 +25,45 @@ int treeInsert(BinaryTreePtr rootPtr, struct Values data) {
 			equal = true;
 			break;
 		} else if (compare < 0) {
-			*rootPtr = *rootPtr->LPtr;
+			rootPtr = rootPtr->LPtr;
 		} else {
-			*rootPtr = *rootPtr->RPtr;
+			rootPtr = rootPtr->RPtr;
 		}
 	}
 	if (!equal) {
 		BinaryTreePtr newPtr = (BinaryTreePtr) gcmalloc(sizeof(struct BinaryTree));
 		if (newPtr == NULL) {
 			printErrAndExit (ERROR_INTERNAL, "There is a memory error while allocating tree structure.");
-			return ERROR_INTERNAL;
 		}
 		newPtr->LPtr = NULL;
 		newPtr->RPtr = NULL;
 		newPtr->data = data;
-		*rootPtr = *newPtr;
+		rootPtr = newPtr;
 	}
-	return 0;
 }
 
 /**
- * @copydoc getVariable
+ * @copydoc btGetVariable
  */
-struct Values *getVariable(BinaryTreePtr rootPtr, const char *name) {
+BinaryTreePtr btGetVariable(BinaryTreePtr rootPtr, const char *name) {
 	int compare;
 	while (rootPtr != NULL) {
 		compare = strcmp(rootPtr->data.name, name);
 		if (compare == 0) {
-			return &rootPtr->data;
+			return rootPtr;
 		} else if (compare < 0) {
-			*rootPtr = *rootPtr->LPtr;
+			rootPtr = rootPtr->LPtr;
 		} else {
-			*rootPtr = *rootPtr->RPtr;
+			rootPtr = rootPtr->RPtr;
 		}
 	}
 	return NULL;
 }
 
 /**
- * @copydoc DisposeTree
+ * @copydoc btDispose
  */
-void DisposeTree(BinaryTreePtr *rootPtr) {
+void btDispose(BinaryTreePtr *rootPtr) {
 	if (*rootPtr != NULL) {
 		Stack *stack = (Stack *) gcmalloc(sizeof(Stack));
 		stackInit(stack);
