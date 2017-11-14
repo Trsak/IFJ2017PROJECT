@@ -22,14 +22,7 @@ int main(int argc, char **argv) {
 
     (void) argv;
 
-    int returnValue = parse();
+    program();
 
-    //only for debug
-    //TODO - delete after
-    for (int i = 0; i < 200; i++) {
-        printf("%d, ", tree[i]);
-    }
-    printf("\n");
-
-    return returnValue;
+    return 0;
 }
