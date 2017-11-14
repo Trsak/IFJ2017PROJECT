@@ -706,24 +706,6 @@ bool ifNext() {
         }
     }
 
-    /*else {
-        token = getNextToken();
-
-        if (!eol(Token)) {
-            return false;
-        }
-
-        //only for debug
-        last++;
-        tree[last] = Token.lexem;
-
-
-        if (!statement()) {
-            return false;
-        }
-    }*/
-
-
     return true;
 }
 
