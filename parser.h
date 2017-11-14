@@ -219,10 +219,3 @@ bool ifNext();
  * @return
  */
 bool elseIf();
-
-
-/**
- *
- * @return
- */
-bool elseIfNext();

@@ -10,7 +10,6 @@
 //TODO adding identifiers into symtable binary tree
 //TODO function for id check
 //TODO add statement (id = expr)
-//TODO declare assignment
 //TODO comments
 //TODO standardize all error messages (scanner)
 //TODO change return error from 1 to constant ERROR_SCANNER
@@ -672,14 +671,43 @@ bool ifNext() {
     token Token = PreviousToken;
 
     if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
-        printErrAndExit (ERROR_SYNTAX, "'Else' or 'ElseIf' was expected");
-        returnError = ERROR_SYNTAX;
-
-        return false;
+        return true;
     }
+
+
+    //only for debug
+    last++;
+    tree[last] = Token.lexem;
+
+    if (Token.lexem == ELSEIF) {
+
+        if (!elseIf()) {
+            return false;
+        }
+
+        Token = PreviousToken;
+    }
+
+
 
     if (Token.lexem == ELSE) {
         Token = getNextToken();
+
+        if (!eol(Token)) {
+            return false;
+        }
+
+        //only for debug
+        last++;
+        tree[last] = Token.lexem;
+
+        if (!statement()) {
+            return false;
+        }
+    }
+
+    /*else {
+        token = getNextToken();
 
         if (!eol(Token)) {
             return false;
@@ -693,13 +721,8 @@ bool ifNext() {
         if (!statement()) {
             return false;
         }
+    }*/
 
-    } else {
-        //Always will be ELSEIF
-        if (!elseIf()) {
-            return false;
-        }
-    }
 
     return true;
 }
@@ -741,27 +764,19 @@ bool elseIf() {
         return false;
     }
 
-    if (!elseIfNext()) {
-        return false;
-    }
-
-    return true;
-}
-
-
-/**
- * @copydoc elseIfNext
- */
-bool elseIfNext() {
-    token Token = PreviousToken;
+    Token = PreviousToken;
 
     if (Token.lexem == ELSEIF) {
-        if (!elseIf()) {
+        //only for debug
+        last++;
+        tree[last] = Token.lexem;
+
+        if(!elseIf()) {
             return false;
         }
 
     } else {
-        return true;
+        PreviousToken = Token;
     }
 
     return true;
