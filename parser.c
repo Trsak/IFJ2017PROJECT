@@ -14,6 +14,8 @@
 //TODO comments
 //TODO standardize all error messages (scanner)
 //TODO change return error from 1 to constant ERROR_SCANNER
+//TODO check EOF
+//TODO if statement is wrong
 
 //TODO - end function takes argument with statement of what end is expected
 
@@ -384,6 +386,9 @@ bool statement() {
         case DIM:
         case STATIC:
         case SHARED:
+
+            unaryOp = false; // set flag on false - no unary operation can occur
+
             //only for debug
             last++;
             tree[last] = Token.lexem;
@@ -405,9 +410,9 @@ bool statement() {
                 return false;
             }
 
-            //if (!assignment()) { TODO
-            //   return false;
-            //}
+            if(!assignment()) {
+                return false;
+            }
 
             break;
 
@@ -495,7 +500,6 @@ bool statement() {
 
             if (Token.lexem != LOOP) {
                 Token = getNextToken();
-
                 if (Token.lexem != LOOP) {
                     printErrAndExit (ERROR_SYNTAX, "'Loop' was expected");
                     returnError = ERROR_SYNTAX;
@@ -607,6 +611,8 @@ bool statement() {
         if (!eol(Token)) {
             return false;
         }
+    } else {
+        PreviousToken.lexem = 90000; //TODO
     }
 
     //only for debug
@@ -796,28 +802,37 @@ bool eol(token Token) {
  * @copydoc assignment
  */
 bool assignment() {
-    /*
-    int token = getNextToken();
+    token Token = getNextToken();
 
-    printf("%d\n\n\n", token);
-
-    if (token != ASSIGNMENT && token != PLUS_ASSIGNMENT && token != MINUS_ASSIGNMENT &&
-        token != BACKSLASH_ASSIGNMENT && token != DIVISION_ASSIGNMENT && token != MULTIPLY_ASSIGNMENT) {
-
-        printf("Ahoj");
-        PreviousToken = token;
-
+    if(Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
+        PreviousToken = Token;
         return true;
+    }
+
+    if(unaryOperation(Token) && !unaryOp) {
+        printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
     }
 
     //only for debug
     last++;
-    tree[last] = token;
+    tree[last] = Token.lexem;
 
     if (!expression()) {
         return false;
     }
-    */
+
+    return true;
+}
+
+
+/**
+ * @copydoc unaryOperation
+ */
+bool unaryOperation(token Token) {
+    if (Token.lexem != PLUS_ASSIGNMENT && Token.lexem != MINUS_ASSIGNMENT && Token.lexem != MULTIPLY_ASSIGNMENT &&
+            Token.lexem != DIVISION_ASSIGNMENT && Token.lexem != BACKSLASH_ASSIGNMENT)
+        return false;
+
     return true;
 }
 
