@@ -5,16 +5,13 @@
  */
 
 
-//TODO instead of array, use global variable
 //TODO expressions
 //TODO adding identifiers into symtable binary tree
 //TODO function for id check
-//TODO add statement (id = expr)
 //TODO comments
 //TODO standardize all error messages (scanner)
 //TODO change return error from 1 to constant ERROR_SCANNER
 //TODO check EOF
-//TODO if statement is wrong
 
 //TODO - end function takes argument with statement of what end is expected
 
@@ -382,6 +379,19 @@ bool statement() {
     token Token = getNextToken();
 
     switch (Token.lexem) {
+        case ID:
+            unaryOp = true; // set flag on true - here can be unary operation
+
+            //only for debug
+            last++;
+            tree[last] = Token.lexem;
+
+            if(!assignment()) {
+                return false;
+            }
+
+            break;
+
         case DIM:
         case STATIC:
         case SHARED:
