@@ -23,7 +23,7 @@ typedef struct Values {
 	string value;
 	datatype type;
 	bool declared;
-	//bool defined;
+	bool defined;
 } Values;
 
 typedef struct BinaryTree {
@@ -32,17 +32,17 @@ typedef struct BinaryTree {
 	struct BinaryTree *RPtr;
 } *BinaryTreePtr;
 
+
 /**
  * @param rootPtr - pointer to Binary Tree root.
  * @param data - data ready for insert.
- * @return - returns ERROR_INTERNAL if there was a memory error, 0 if not
  *
  * Inserts the data into the Binary Tree based on the value of the name of variable.
  * If the value is lower, the data are going left.
  * If the value is higher, the data are going right.
  * If the same variable name is already in the Binary Tree, only it's value is changed.
  */
-int treeInsert(BinaryTreePtr rootPtr, struct Values data);
+void btInsert(BinaryTreePtr rootPtr, struct Values data);
 
 /**
  * @param rootPtr - pointer to Binary Tree root.
@@ -52,13 +52,13 @@ int treeInsert(BinaryTreePtr rootPtr, struct Values data);
  * Goes through the Binary Tree until it find variable of the same name as received.
  * If the variable is not found NULL is returned.
  */
-struct Values *getVariable(BinaryTreePtr rootPtr, const char *name);
+BinaryTreePtr btGetVariable(BinaryTreePtr rootPtr, const char *name);
 
 /**
  * @param rootPtr - pointer to Binary Tree root.
  *
  * Destroys the whole tree and all the sub-roots.
  */
-void DisposeTree(BinaryTreePtr *rootPtr);
+void btDispose(BinaryTreePtr *rootPtr);
 
 #endif //IFJ2017_SYMTABLE_H
