@@ -77,7 +77,8 @@ typedef enum {
 	SHARED = 62,
 	STATIC = 63,
 	TRUE = 64,
-    EOL = 65
+    EOL = 65,
+	help = -1
 } lexems;
 
 typedef struct {

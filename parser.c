@@ -9,9 +9,6 @@
 //TODO adding identifiers into symtable binary tree
 //TODO function for id check
 //TODO comments
-//TODO standardize all error messages (scanner)
-//TODO change return error from 1 to constant ERROR_SCANNER
-//TODO check EOF
 
 //TODO - end function takes argument with statement of what end is expected
 
@@ -906,6 +903,12 @@ bool mainBody() {
 
     if (!mainBodyIt()) {
         return false;
+    }
+
+    Token = getNextToken();
+
+    if (Token.lexem != EOF) {
+        printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
     }
 
     return true;
