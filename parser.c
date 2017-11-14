@@ -873,9 +873,7 @@ bool mainBody() {
     }
 
     token Token = PreviousToken;
-
-    Token = getNextToken();
-
+    
     if (!end(Token)) {
         return false;
     }
