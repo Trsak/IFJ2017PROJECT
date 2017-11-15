@@ -11,11 +11,9 @@
 #include "garbage_collector.h"
 
 typedef enum {
-	TYPE_STRING,
-	TYPE_INTEGER,
-	TYPE_FLOAT,
-	TYPE_DOUBLE,
-	TYPE_BOOL,
+	TYPE_NUMBER = 1,
+	TYPE_DECIMAL = 2,
+	TYPE_STRING = 3
 } datatype;
 
 typedef struct Values {
@@ -24,6 +22,8 @@ typedef struct Values {
 	datatype type;
 	bool declared;
 	bool defined;
+	bool isFunction;
+	struct BinaryTree *treeOfFunction;	/** NULL if isFunction == False, else pointer to subtree of symtable (tree) **/
 } Values;
 
 typedef struct BinaryTree {
@@ -32,6 +32,19 @@ typedef struct BinaryTree {
 	struct BinaryTree *RPtr;
 } *BinaryTreePtr;
 
+/**
+ * @brief Set initial values to members of structure Values.
+ *
+ * @param name Name of identifier (function or variable).
+ * @return Structure Values.
+ */
+Values initValues(const char *name);
+
+/**
+ * @brief Initialization of Binary Tree (symbolic table).
+ * @param rootPtr Pointer to Binary Tree root node.
+ */
+void btInit(BinaryTreePtr *rootPtr);
 
 /**
  * @param rootPtr - pointer to Binary Tree root.
