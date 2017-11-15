@@ -25,19 +25,46 @@ void IdToken(int lexem) {
 
 /**
  * @copydoc createNode
- *
-void createNode(char *name, datatype type, bool declared, bool defined) {
-    BinaryTreePtr *root = NULL;
-    Values val;
+ */
+void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params) {
+    Values val = initValues(name);
 
-    val.name = name;
     val.type = type;
     val.declared = declared;
     val.defined = defined;
+    val.isFunction = isFunction;
+    val.treeOfFunction = *params;
 
-    btInsert(root, val);
+    btInsert(&symtable, val);
+
+    BinaryTreePtr ahoj = btGetVariable(symtable, name);
+
+    printf("id: %s\n", ahoj->data.name);
+
+    ahoj = btGetVariable(symtable, "id");
+
+    if(ahoj != NULL) {
+        printf("id: %s\n", ahoj->data.name);
+    }
+
 }
-*/
+
+
+/**
+ * @copydoc createParamsNode
+ */
+void createParamsNode(BinaryTreePtr *params, char *name, datatype type) {
+    Values val = initValues(name);
+
+    val.type = type;
+    val.declared = true;
+    val.defined = false;
+    val.isFunction = false;
+    val.treeOfFunction = NULL;
+
+    btInsert(params, val);
+}
+
 
 /**
  * @copydoc program
@@ -81,7 +108,7 @@ void functions() {
     inFunction = true;
 
     if (Token.lexem != DECLARE) {
-        functionHeader();
+        functionHeader(false, true);
 
         statement();
 
@@ -89,7 +116,7 @@ void functions() {
 
     } else {
 
-        functionHeader();
+        functionHeader(true, false);
     }
 
     functionNext();
@@ -99,7 +126,7 @@ void functions() {
 /**
  * @copydoc functionHeader
  */
-void functionHeader() {
+void functionHeader(bool isDeclared, bool isDefined) {
     token Token = PreviousToken;
 
     if (Token.lexem != FUNCTION) {
@@ -114,13 +141,16 @@ void functionHeader() {
 
     IdToken(Token.lexem);
 
+    char *name = Token.value.str;
+
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
         printErrAndExit(ERROR_SYNTAX, "'(' was expected");
     }
 
-    declareParams();
+    BinaryTreePtr params = NULL;
+    declareParams(&params);
 
     Token = PreviousToken;
 
@@ -128,25 +158,30 @@ void functionHeader() {
         printErrAndExit(ERROR_SYNTAX, "')' was expected");
     }
 
-    asDataType();
+    datatype type;
+    asDataType(&type);
 
     Token = getNextToken();
 
     eol(Token.lexem);
+
+
+    //Creates new node of function in symtable
+    createNode(name, type, isDeclared, isDefined, true, &params);
 }
 
 
 /**
  * @copydoc asDataType
  */
-void asDataType() {
+void asDataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
         printErrAndExit(ERROR_SYNTAX, "'As' was expected");
     }
 
-    dataType();
+    dataType(type);
 }
 
 
@@ -194,7 +229,7 @@ void functionEnd() {
 /**
  * @copydoc declareParams
  */
-void declareParams() {
+void declareParams(BinaryTreePtr *params) {
     token Token = getNextToken();
 
     if (Token.lexem != ID) {
@@ -206,16 +241,22 @@ void declareParams() {
         return;
     }
 
-    asDataType();
+    char *name = Token.value.str;
 
-    declareParamsNext();
+    datatype type;
+    asDataType(&type);
+
+    //Creates new node in tree of parameters
+    createParamsNode(params, name, type);
+
+    declareParamsNext(params);
 }
 
 
 /**
  * @copydoc declareParamsNext
  */
-void declareParamsNext() {
+void declareParamsNext(BinaryTreePtr *params) {
     token Token = getNextToken();
 
     if (Token.lexem != COMMA) {
@@ -225,19 +266,39 @@ void declareParamsNext() {
 
     PreviousToken = Token;
 
-    declareParams();
+    declareParams(params);
 }
 
 
 /**
  * @copydoc dataType
  */
-void dataType() {
+void dataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
         printErrAndExit(ERROR_SYNTAX, "Data type was expected");
     }
+
+    datatype convType = TYPE_NUMBER;
+
+    switch (Token.lexem) {
+        case INTEGER:
+            convType = TYPE_NUMBER;
+            break;
+
+        case DOUBLE:
+            convType = TYPE_DECIMAL;
+            break;
+
+        case STRING:
+            convType = TYPE_STRING;
+            break;
+        default:
+            break; //This will never happen, but compiler would return lots of warnings
+    }
+
+    *type = convType;
 }
 
 
@@ -258,7 +319,14 @@ void statement() {
 
             IdToken(Token.lexem);
 
-            asDataType();
+            char *name = Token.value.str;
+
+            datatype type;
+            asDataType(&type);
+
+            //Create new node - declaration of variable
+            BinaryTreePtr params = NULL;
+            createNode(name, type, true, false, false, &params);
 
             assignment(true);
 
@@ -266,7 +334,6 @@ void statement() {
 
         case INPUT:
             Token = getNextToken();
-
             IdToken(Token.lexem);
 
             break;

@@ -11,10 +11,13 @@
 #include "scanner.h"
 #include "error_codes.h"
 #include "garbage_collector.h"
+#include "symtable.h"
 
 
-bool inFunction;        // flag for checking if parser is in body of function (for return statement)
-token PreviousToken;    // global variable where is stored last token for check
+bool inFunction;            // flag for checking if parser is in body of function (for return statement)
+token PreviousToken;        // global variable where is stored last token for check
+BinaryTreePtr symtable;
+
 
 
 /**
@@ -61,13 +64,24 @@ void IdToken(int lexem);
 
 
 /**
- *
+ * s
  * @param name
  * @param type
  * @param declared
  * @param defined
+ * @param isFunction
+ * @param params
  */
-//void createNode(char *name, datatype type, bool declared, bool defined);
+void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params);
+
+
+/**
+ *
+ * @param params
+ * @param name
+ * @param type
+ */
+void createParamsNode(BinaryTreePtr *params, char *name, datatype type);
 
 
 /**
@@ -124,19 +138,19 @@ bool functionFirst(int lexem);
  *
  * Optional parameters are check by declareParams() function and data type is checked by asDataType() function.
  */
-void functionHeader();
+void functionHeader(bool isDeclared, bool isDefined);
 
 
 /**
  * Checks if another terminal is 'AS' and then must follow right data type which is check by function dataType().
  */
-void asDataType();
+void asDataType(datatype *type);
 
 
 /**
  * Checks if another terminal is right data type.
  */
-void dataType();
+void dataType(datatype *type);
 
 
 /**
@@ -178,7 +192,7 @@ void elseIf();
  * Checks format of given parameter or parameters ('ID', 'AS' and data type).
  * Then calls declareParamsNext() function to check if there are more parameters.
  */
-void declareParams();
+void declareParams(BinaryTreePtr *params);
 
 
 /**
@@ -186,7 +200,7 @@ void declareParams();
  * that no other parameter will be given.
  * If following terminal is comma, then calls again declareParams() to check another parameter.
  */
-void declareParamsNext();
+void declareParamsNext(BinaryTreePtr *params);
 
 
 /**
