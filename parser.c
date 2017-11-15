@@ -316,7 +316,7 @@ void statement() {
             last++;
             tree[last] = Token.lexem;
 
-            assignment();
+            assignment(false);
 
             break;
 
@@ -340,7 +340,7 @@ void statement() {
 
             asDataType();
 
-            assignment();
+            assignment(true);
 
             break;
 
@@ -643,10 +643,14 @@ void eol(token Token) {
 /**
  * @copydoc assignment
  */
-void assignment() { //TODO - only ID cannot stand alone so there must be something to assign into this variable
+void assignment(bool isDeclaration) {
     token Token = getNextToken();
 
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
+        if(!isDeclaration) {
+            printErrAndExit(ERROR_SYNTAX, "'Identifier' cannot stand alone");
+        }
+
         PreviousToken = Token;
         return;
     }
