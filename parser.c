@@ -37,6 +37,7 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
 
     btInsert(&symtable, val);
 
+    /*
     BinaryTreePtr ahoj = btGetVariable(symtable, name);
 
     printf("id: %s\n", ahoj->data.name);
@@ -46,7 +47,7 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
     if(ahoj != NULL) {
         printf("id: %s\n", ahoj->data.name);
     }
-
+    */
 }
 
 
