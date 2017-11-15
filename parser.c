@@ -8,13 +8,40 @@
 //TODO expressions
 //TODO adding identifiers into symtable binary tree
 //TODO function for id check
-//TODO comments
 
 
 #include "parser.h"
 
 int last = -1; //TODO delete - only for debug
 
+/*
+ * TODO
+ * @copydoc idToken
+ *
+void IdToken() {
+    token Token = getNextToken();
+
+    if (Token.lexem != ID) {
+        printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
+    }
+}
+
+
+*
+ * @copydoc createNode
+ *
+void createNode(char *name, datatype type, bool declared, bool defined) { //TODO value
+    BinaryTreePtr *root = NULL;
+    Values val;
+
+    val.name = name;
+    val.type = type;
+    val.declared = declared;
+    val.defined = defined;
+
+    btInsert(root, val);
+}
+*/
 
 /**
  * @copydoc program
@@ -86,7 +113,7 @@ void functionHeader() {
         Token = getNextToken();
 
         if (Token.lexem != FUNCTION) {
-            printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
+            printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
         }
     }
 
@@ -97,7 +124,7 @@ void functionHeader() {
     Token = getNextToken();
 
     if (Token.lexem != ID) {
-        printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
     }
 
     //only for debug
@@ -107,7 +134,7 @@ void functionHeader() {
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
-        printErrAndExit (ERROR_SYNTAX, "'(' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'(' was expected");
     }
 
     //only for debug
@@ -119,7 +146,7 @@ void functionHeader() {
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
-        printErrAndExit (ERROR_SYNTAX, "')' was expected");
+        printErrAndExit(ERROR_SYNTAX, "')' was expected");
     }
 
     //only for debug
@@ -145,7 +172,7 @@ void asDataType() {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
-        printErrAndExit (ERROR_SYNTAX, "'As' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'As' was expected");
     }
 
     //only for debug
@@ -164,7 +191,7 @@ void functionNext() {
 
     if (!functionFirst(Token.lexem)) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     PreviousToken = Token;
@@ -196,7 +223,7 @@ void functionEnd() {
     Token = getNextToken();
 
     if (Token.lexem != FUNCTION) {
-        printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
     }
 
     //only for debug
@@ -221,11 +248,11 @@ void declareParams() {
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
-            printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
+            printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
         }
 
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     //only for debug
@@ -246,7 +273,7 @@ void declareParamsNext() {
 
     if (Token.lexem != COMMA) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     PreviousToken = Token;
@@ -266,7 +293,7 @@ void dataType() {
     token Token = getNextToken();
 
     if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
-        printErrAndExit (ERROR_SYNTAX, "Data type was expected");
+        printErrAndExit(ERROR_SYNTAX, "Data type was expected");
     }
 
     //only for debug
@@ -294,8 +321,6 @@ void statement() {
             break;
 
         case DIM:
-        case STATIC:
-        case SHARED:
 
             unaryOp = false; // set flag on false - no unary operation can occur
 
@@ -306,7 +331,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != ID) {
-                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
             }
 
             //only for debug
@@ -327,7 +352,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != ID) {
-                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
+                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
             }
 
             //only for debug
@@ -346,7 +371,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != SEMICOLON) {
-                printErrAndExit (ERROR_SYNTAX, "';' was expected");
+                printErrAndExit(ERROR_SYNTAX, "';' was expected");
             }
 
             //only for debug
@@ -365,7 +390,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != WHILE) {
-                printErrAndExit (ERROR_SYNTAX, "'While' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'While' was expected");
             }
 
             //only for bebug
@@ -389,7 +414,7 @@ void statement() {
             if (Token.lexem != LOOP) {
                 Token = getNextToken();
                 if (Token.lexem != LOOP) {
-                    printErrAndExit (ERROR_SYNTAX, "'Loop' was expected");
+                    printErrAndExit(ERROR_SYNTAX, "'Loop' was expected");
                 }
             }
 
@@ -409,7 +434,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != THEN) {
-                printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
             }
 
             //only for debug
@@ -443,7 +468,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != IF) {
-                printErrAndExit (ERROR_SYNTAX, "'If' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'If' was expected");
             }
 
             //only for debug
@@ -467,7 +492,7 @@ void statement() {
 
         default:
             PreviousToken = Token;
-            return ;
+            return;
     }
 
     Token = PreviousToken;
@@ -497,7 +522,7 @@ void printNext() {
 
     if (Token.lexem == EOL) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     if (Token.lexem == 999) { //TODO
@@ -507,7 +532,7 @@ void printNext() {
     Token = getNextToken();
 
     if (Token.lexem != SEMICOLON) {
-        printErrAndExit (ERROR_SYNTAX, "';' was expected");
+        printErrAndExit(ERROR_SYNTAX, "';' was expected");
     }
 
     //only for debug
@@ -525,7 +550,7 @@ void ifNext() {
     token Token = PreviousToken;
 
     if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
-        return ;
+        return;
     }
 
 
@@ -563,7 +588,7 @@ void elseIf() {
     token Token = getNextToken();
 
     if (Token.lexem != THEN) {
-        printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
     }
 
     //only for debug
@@ -600,7 +625,7 @@ void elseIf() {
  */
 void end(token Token) {
     if (Token.lexem != END) {
-        printErrAndExit (ERROR_SYNTAX, "'End' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'End' was expected");
     }
 }
 
@@ -610,7 +635,7 @@ void end(token Token) {
  */
 void eol(token Token) {
     if (Token.lexem != EOL) {
-        printErrAndExit (ERROR_SYNTAX, "'End-Of-Line' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
     }
 }
 
@@ -618,15 +643,15 @@ void eol(token Token) {
 /**
  * @copydoc assignment
  */
-void assignment() {
+void assignment() { //TODO - only ID cannot stand alone so there must be something to assign into this variable
     token Token = getNextToken();
 
-    if(Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
+    if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
-    if(unaryOperation(Token) && !unaryOp) {
+    if (unaryOperation(Token) && !unaryOp) {
         printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
     }
 
@@ -643,7 +668,7 @@ void assignment() {
  */
 bool unaryOperation(token Token) {
     if (Token.lexem != PLUS_ASSIGNMENT && Token.lexem != MINUS_ASSIGNMENT && Token.lexem != MULTIPLY_ASSIGNMENT &&
-            Token.lexem != DIVISION_ASSIGNMENT && Token.lexem != BACKSLASH_ASSIGNMENT)
+        Token.lexem != DIVISION_ASSIGNMENT && Token.lexem != BACKSLASH_ASSIGNMENT)
         return false;
 
     return true;
@@ -694,7 +719,7 @@ void mainBody() {
     statement();
 
     token Token = PreviousToken;
-    
+
     end(Token);
 
     //only for debug
@@ -721,7 +746,7 @@ void mainBodyIt() {
         Token = getNextToken();
 
         if (Token.lexem != SCOPE) {
-            printErrAndExit (ERROR_SYNTAX, "'Scope' was expected");
+            printErrAndExit(ERROR_SYNTAX, "'Scope' was expected");
         }
 
     } else {
