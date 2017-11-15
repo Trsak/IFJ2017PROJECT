@@ -22,6 +22,8 @@ int main(int argc, char **argv) {
 
     (void) argv;
 
+    btInit(&symtable);
+
     program();
 
     return 0;
