@@ -11,6 +11,23 @@
 #include "stack.h"
 #include "error_codes.h"
 
+/**
+ * @copydoc
+ */
+Values initValues(const char *name) {
+	Values data;
+	data.name = name;
+	data.declared = false;
+	data.defined = false;
+	return data;
+}
+
+/**
+ * @copydoc
+ */
+void btInit(BinaryTreePtr *rootPtr) {
+	*rootPtr = NULL;
+}
 
 /**
  * @copydoc btInsert
@@ -39,7 +56,6 @@ void btInsert(BinaryTreePtr *rootPtr, struct Values data) {
 		newPtr->RPtr = NULL;
 		newPtr->data = data;
 		*rootPtr = newPtr;
-		printf("tady: %s\n", (*rootPtr)->data.name);
 	}
 }
 
