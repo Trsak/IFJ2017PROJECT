@@ -13,8 +13,6 @@
 #include "garbage_collector.h"
 
 
-int tree[200];          // array for debugging TODO delete after
-
 bool inFunction;        // flag for checking if parser is in body of function (for return statement)
 token PreviousToken;    // global variable where is stored last token for check
 
