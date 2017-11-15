@@ -19,6 +19,8 @@ Values initValues(const char *name) {
 	data.name = name;
 	data.declared = false;
 	data.defined = false;
+	data.isFunction = false;
+	btInit(&data.treeOfFunction);
 	return data;
 }
 
