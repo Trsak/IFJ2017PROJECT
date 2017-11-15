@@ -310,8 +310,6 @@ void statement() {
 
     switch (Token.lexem) {
         case ID:
-            unaryOp = true; // set flag on true - here can be unary operation
-
             //only for debug
             last++;
             tree[last] = Token.lexem;
@@ -321,8 +319,6 @@ void statement() {
             break;
 
         case DIM:
-
-            unaryOp = false; // set flag on false - no unary operation can occur
 
             //only for debug
             last++;
@@ -655,7 +651,7 @@ void assignment(bool isDeclaration) {
         return;
     }
 
-    if (unaryOperation(Token) && !unaryOp) {
+    if (unaryOperation(Token) && isDeclaration) {
         printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
     }
 
