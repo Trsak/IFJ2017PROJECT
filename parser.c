@@ -13,23 +13,20 @@
 #include "parser.h"
 
 
-/*
- * TODO
+/**
  * @copydoc idToken
- *
-void IdToken() {
-    token Token = getNextToken();
-
-    if (Token.lexem != ID) {
+ */
+void IdToken(int lexem) {
+    if (lexem != ID) {
         printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
     }
 }
 
 
-*
+/**
  * @copydoc createNode
  *
-void createNode(char *name, datatype type, bool declared, bool defined) { //TODO value
+void createNode(char *name, datatype type, bool declared, bool defined) {
     BinaryTreePtr *root = NULL;
     Values val;
 
@@ -115,10 +112,7 @@ void functionHeader() {
 
     Token = getNextToken();
 
-    if (Token.lexem != ID) {
-        printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
-    }
-
+    IdToken(Token.lexem);
 
     Token = getNextToken();
 
@@ -138,7 +132,7 @@ void functionHeader() {
 
     Token = getNextToken();
 
-    eol(Token);
+    eol(Token.lexem);
 }
 
 
@@ -182,7 +176,7 @@ void functionEnd() {
     if (PreviousToken.lexem != END) {
         Token = getNextToken();
 
-        end(Token);
+        end(Token.lexem);
     }
 
     Token = getNextToken();
@@ -193,7 +187,7 @@ void functionEnd() {
 
     Token = getNextToken();
 
-    eol(Token);
+    eol(Token.lexem);
 }
 
 
@@ -262,9 +256,7 @@ void statement() {
         case DIM:
             Token = getNextToken();
 
-            if (Token.lexem != ID) {
-                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
-            }
+            IdToken(Token.lexem);
 
             asDataType();
 
@@ -275,9 +267,7 @@ void statement() {
         case INPUT:
             Token = getNextToken();
 
-            if (Token.lexem != ID) {
-                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
-            }
+            IdToken(Token.lexem);
 
             break;
 
@@ -305,7 +295,7 @@ void statement() {
 
             Token = getNextToken();
 
-            eol(Token);
+            eol(Token.lexem);
 
             statement();
 
@@ -331,7 +321,7 @@ void statement() {
 
             Token = getNextToken();
 
-            eol(Token);
+            eol(Token.lexem);
 
             statement();
 
@@ -342,7 +332,7 @@ void statement() {
             if (Token.lexem != END) {
                 Token = getNextToken();
 
-                end(Token);
+                end(Token.lexem);
             }
 
             Token = getNextToken();
@@ -372,7 +362,7 @@ void statement() {
     if (Token.lexem != EOL) {
         Token = getNextToken();
 
-        eol(Token);
+        eol(Token.lexem);
 
     } else {
         PreviousToken.lexem = 90000; //TODO
@@ -427,7 +417,7 @@ void ifNext() {
     if (Token.lexem == ELSE) {
         Token = getNextToken();
 
-        eol(Token);
+        eol(Token.lexem);
 
         statement();
     }
@@ -448,7 +438,7 @@ void elseIf() {
 
     Token = getNextToken();
 
-    eol(Token);
+    eol(Token.lexem);
 
     statement();
 
@@ -466,8 +456,8 @@ void elseIf() {
 /**
  * @copydoc end
  */
-void end(token Token) {
-    if (Token.lexem != END) {
+void end(int lexem) {
+    if (lexem != END) {
         printErrAndExit(ERROR_SYNTAX, "'End' was expected");
     }
 }
@@ -476,8 +466,8 @@ void end(token Token) {
 /**
  * @copydoc eol
  */
-void eol(token Token) {
-    if (Token.lexem != EOL) {
+void eol(int lexem) {
+    if (lexem != EOL) {
         printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
     }
 }
@@ -559,7 +549,7 @@ void mainBody() {
 
     token Token = PreviousToken;
 
-    end(Token);
+    end(Token.lexem);
 
     mainBodyIt();
 
@@ -590,5 +580,5 @@ void mainBodyIt() {
 
     Token = getNextToken();
 
-    eol(Token);
+    eol(Token.lexem);
 }

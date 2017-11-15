@@ -52,6 +52,25 @@ void mainBodyIt();
 
 
 /**
+ * Checks if given lexem is equal to 'ID'.
+ * If not, calls printErrAndExit() function.
+ *
+ * @param lexem
+ */
+void IdToken(int lexem);
+
+
+/**
+ *
+ * @param name
+ * @param type
+ * @param declared
+ * @param defined
+ */
+//void createNode(char *name, datatype type, bool declared, bool defined);
+
+
+/**
  * Statements non-terminal.
  * Superfluous block can contain zero or countless statements.
  * In switch is decided what statement will be checked.
@@ -181,21 +200,21 @@ void printNext();
 
 
 /**
- * Checks if given Token is equal to 'END'.
+ * Checks if given lexem is equal to 'END'.
  * If not, calls printErrAndExit() function.
  *
- * @param Token
+ * @param lexem
  */
-void end(token Token);
+void end(int lexem);
 
 
 /**
- * Checks if given Token is equal to 'EOL'.
+ * Checks if given lexem is equal to 'EOL'.
  * If not, calls printErrAndExit() function.
  *
- * @param Token
+ * @param lexem
  */
-void eol(token Token);
+void eol(int lexem);
 
 
 /**
