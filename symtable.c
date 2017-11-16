@@ -35,20 +35,27 @@ void btInit(BinaryTreePtr *rootPtr) {
  * @copydoc btInsert
  */
 void btInsert(BinaryTreePtr *rootPtr, struct Values data) {
-	int compare;
+	int compare = 0;
 	bool equal = false;
-	while (*rootPtr != NULL) {
-		compare = strcmp((*rootPtr)->data.name, data.name);
+    BinaryTreePtr tmpRootPtr = *rootPtr;
+    BinaryTreePtr tmpPtr = NULL;
+
+	while (!equal && tmpRootPtr != NULL) {
+		compare = strcmp(tmpRootPtr->data.name, data.name);
+        tmpPtr = tmpRootPtr;
+
 		if (compare == 0) {
-			(*rootPtr)->data.value = data.value;
+            tmpRootPtr->data.value = data.value;
 			equal = true;
-			break;
+
 		} else if (compare < 0) {
-			*rootPtr = (*rootPtr)->LPtr;
+			tmpRootPtr = tmpRootPtr->LPtr;
+
 		} else {
-			*rootPtr = (*rootPtr)->RPtr;
+            tmpRootPtr = tmpRootPtr->RPtr;
 		}
 	}
+
 	if (!equal) {
 		BinaryTreePtr newPtr = (BinaryTreePtr) gcmalloc(sizeof(struct BinaryTree));
 		if (newPtr == NULL) {
@@ -57,7 +64,19 @@ void btInsert(BinaryTreePtr *rootPtr, struct Values data) {
 		newPtr->LPtr = NULL;
 		newPtr->RPtr = NULL;
 		newPtr->data = data;
-		*rootPtr = newPtr;
+
+        if (tmpPtr == NULL) {
+            *rootPtr = newPtr;
+
+        } else {
+            if (compare < 0) {
+                tmpPtr->LPtr = newPtr;
+
+            } else {
+                tmpPtr->RPtr = newPtr;
+            }
+        }
+
 	}
 }
 

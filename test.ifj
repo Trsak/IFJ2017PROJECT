@@ -1,19 +1,35 @@
 function id () as integer
-	dim a as integer
+dim a as integer
 	dim b as string
-	static i as double
-	do while 1	
-		shared ahoj as integer		
+	dim i as double
+
+	do while 1
+		dim ahoj as integer
+
 		input i
 		print a; b; c; ahoj;
+
 		do while a
-		loop	
+		    if 1 then
+		        return a
+		    end if
+		loop
+
+		if 1 then
+		    return 3
+		elseif 3 then
+		    return ahoj
+		else
+		end if
+
 	loop
 end function
+
 declare function sdf (c as string) as integer
 declare function id (ahojky as integer) as double
+
 scope
-	shared b as string
+	dim b as string
 	print a; b; a; ahoj;
 	do while 1  
 		do while 1
@@ -23,9 +39,11 @@ scope
 	loop
 	if 1 then
 		do while 1
-			shared ahoj as string
+		    ahoj = 4
+            print a; a;
+
+			dim ahoj as string
 		loop
 	else
 	end if
-	dim a as integer
 end scope

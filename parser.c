@@ -8,12 +8,63 @@
 //TODO expressions
 //TODO adding identifiers into symtable binary tree
 //TODO function for id check
-//TODO comments
 
 
 #include "parser.h"
 
-int last = -1; //TODO delete - only for debug
+
+/**
+ * @copydoc idToken
+ */
+void IdToken(int lexem) {
+    if (lexem != ID) {
+        printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
+    }
+}
+
+
+/**
+ * @copydoc createNode
+ */
+void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params) {
+    Values val = initValues(name);
+
+    val.type = type;
+    val.declared = declared;
+    val.defined = defined;
+    val.isFunction = isFunction;
+    val.treeOfFunction = *params;
+
+    btInsert(&symtable, val);
+
+    /*
+    BinaryTreePtr ahoj = btGetVariable(symtable, name);
+
+    printf("id: %s\n", ahoj->data.name);
+
+    ahoj = btGetVariable(symtable, "id");
+
+    if(ahoj != NULL) {
+        printf("id: %s\n", ahoj->data.name);
+    }
+    */
+}
+
+
+/**
+ * @copydoc createParamsNode
+ */
+void createParamsNode(BinaryTreePtr *params, char *name, datatype type) {
+    Values val = initValues(name);
+
+    val.type = type;
+    val.declared = true;
+    val.defined = false;
+    val.isFunction = false;
+    val.treeOfFunction = NULL;
+
+    btInsert(params, val);
+}
 
 
 /**
@@ -58,18 +109,15 @@ void functions() {
     inFunction = true;
 
     if (Token.lexem != DECLARE) {
-        functionHeader();
+        functionHeader(false, true);
 
         statement();
 
         functionEnd();
 
     } else {
-        //only for debug
-        last++;
-        tree[last] = Token.lexem;
 
-        functionHeader();
+        functionHeader(true, false);
     }
 
     functionNext();
@@ -79,80 +127,62 @@ void functions() {
 /**
  * @copydoc functionHeader
  */
-void functionHeader() {
+void functionHeader(bool isDeclared, bool isDefined) {
     token Token = PreviousToken;
 
     if (Token.lexem != FUNCTION) {
         Token = getNextToken();
 
         if (Token.lexem != FUNCTION) {
-            printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
+            printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
         }
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
     Token = getNextToken();
 
-    if (Token.lexem != ID) {
-        printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
-    }
+    IdToken(Token.lexem);
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    char *name = Token.value.str;
 
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
-        printErrAndExit (ERROR_SYNTAX, "'(' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'(' was expected");
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
-    declareParams();
+    BinaryTreePtr params = NULL;
+    declareParams(&params);
 
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
-        printErrAndExit (ERROR_SYNTAX, "')' was expected");
+        printErrAndExit(ERROR_SYNTAX, "')' was expected");
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
-    asDataType();
+    datatype type;
+    asDataType(&type);
 
     Token = getNextToken();
 
-    eol(Token);
+    eol(Token.lexem);
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+
+    //Creates new node of function in symtable
+    createNode(name, type, isDeclared, isDefined, true, &params);
 }
 
 
 /**
  * @copydoc asDataType
  */
-void asDataType() {
+void asDataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
-        printErrAndExit (ERROR_SYNTAX, "'As' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'As' was expected");
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
-    dataType();
+    dataType(type);
 }
 
 
@@ -164,14 +194,10 @@ void functionNext() {
 
     if (!functionFirst(Token.lexem)) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     PreviousToken = Token;
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     functions();
 }
@@ -186,92 +212,94 @@ void functionEnd() {
     if (PreviousToken.lexem != END) {
         Token = getNextToken();
 
-        end(Token);
+        end(Token.lexem);
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     Token = getNextToken();
 
     if (Token.lexem != FUNCTION) {
-        printErrAndExit (ERROR_SYNTAX, "'Function' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     Token = getNextToken();
 
-    eol(Token);
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    eol(Token.lexem);
 }
 
 
 /**
  * @copydoc declareParams
  */
-void declareParams() {
+void declareParams(BinaryTreePtr *params) {
     token Token = getNextToken();
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
-            printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
+            printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
         }
 
         PreviousToken = Token;
-        return ;
+        return;
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    char *name = Token.value.str;
 
-    asDataType();
+    datatype type;
+    asDataType(&type);
 
-    declareParamsNext();
+    //Creates new node in tree of parameters
+    createParamsNode(params, name, type);
+
+    declareParamsNext(params);
 }
 
 
 /**
  * @copydoc declareParamsNext
  */
-void declareParamsNext() {
+void declareParamsNext(BinaryTreePtr *params) {
     token Token = getNextToken();
 
     if (Token.lexem != COMMA) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     PreviousToken = Token;
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
-    declareParams();
+    declareParams(params);
 }
 
 
 /**
  * @copydoc dataType
  */
-void dataType() {
+void dataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
-        printErrAndExit (ERROR_SYNTAX, "Data type was expected");
+        printErrAndExit(ERROR_SYNTAX, "Data type was expected");
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    datatype convType = TYPE_NUMBER;
+
+    switch (Token.lexem) {
+        case INTEGER:
+            convType = TYPE_NUMBER;
+            break;
+
+        case DOUBLE:
+            convType = TYPE_DECIMAL;
+            break;
+
+        case STRING:
+            convType = TYPE_STRING;
+            break;
+        default:
+            break; //This will never happen, but compiler would return lots of warnings
+    }
+
+    *type = convType;
 }
 
 
@@ -283,104 +311,59 @@ void statement() {
 
     switch (Token.lexem) {
         case ID:
-            unaryOp = true; // set flag on true - here can be unary operation
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
-            assignment();
+            assignment(false);
 
             break;
 
         case DIM:
-        case STATIC:
-        case SHARED:
-
-            unaryOp = false; // set flag on false - no unary operation can occur
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
             Token = getNextToken();
 
-            if (Token.lexem != ID) {
-                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected");
-            }
+            IdToken(Token.lexem);
 
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
+            char *name = Token.value.str;
 
-            asDataType();
+            datatype type;
+            asDataType(&type);
 
-            assignment();
+            //Create new node - declaration of variable
+            BinaryTreePtr params = NULL;
+            createNode(name, type, true, false, false, &params);
+
+            assignment(true);
 
             break;
 
         case INPUT:
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
             Token = getNextToken();
-
-            if (Token.lexem != ID) {
-                printErrAndExit (ERROR_SYNTAX, "'Identifier' was expected'");
-            }
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
+            IdToken(Token.lexem);
 
             break;
 
         case PRINT:
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
             expression();
 
             Token = getNextToken();
 
             if (Token.lexem != SEMICOLON) {
-                printErrAndExit (ERROR_SYNTAX, "';' was expected");
+                printErrAndExit(ERROR_SYNTAX, "';' was expected");
             }
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
 
             printNext();
 
             break;
 
         case DO:
-            //only for bebug
-            last++;
-            tree[last] = Token.lexem;
-
             Token = getNextToken();
 
             if (Token.lexem != WHILE) {
-                printErrAndExit (ERROR_SYNTAX, "'While' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'While' was expected");
             }
-
-            //only for bebug
-            last++;
-            tree[last] = Token.lexem;
 
             expression();
 
             Token = getNextToken();
 
-            eol(Token);
-
-            //only for bebug
-            last++;
-            tree[last] = Token.lexem;
+            eol(Token.lexem);
 
             statement();
 
@@ -389,40 +372,24 @@ void statement() {
             if (Token.lexem != LOOP) {
                 Token = getNextToken();
                 if (Token.lexem != LOOP) {
-                    printErrAndExit (ERROR_SYNTAX, "'Loop' was expected");
+                    printErrAndExit(ERROR_SYNTAX, "'Loop' was expected");
                 }
             }
-
-            //only for bebug
-            last++;
-            tree[last] = Token.lexem;
 
             break;
 
         case IF:
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
             expression();
 
             Token = getNextToken();
 
             if (Token.lexem != THEN) {
-                printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
             }
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
 
             Token = getNextToken();
 
-            eol(Token);
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
+            eol(Token.lexem);
 
             statement();
 
@@ -433,22 +400,14 @@ void statement() {
             if (Token.lexem != END) {
                 Token = getNextToken();
 
-                end(Token);
+                end(Token.lexem);
             }
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
 
             Token = getNextToken();
 
             if (Token.lexem != IF) {
-                printErrAndExit (ERROR_SYNTAX, "'If' was expected");
+                printErrAndExit(ERROR_SYNTAX, "'If' was expected");
             }
-
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
 
             break;
 
@@ -457,17 +416,13 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
             }
 
-            //only for debug
-            last++;
-            tree[last] = Token.lexem;
-
             expression();
 
             break;
 
         default:
             PreviousToken = Token;
-            return ;
+            return;
     }
 
     Token = PreviousToken;
@@ -475,15 +430,11 @@ void statement() {
     if (Token.lexem != EOL) {
         Token = getNextToken();
 
-        eol(Token);
+        eol(Token.lexem);
 
     } else {
         PreviousToken.lexem = 90000; //TODO
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     statement();
 }
@@ -497,7 +448,7 @@ void printNext() {
 
     if (Token.lexem == EOL) {
         PreviousToken = Token;
-        return ;
+        return;
     }
 
     if (Token.lexem == 999) { //TODO
@@ -507,12 +458,8 @@ void printNext() {
     Token = getNextToken();
 
     if (Token.lexem != SEMICOLON) {
-        printErrAndExit (ERROR_SYNTAX, "';' was expected");
+        printErrAndExit(ERROR_SYNTAX, "';' was expected");
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     printNext();
 }
@@ -525,13 +472,8 @@ void ifNext() {
     token Token = PreviousToken;
 
     if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
-        return ;
+        return;
     }
-
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     if (Token.lexem == ELSEIF) {
 
@@ -543,11 +485,7 @@ void ifNext() {
     if (Token.lexem == ELSE) {
         Token = getNextToken();
 
-        eol(Token);
-
-        //only for debug
-        last++;
-        tree[last] = Token.lexem;
+        eol(Token.lexem);
 
         statement();
     }
@@ -563,30 +501,18 @@ void elseIf() {
     token Token = getNextToken();
 
     if (Token.lexem != THEN) {
-        printErrAndExit (ERROR_SYNTAX, "'Then' was expected");
+        printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     Token = getNextToken();
 
-    eol(Token);
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    eol(Token.lexem);
 
     statement();
 
     Token = PreviousToken;
 
     if (Token.lexem == ELSEIF) {
-        //only for debug
-        last++;
-        tree[last] = Token.lexem;
-
         elseIf();
 
     } else {
@@ -598,9 +524,9 @@ void elseIf() {
 /**
  * @copydoc end
  */
-void end(token Token) {
-    if (Token.lexem != END) {
-        printErrAndExit (ERROR_SYNTAX, "'End' was expected");
+void end(int lexem) {
+    if (lexem != END) {
+        printErrAndExit(ERROR_SYNTAX, "'End' was expected");
     }
 }
 
@@ -608,9 +534,9 @@ void end(token Token) {
 /**
  * @copydoc eol
  */
-void eol(token Token) {
-    if (Token.lexem != EOL) {
-        printErrAndExit (ERROR_SYNTAX, "'End-Of-Line' was expected");
+void eol(int lexem) {
+    if (lexem != EOL) {
+        printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
     }
 }
 
@@ -618,21 +544,21 @@ void eol(token Token) {
 /**
  * @copydoc assignment
  */
-void assignment() {
+void assignment(bool isDeclaration) {
     token Token = getNextToken();
 
-    if(Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
+    if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
+        if(!isDeclaration) {
+            printErrAndExit(ERROR_SYNTAX, "'Identifier' cannot stand alone");
+        }
+
         PreviousToken = Token;
-        return ;
+        return;
     }
 
-    if(unaryOperation(Token) && !unaryOp) {
+    if (unaryOperation(Token) && isDeclaration) {
         printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
     }
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
 
     expression();
 }
@@ -643,7 +569,7 @@ void assignment() {
  */
 bool unaryOperation(token Token) {
     if (Token.lexem != PLUS_ASSIGNMENT && Token.lexem != MINUS_ASSIGNMENT && Token.lexem != MULTIPLY_ASSIGNMENT &&
-            Token.lexem != DIVISION_ASSIGNMENT && Token.lexem != BACKSLASH_ASSIGNMENT)
+        Token.lexem != DIVISION_ASSIGNMENT && Token.lexem != BACKSLASH_ASSIGNMENT)
         return false;
 
     return true;
@@ -667,11 +593,7 @@ bool params() {
  */
 void expression() {
     //TODO expressions are not done ... delete this after
-    token Token = getNextToken();
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    getNextToken();
 }
 
 
@@ -694,12 +616,8 @@ void mainBody() {
     statement();
 
     token Token = PreviousToken;
-    
-    end(Token);
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    end(Token.lexem);
 
     mainBodyIt();
 
@@ -721,22 +639,14 @@ void mainBodyIt() {
         Token = getNextToken();
 
         if (Token.lexem != SCOPE) {
-            printErrAndExit (ERROR_SYNTAX, "'Scope' was expected");
+            printErrAndExit(ERROR_SYNTAX, "'Scope' was expected");
         }
 
     } else {
         PreviousToken.lexem = 1000; // TODO
     }
 
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
-
     Token = getNextToken();
 
-    eol(Token);
-
-    //only for debug
-    last++;
-    tree[last] = Token.lexem;
+    eol(Token.lexem);
 }
