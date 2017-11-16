@@ -423,7 +423,8 @@ void statement() {
         eol(Token.lexem);
 
     } else {
-        PreviousToken.lexem = 90000; //TODO
+        //Resetting token
+        PreviousToken.lexem = -1;
     }
 
     statement();
@@ -663,7 +664,8 @@ void mainBodyIt() {
         }
 
     } else {
-        PreviousToken.lexem = 1000; // TODO
+        //Resetting token
+        PreviousToken.lexem = -1;
     }
 
     Token = getNextToken();
