@@ -565,13 +565,13 @@ void assignment(bool isDeclaration, char *name) {
     //find out what data type the variable is and then convert it to string
     switch(type) {
         case TYPE_NUMBER:
-            value = gcmalloc(sizeof(int));
+            //value = gcmalloc(sizeof(int));
             //TODO - convert to string
 
             break;
 
         case TYPE_DECIMAL:
-            value = gcmalloc(sizeof(double));
+            //value = gcmalloc(sizeof(double));
             //TODO - convert to string
 
             break;
@@ -581,7 +581,8 @@ void assignment(bool isDeclaration, char *name) {
             break;
     }
 
-    node->data.value.str = value;
+    if(node != NULL)
+        node->data.value.str = value;
 }
 
 
