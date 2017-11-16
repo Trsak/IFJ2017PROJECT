@@ -27,15 +27,25 @@ void IdToken(int lexem) {
  * @copydoc createNode
  */
 void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params) {
-    Values val = initValues(name);
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    if(node != NULL) {
+        node->data.type = type;
+        node->data.declared = node->data.declared || declared;
+        node->data.defined = node->data.declared || defined;
+        node->data.isFunction = isFunction;
+        node->data.treeOfFunction = *params;
+    }
+    else {
+        Values val = initValues(name);
 
-    val.type = type;
-    val.declared = declared;
-    val.defined = defined;
-    val.isFunction = isFunction;
-    val.treeOfFunction = *params;
+        val.type = type;
+        val.declared = declared;
+        val.defined = defined;
+        val.isFunction = isFunction;
+        val.treeOfFunction = *params;
 
-    btInsert(&symtable, val);
+        btInsert(&symtable, val);
+    }
 
     /*
     BinaryTreePtr ahoj = btGetVariable(symtable, name);
