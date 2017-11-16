@@ -23,6 +23,8 @@ typedef struct Values {
 	bool declared;
 	bool defined;
 	bool isFunction;
+	int paramNumber;
+	datatype *typeOfParams;
 	struct BinaryTree *treeOfFunction;	/** NULL if isFunction == False, else pointer to subtree of symtable (tree) **/
 } Values;
 

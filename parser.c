@@ -29,11 +29,8 @@ void IdToken(int lexem) {
 void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params) {
     BinaryTreePtr node = btGetVariable(symtable, name);
     if(node != NULL) {
-        node->data.type = type;
         node->data.declared = node->data.declared || declared;
         node->data.defined = node->data.declared || defined;
-        node->data.isFunction = isFunction;
-        node->data.treeOfFunction = *params;
     }
     else {
         Values val = initValues(name);
@@ -42,6 +39,8 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
         val.declared = declared;
         val.defined = defined;
         val.isFunction = isFunction;
+        val.paramNumber = 0;
+        val.typeOfParams = NULL;
         val.treeOfFunction = *params;
 
         btInsert(&symtable, val);
@@ -154,9 +153,9 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     char *name = Token.value.str;
 
-    /** Check if identifier is already in symtable and declarations/definitions */
-    BinaryTreePtr node;
-    if((node = btGetVariable(symtable, name))) {
+    /** Semantics: Check if identifier is already in symtable and it's declaration|definition */
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    if(node != NULL) {
         if(node->data.declared && isDeclared) {
             printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
         }
