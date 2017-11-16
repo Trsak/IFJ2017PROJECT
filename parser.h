@@ -16,7 +16,7 @@
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
 token PreviousToken;        // global variable where is stored last token for check
-BinaryTreePtr symtable;
+BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 
 
 
@@ -33,7 +33,7 @@ void program();
 /**
  * Here parser decides whether 'declare function' non-terminal will continue or 'function' non-terminal.
  * For 'declare function' non-terminal checks only function header.
- * For 'function' non-terminal checks function header than can follow block of statements and after that 'end function'.
+ * For 'function' non-terminal checks function header then can follow block of statements and after that 'end function'.
  * Than calls 'function next' non-terminal.
  */
 void functions();
@@ -64,7 +64,8 @@ void IdToken(int lexem);
 
 
 /**
- * s
+ * Creates new node whenever is variable of function declared.
+ *
  * @param name
  * @param type
  * @param declared
@@ -76,6 +77,7 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
 
 
 /**
+ * Creates new node in tree of arguments of function
  *
  * @param params
  * @param name
@@ -105,12 +107,15 @@ void statement();
 /**
  * Checks if following terminal is 'ASSIGNMENT' or unary operation.
  * If not and previous statement is declaration, then function can end with no error. If previous terminal was only 'ID'
- * so no declaration and any of assignment terminals is used, than ends with error.
+ * so no declaration and any of assignment terminals is used, then ends with error.
  * But if previous statement was declaration and unary operation is used, also ends with error.
+ * If assignment is possible then will store value from expression to symtable in node where is stored identifier of
+ * given name
  *
  * @param isDeclaration
+ * @param name
  */
-void assignment(bool isDeclaration);
+void assignment(bool isDeclaration, char *name);
 
 
 /**
@@ -133,7 +138,7 @@ bool functionFirst(int lexem);
 
 /**
  * Is called by 'function' non-terminal and checks right format of function header.
- * First terminal is 'FUNCTION' than 'ID' follows. After must be brackets with optional parameters and then
+ * First terminal is 'FUNCTION' then 'ID' follows. After must be brackets with optional parameters and then
  * data type of return value
  *
  * Optional parameters are check by declareParams() function and data type is checked by asDataType() function.
@@ -173,7 +178,7 @@ void functionEnd();
  * If terminal in token is not 'ELSE' of 'ELSEIF' then ends.
  * If the terminal is equal to one of these two terminals then chooses a branch that will be checked.
  * For 'ELSEIF' calls elseif() function and for 'ELSE' checks only if the following terminal is 'EOL'
- * than calls statement() function.
+ * then calls statement() function.
  */
 void ifNext();
 

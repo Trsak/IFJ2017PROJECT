@@ -6,8 +6,6 @@
 
 
 //TODO expressions
-//TODO adding identifiers into symtable binary tree
-//TODO function for id check
 
 
 #include "parser.h"
@@ -36,18 +34,6 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
     val.treeOfFunction = *params;
 
     btInsert(&symtable, val);
-
-    /*
-    BinaryTreePtr ahoj = btGetVariable(symtable, name);
-
-    printf("id: %s\n", ahoj->data.name);
-
-    ahoj = btGetVariable(symtable, "id");
-
-    if(ahoj != NULL) {
-        printf("id: %s\n", ahoj->data.name);
-    }
-    */
 }
 
 
@@ -308,10 +294,14 @@ void dataType(datatype *type) {
  */
 void statement() {
     token Token = getNextToken();
+    char *name = "";
+
 
     switch (Token.lexem) {
         case ID:
-            assignment(false);
+            name = Token.value.str;
+
+            assignment(false, name);
 
             break;
 
@@ -320,7 +310,7 @@ void statement() {
 
             IdToken(Token.lexem);
 
-            char *name = Token.value.str;
+            name = Token.value.str;
 
             datatype type;
             asDataType(&type);
@@ -329,7 +319,7 @@ void statement() {
             BinaryTreePtr params = NULL;
             createNode(name, type, true, false, false, &params);
 
-            assignment(true);
+            assignment(true, name);
 
             break;
 
@@ -544,7 +534,7 @@ void eol(int lexem) {
 /**
  * @copydoc assignment
  */
-void assignment(bool isDeclaration) {
+void assignment(bool isDeclaration, char *name) {
     token Token = getNextToken();
 
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
@@ -561,6 +551,36 @@ void assignment(bool isDeclaration) {
     }
 
     expression();
+
+
+
+    //TODO - store expression value into the symtable - expressions not done yet
+    //it's an idea - maybe should be placed right in expression function
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    datatype type = node->data.type;
+
+    char *value;
+
+    //find out what data type the variable is and then convert it to string
+    switch(type) {
+        case TYPE_NUMBER:
+            value = gcmalloc(sizeof(int));
+            //TODO - convert to string
+
+            break;
+
+        case TYPE_DECIMAL:
+            value = gcmalloc(sizeof(double));
+            //TODO - convert to string
+
+            break;
+
+        default:
+            value = "";
+            break;
+    }
+
+    node->data.value.str = value;
 }
 
 
