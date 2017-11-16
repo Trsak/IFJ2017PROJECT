@@ -144,6 +144,20 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     char *name = Token.value.str;
 
+    /** Check if identifier is already in symtable and declarations/definitions */
+    BinaryTreePtr node;
+    if((node = btGetVariable(symtable, name))) {
+        if(node->data.declared && isDeclared) {
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
+        }
+        else if(node->data.defined && isDefined) {
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already defined!", name);
+        }
+        else if(node->data.defined && isDeclared) {
+            printErrAndExit(ERROR_PROG_SEM, "Can't declare already defined function '%s'!", name);
+        }
+    }
+
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
