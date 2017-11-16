@@ -5,6 +5,8 @@
 #ifndef IFJ2017PROJECT_AST_H
 #define IFJ2017PROJECT_AST_H
 
+#include "strings.h"
+
 typedef struct Exp {
 	enum { integer_exp, string_exp, variable_exp,
 		binary_exp, unary_exp, call_exp,
