@@ -83,7 +83,7 @@ void IdToken(int lexem);
  * @param isFunction
  * @param params
  */
-void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
+void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
 
 
 /**
