@@ -6,8 +6,6 @@
 
 
 //TODO expressions
-//TODO adding identifiers into symtable binary tree
-//TODO function for id check
 
 
 #include "parser.h"
@@ -374,10 +372,14 @@ void dataType(datatype *type) {
  */
 void statement() {
     token Token = getNextToken();
+    char *name = "";
+
 
     switch (Token.lexem) {
         case ID:
-            assignment(false);
+            name = Token.value.str;
+
+            assignment(false, name);
 
             break;
 
@@ -386,7 +388,7 @@ void statement() {
 
             IdToken(Token.lexem);
 
-            char *name = Token.value.str;
+            name = Token.value.str;
 
             datatype type;
             asDataType(&type);
@@ -395,7 +397,7 @@ void statement() {
             BinaryTreePtr params = NULL;
             createNode(name, type, true, false, false, &params, NULL, 0); // Add new arguments
 
-            assignment(true);
+            assignment(true, name);
 
             break;
 
@@ -499,7 +501,8 @@ void statement() {
         eol(Token.lexem);
 
     } else {
-        PreviousToken.lexem = 90000; //TODO
+        //Resetting token
+        PreviousToken.lexem = -1;
     }
 
     statement();
@@ -610,7 +613,7 @@ void eol(int lexem) {
 /**
  * @copydoc assignment
  */
-void assignment(bool isDeclaration) {
+void assignment(bool isDeclaration, char *name) {
     token Token = getNextToken();
 
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
@@ -627,6 +630,37 @@ void assignment(bool isDeclaration) {
     }
 
     expression();
+
+
+
+    //TODO - store expression value into the symtable - expressions not done yet
+    //it's an idea - maybe should be placed right in expression function
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    datatype type = node->data.type;
+
+    char *value;
+
+    //find out what data type the variable is and then convert it to string
+    switch(type) {
+        case TYPE_NUMBER:
+            //value = gcmalloc(sizeof(int));
+            //TODO - convert to string
+
+            break;
+
+        case TYPE_DECIMAL:
+            //value = gcmalloc(sizeof(double));
+            //TODO - convert to string
+
+            break;
+
+        default:
+            value = "";
+            break;
+    }
+
+    if(node != NULL)
+        node->data.value.str = value;
 }
 
 
@@ -709,7 +743,8 @@ void mainBodyIt() {
         }
 
     } else {
-        PreviousToken.lexem = 1000; // TODO
+        //Resetting token
+        PreviousToken.lexem = -1;
     }
 
     Token = getNextToken();
