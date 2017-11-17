@@ -11,6 +11,14 @@
 #include "parser.h"
 
 
+void saveFunctionName(string name) {
+    functionName = (char *) gcmalloc((name.length+1) * sizeof(char));
+    if(!functionName) {
+        printErrAndExit(ERROR_INTERNAL, "Malloc error!");
+    }
+    strcpy(functionName, name.str);
+}
+
 /**
  * @copydoc idToken
  */
@@ -138,6 +146,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
     IdToken(Token.lexem);
 
     char *name = Token.value.str;
+    saveFunctionName(Token.value);
 
     /** Semantics: Check if identifier is already in symtable and it's declaration|definition */
     BinaryTreePtr node = btGetVariable(symtable, name);
@@ -246,6 +255,8 @@ void functionEnd() {
     }
 
     Token = getNextToken();
+
+    gcfree(functionName);
 
     eol(Token.lexem);
 }

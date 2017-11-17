@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <malloc.h>
+#include <string.h>
 #include "scanner.h"
 #include "error_codes.h"
 #include "garbage_collector.h"
@@ -15,6 +16,7 @@
 
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
+char *functionName;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 
@@ -52,6 +54,14 @@ void mainBody();
  * It checks if current token is 'Scope' and following token is 'EOL'.
  */
 void mainBodyIt();
+
+
+/**
+ * @brief Save name of currently parsed function.
+ *
+ * @param name Name of function from Token.
+ */
+void saveFunctionName(string name);
 
 
 /**
