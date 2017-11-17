@@ -73,7 +73,7 @@ void IdToken(int lexem);
  * @param isFunction
  * @param params
  */
-void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params);
+void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
 
 
 /**
@@ -197,7 +197,7 @@ void elseIf();
  * Checks format of given parameter or parameters ('ID', 'AS' and data type).
  * Then calls declareParamsNext() function to check if there are more parameters.
  */
-void declareParams(BinaryTreePtr *params);
+void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfParams, int *paramNumber);
 
 
 /**
@@ -205,7 +205,7 @@ void declareParams(BinaryTreePtr *params);
  * that no other parameter will be given.
  * If following terminal is comma, then calls again declareParams() to check another parameter.
  */
-void declareParamsNext(BinaryTreePtr *params);
+void declareParamsNext(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfParams, int *paramNumber);
 
 
 /**

@@ -24,16 +24,25 @@ void IdToken(int lexem) {
 /**
  * @copydoc createNode
  */
-void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params) {
-    Values val = initValues(name);
+void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber) {
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    if(node != NULL) {
+        node->data.declared = node->data.declared || declared;
+        node->data.defined = node->data.declared || defined;
+    }
+    else {
+        Values val = initValues(name);
 
-    val.type = type;
-    val.declared = declared;
-    val.defined = defined;
-    val.isFunction = isFunction;
-    val.treeOfFunction = *params;
+        val.type = type;
+        val.declared = declared;
+        val.defined = defined;
+        val.isFunction = isFunction;
+        val.paramNumber = paramNumber;
+        val.typeOfParams = typeOfParams;
+        val.treeOfFunction = *params;
 
-    btInsert(&symtable, val);
+        btInsert(&symtable, val);
+    }
 }
 
 
@@ -130,14 +139,43 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     char *name = Token.value.str;
 
+    /** Semantics: Check if identifier is already in symtable and it's declaration|definition */
+    BinaryTreePtr node = btGetVariable(symtable, name);
+    if(node != NULL) {
+        if(node->data.declared && isDeclared) {
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
+        }
+        else if(node->data.defined && isDefined) {
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already defined!", name);
+        }
+        else if(node->data.defined && isDeclared) {
+            printErrAndExit(ERROR_PROG_SEM, "Can't declare already defined function '%s'!", name);
+        }
+    }
+
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
         printErrAndExit(ERROR_SYNTAX, "'(' was expected");
     }
 
+    /** Semantics: check for valid function parameters */
     BinaryTreePtr params = NULL;
-    declareParams(&params);
+    datatype *typeOfParams = NULL;
+    int paramNumber = 0;
+
+    if(node != NULL) {
+        params = node->data.treeOfFunction;
+        typeOfParams = node->data.typeOfParams;
+        declareParams(node, &params, &typeOfParams, &paramNumber);
+
+        if(paramNumber != node->data.paramNumber) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
+        }
+    }
+    else {
+        declareParams(NULL, &params, &typeOfParams, &paramNumber);
+    }
 
     Token = PreviousToken;
 
@@ -154,7 +192,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
 
     //Creates new node of function in symtable
-    createNode(name, type, isDeclared, isDefined, true, &params);
+    createNode(name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
 }
 
 
@@ -216,7 +254,9 @@ void functionEnd() {
 /**
  * @copydoc declareParams
  */
-void declareParams(BinaryTreePtr *params) {
+void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfParams, int *paramNumber) {
+    static int currentArgumentNum = -1;
+    currentArgumentNum++;
     token Token = getNextToken();
 
     if (Token.lexem != ID) {
@@ -230,20 +270,45 @@ void declareParams(BinaryTreePtr *params) {
 
     char *name = Token.value.str;
 
+
     datatype type;
     asDataType(&type);
 
-    //Creates new node in tree of parameters
-    createParamsNode(params, name, type);
+    if(node != NULL) {
+        if(currentArgumentNum >= node->data.paramNumber) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+        }
+        else if(!btGetVariable(node->data.treeOfFunction, name)) {
+            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
+        }
+        else if(type != node->data.typeOfParams[currentArgumentNum]) {
+            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+        }
+    }
+    else {
+        if(*typeOfParams == NULL) {
+            *typeOfParams = gcmalloc(sizeof(datatype));
+        }
+        else {
+            *typeOfParams = gcrealloc(*typeOfParams, (currentArgumentNum+1) * sizeof(datatype));
+        }
+        (*typeOfParams)[currentArgumentNum] = type;
+        //Creates new node in tree of parameters
+        createParamsNode(params, name, type);
+    }
 
-    declareParamsNext(params);
+    *paramNumber = currentArgumentNum + 1;
+
+    declareParamsNext(node, params, typeOfParams, paramNumber);
+    currentArgumentNum = -1;
+    return;
 }
 
 
 /**
  * @copydoc declareParamsNext
  */
-void declareParamsNext(BinaryTreePtr *params) {
+void declareParamsNext(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfParams, int *paramNumber) {
     token Token = getNextToken();
 
     if (Token.lexem != COMMA) {
@@ -253,7 +318,8 @@ void declareParamsNext(BinaryTreePtr *params) {
 
     PreviousToken = Token;
 
-    declareParams(params);
+    declareParams(node, params, typeOfParams, paramNumber);
+    return;
 }
 
 
@@ -317,7 +383,7 @@ void statement() {
 
             //Create new node - declaration of variable
             BinaryTreePtr params = NULL;
-            createNode(name, type, true, false, false, &params);
+            createNode(name, type, true, false, false, &params, NULL, 0); // Add new arguments
 
             assignment(true, name);
 
