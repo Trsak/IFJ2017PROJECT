@@ -23,7 +23,6 @@ int getPositionInTable(int lexem);
 
 /**
  *
- * @return
  */
-int parseExpression();
+void parseExpression();
 

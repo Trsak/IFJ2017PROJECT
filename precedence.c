@@ -83,7 +83,7 @@ bool isOperator(precedStack symbol) {
 }
 
 
-int parseExpression(token *PreviousToken) {
+void parseExpression(token *PreviousToken) {
     Stack stack;
     stackItem item;
     stackInit(&stack);
@@ -162,8 +162,6 @@ int parseExpression(token *PreviousToken) {
 
 
             case '>':
-                //stackTopTerminal(&stack, &item);
-
                 //TODO - semantics - before the rule is applied, it needs to be checked if the data types of two operands are compatible (string and int)
                 //TODO - for example C(integer)  = A (string) + B (integer)
 
@@ -185,24 +183,24 @@ int parseExpression(token *PreviousToken) {
                 //If there's end of parsing expression
                 if (stack.item[stack.maxTerm].symbol == PREC_DOLLAR) {
                     *PreviousToken = Token;
-                    return 0;
+                    return ;
                 }
 
                 printErrAndExit(ERROR_SYNTAX, "Bad expression.");
-                return 1;
+                return ;
 
             case '-':
                 printErrAndExit(ERROR_SYNTAX, "Bad expreesion: used more symbols ')' than expected");
-                return 0;
+                return ;
 
 
             case 'S':
                 printErrAndExit(ERROR_TYPE_SEM, "Cannot do this operation with string");
-                return 0;
+                return ;
 
             case 'I':
                 printErrAndExit(ERROR_TYPE_SEM, "Cannot do operation '\\' with this data type");
-
+                return ;
         }
 
 
@@ -221,7 +219,6 @@ int parseExpression(token *PreviousToken) {
 
     *PreviousToken = Token;
 
-
-    return 0;
+    stackDestroy(&stack);
 }
 
