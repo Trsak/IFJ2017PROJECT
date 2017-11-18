@@ -12,7 +12,7 @@
 const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>><><<<S>",    //rules for  '*'   0
         ">>>>>>>>>>><><<<S>",    //ruses for  '/'   1
-        "<<>>>>>>>>><><<BS>",    //rules for  '\'   2  //TODO check also in table data type of operators if \ operation is used
+        "<<>>>>>>>>><><<IS>",    //rules for  '\'   2  //TODO check also in table data type of operators if \ operation is used
         "<<<<>>>>>>><><<<<>",    //rules for  '+'   3
         "<<<<>>>>>>><><<<S>",    //rules for  '-'   4
         "<<<<<>>>>>><><<<<>",    //rules for  '='   5
@@ -25,7 +25,7 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>>B>BBBB>",    //rules for  ')'   12
         ">>>>>>>>>>>B>BBBB>",    //rules for  'id'  13
         ">>>>>>>>>>>B>BBBB>",    //rules for  'int' 14
-        ">>B>>>>>>>>B>BBBB>",    //rules for  'dbl' 15
+        ">>I>>>>>>>>B>BBBB>",    //rules for  'dbl' 15
         "SSS>S>>>>>>B>BBBB>",    //rules for  'str' 16
         "<<<<<<<<<<<<-<<<<B"     //rules for  '$'   17 //TODO i think that if there's only dollar .. then no other operation should follow
                                                             //like a = * b - it's not possible
@@ -195,6 +195,9 @@ int parseExpression(token *PreviousToken) {
             case 'S':
                 printErrAndExit(ERROR_TYPE_SEM, "Cannot do this operation with string");
                 return 0;
+
+            case 'I':
+                printErrAndExit(ERROR_TYPE_SEM, "Cannot do operation '\\' with this data type");
 
         }
 
