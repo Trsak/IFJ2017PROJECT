@@ -1,6 +1,7 @@
 /**
  * @file stack.c
  * @author Jan Bartosek (xbarto92)
+ * @author Roman Bartl (xbartl06)
  * @brief Operations with Dynamic Stack
  */
 
@@ -22,21 +23,26 @@ void stackInit(Stack *S) {
     S->size = MAX_VALUE;
 }
 
-/*
+
+/**
+ * @copydoc stackDestroy
+ */
 void stackDestroy(Stack *S) {
-	gcfree(S->pointer);
-	S->pointer = NULL;
-	S->currentSize = 0;
+	gcfree(S->item);
+    S->maxTerm = -1;
 	S->top = -1;
+    S->size = 0;
 }
-*/
 
 
-
+/**
+ * @copydoc stackResize
+ */
 void stackResize(Stack *S) {
     //TODO - maybe here will be a mistake .. but for now it seems it's ok
 	S->item = gcrealloc(S->item, 2 * S->size * sizeof(struct stackItem));
 }
+
 
 /**
  * @copydoc stackEmpty

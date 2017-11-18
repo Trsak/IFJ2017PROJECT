@@ -1,6 +1,7 @@
 /**
  * @file stack.h
  * @author Jan Bartosek (xbarto92)
+ * @author Roman Bartl (xbartl06)
  * @brief Operations with Dynamic Stack
  */
 
@@ -87,11 +88,14 @@ bool stackEmpty(Stack *S);
 bool stackFull(Stack *S);
 
 /**
- * @param S - this is a stack to operate with.
- * @param ptr - pointer to save on the top of the stack.
- *
  * Saves new pointer on the top of the stack.
  * If the stack size is already full, resizes the stack by calling stackResize function and then saves the pointer.
+ *
+ * @param S
+ * @param ptr
+ * @param Exp
+ * @param Token
+ * @param symbol
  */
 void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol);
 
@@ -104,8 +108,21 @@ void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedS
 void stackPop(Stack *S);
 
 
+/**
+ * Returns top of the stack on address of *item
+ *
+ * @param S
+ * @param item
+ */
 void stackTop(Stack *S, stackItem *item);
 
+
+/**
+ * Returns terminal that is most top in stack and returns it on address of *item
+ *
+ * @param S
+ * @param item
+ */
 void stackTopTerminal(Stack *S, stackItem *item);
 
 #endif //IFJ2017_STACK_H
