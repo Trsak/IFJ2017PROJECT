@@ -34,30 +34,61 @@ typedef struct Exp {
 	} op;
 } ast_exp;
 
+typedef struct functionArgs {
+	ast_exp *argument;
+	struct functionArgs *next;
+} functionArgs;
+
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
-		function_decl_stmt, function_definition_stmt, var_assign_function_stmt,
-		var_assign_stmt} tag_stmt;
+		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
+		var_assign_stmt, if_stmt, return_stmt} tag_stmt;
 
 	union {
 		struct {
-			struct ast_exp* condition;
+			ast_exp* condition;
 			struct Stmt* block;
 		} while_stmt;
 
 		struct {
-			struct ast_exp* variable;
+			ast_exp* variable;
 		} var_decl_stmt;
 
 		struct {
 			struct Stmt* left_decl;
-			struct ast_exp* right;
+			ast_exp* right;
 		} var_decl_assign_stmt;
 
 		struct {
-			BinaryTreePtr variable;
-			// TODO: arguments
+			BinaryTreePtr function;
+			functionArgs *args;
 		} function_decl_stmt;
+
+		struct {
+			BinaryTreePtr function;
+			functionArgs *args;
+			struct Stmt* block;
+		} function_definition_stmt;
+
+		struct {
+			BinaryTreePtr function;
+			functionArgs *args;
+		} call_function_stmt;
+
+		struct {
+			ast_exp* left;
+			struct Stmt* callFunction;
+		} var_assign_function_stmt;
+
+		struct {
+			ast_exp* ret;
+		} return_stmt;
+
+		struct {
+			ast_exp* condition;
+			struct Stmt* ifBlock;
+			struct Stmt* elseStmt;
+		} if_stmt;
 	} op;
 } ast_stmt;
 
