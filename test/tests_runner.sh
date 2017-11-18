@@ -30,7 +30,7 @@ do
     tests_dir=`find ./test/ -type d -name "$dir-*"`
 
     info=`cat $tests_dir/tests.info`
-    echo "${magenta}Running tests:$cyan $info$reset"
+    printf "${magenta}Running tests:$cyan $info$reset"
 
     test=1
 
@@ -48,16 +48,17 @@ do
             exitcode="$?"
 
             if [ "$exitcode" -eq "$exitcode_expected" ]; then
+                chmod +x ./test/ic17int
                 stdout_expected=`cat ./test/ifj17.bas $tests_dir/$test_id.ifj > tmp.bas; fbc -w 1000 tmp.bas; ./tmp < $tests_dir/$test_id.stdin`
                 gencode=`./ifj2017 < $tests_dir/$test_id.ifj > temp.code`
                 stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
-                    echo "$red- ERROR [$test_id]:\n-- Expected stdout:\n $reset $stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset"
+                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n $reset $stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset"
                     errors_total=$(( errors_total+1 ))
                 fi
             else
-                echo "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset"
+                printf "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset"
                 errors_total=$(( errors_total+1 ))
             fi
             tests_total=$(( tests_total+1 ))
@@ -72,7 +73,7 @@ do
 done
 
 if [ "$errors_total" -eq "0" ]; then
-    echo "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n---------------------------------$reset"
+    printf "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n---------------------------------\n$reset"
 else
-    echo "${red}---------------------------------\n Tests contains $errors_total errors!\n---------------------------------$reset"
+    printf "${red}---------------------------------\n Tests contains $errors_total errors!\n---------------------------------\n$reset"
 fi
