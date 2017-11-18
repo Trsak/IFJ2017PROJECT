@@ -30,7 +30,7 @@ do
     tests_dir=`find ./test/ -type d -name "$dir-*"`
 
     info=`cat $tests_dir/tests.info`
-    printf "${magenta}Running tests:$cyan $info$reset"
+    printf "${magenta}Running tests:$cyan $info$reset\n"
 
     test=1
 
@@ -54,11 +54,11 @@ do
                 stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
-                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n $reset $stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset"
+                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n $reset $stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset\n"
                     errors_total=$(( errors_total+1 ))
                 fi
             else
-                printf "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset"
+                printf "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset\n"
                 errors_total=$(( errors_total+1 ))
             fi
             tests_total=$(( tests_total+1 ))
