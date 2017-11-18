@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <malloc.h>
+#include <string.h>
 #include "scanner.h"
 #include "error_codes.h"
 #include "garbage_collector.h"
@@ -15,6 +16,7 @@
 
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
+char *functionName;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 
@@ -55,6 +57,14 @@ void mainBodyIt();
 
 
 /**
+ * @brief Save name of currently parsed function.
+ *
+ * @param name Name of function from Token.
+ */
+void saveFunctionName(string name);
+
+
+/**
  * Checks if given lexem is equal to 'ID'.
  * If not, calls printErrAndExit() function.
  *
@@ -73,7 +83,7 @@ void IdToken(int lexem);
  * @param isFunction
  * @param params
  */
-void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
+void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
 
 
 /**
