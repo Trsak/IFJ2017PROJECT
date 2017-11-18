@@ -92,31 +92,33 @@ typedef struct Stmt {
 	} op;
 } ast_stmt;
 
+
+/** =====EXPRESSION FUNCTIONS===== */
 /**
  * @brief Create node in AST for number (integer). Represents E -> INTEGER
  * @param number Number (integer)
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_numberExp(int number);
 
 /**
  * @brief Create node in AST for number (double). Represents E -> DOUBLE
  * @param number Number (double)
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_decimalExp(double number);
 
 /**
  * @brief Create node in AST for string (char *). Represents E -> STRING
  * @param str String
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_stringExp(string str);
 
 /**
  * @brief Create node in AST for variable. Represents E -> id
  * @param variable Variable
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_variableExp(BinaryTreePtr variable);
 
@@ -127,7 +129,7 @@ ast_exp* make_variableExp(BinaryTreePtr variable);
  * @param oper Operator
  * @param left Left operand
  * @param right Right operand
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
 
@@ -137,8 +139,82 @@ ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
  *
  * @param oper Operator
  * @param operand Operand
- * @return Pointer to AST node.
+ * @return Pointer to AST node (expression).
  */
 ast_exp* make_unaryExp(string oper, ast_exp *operand);
+
+
+/** =====STATEMENT FUNCTIONS===== */
+/**
+ * @brief Create node in AST of while loop.
+ * @param condition Condition of while loop (expression).
+ * @param code_block Pointer to array of statements in while loop.
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_whileStmt(ast_exp* condition, ast_stmt* code_block);
+
+/**
+ * @brief Create node in AST of variable declaration statement.
+ * @param variable
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_varDeclStmt(ast_exp* variable);
+
+/**
+ * @brief Create node in AST of variable declaration with inicialization statement.
+ * @param left_decl
+ * @param right
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_varDeclAssignStmt(ast_stmt* left_decl, ast_exp* right);
+
+/**
+ * @brief Create node in AST of function declaration statement.
+ * @param function
+ * @param args
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_functionDeclStmt(BinaryTreePtr function, functionArgs *args);
+
+/**
+ * @brief Create node in AST of function definition statement.
+ * @param function
+ * @param args
+ * @param code_block
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, ast_stmt* code_block);
+
+/**
+ * @brief Create node in AST of call function statement.
+ * @param args
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_callFunctionStmt(BinaryTreePtr, functionArgs *args);
+
+/**
+ * @brief Create node in AST of assignment to varible of calling function statement.
+ * @param left
+ * @param callingFunction
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction);
+
+/**
+ * @brief Create node in AST of return statement.
+ * @param ret
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_returnStmt(ast_exp* ret);
+
+/**
+ * @brief Create node in AST of if statement.
+ *
+ * @param condition
+ * @param ifBlock
+ * @param elseStmt
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_ifStmt(ast_exp* condition, ast_stmt* ifBlock, ast_stmt* elseStmt);
 
 #endif //IFJ2017PROJECT_AST_H
