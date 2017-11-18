@@ -1,6 +1,7 @@
 /**
  * @file parser.c
  * @author Roman Bartl (xbartl06)
+ * @author Tomas Odehnal (xodehn08)
  * @brief Parsing all blocks, statements and expressions
  */
 

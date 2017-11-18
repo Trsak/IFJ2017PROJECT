@@ -1,6 +1,7 @@
 /**
  * @file symtable.c
  * @author Jan Bartosek (xbarto92)
+ * @author Tomas Odehnal (xodehn08)
  * @brief Operations with Binary Tree
  */
 

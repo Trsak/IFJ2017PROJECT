@@ -1,6 +1,7 @@
 /**
  * @file symtable.h
  * @author Jan Bartosek (xbarto92)
+ * @author Tomas Odehnal (xodehn08)
  * @brief Symbol Table is used to store every identifier or number and it's value, datatype, etc..
  */
 
