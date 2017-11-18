@@ -12,7 +12,7 @@
 const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>><><<<S>",    //rules for  '*'   0
         ">>>>>>>>>>><><<<S>",    //ruses for  '/'   1
-        "<<>>>>>>>>><><<IS>",    //rules for  '\'   2  //TODO check also in table data type of operators if \ operation is used
+        "<<>>>>>>>>><><<IS>",    //rules for  '\'   2
         "<<<<>>>>>>><><<<<>",    //rules for  '+'   3
         "<<<<>>>>>>><><<<S>",    //rules for  '-'   4
         "<<<<<>>>>>><><<<<>",    //rules for  '='   5
@@ -27,8 +27,7 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>>B>BBBB>",    //rules for  'int' 14
         ">>I>>>>>>>>B>BBBB>",    //rules for  'dbl' 15
         "SSS>S>>>>>>B>BBBB>",    //rules for  'str' 16
-        "<<<<<<<<<<<<-<<<<B"     //rules for  '$'   17 //TODO i think that if there's only dollar .. then no other operation should follow
-                                                            //like a = * b - it's not possible
+        "<<<<<<<<<<<<-<<<<B"     //rules for  '$'   17
 };
 
 
@@ -99,6 +98,11 @@ int parseExpression(token *PreviousToken) {
     stack.maxTerm++;
 
     token Token = getNextToken();
+
+    if (isOperator(getPositionInTable(Token.lexem))) {
+        printErrAndExit(ERROR_OTHER_SEM, "After '=' cannot follow any operation symbol");
+    }
+
 
     while (42) {
 
