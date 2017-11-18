@@ -11,6 +11,14 @@
 #include "parser.h"
 
 
+void saveFunctionName(string name) {
+    functionName = (char *) gcmalloc((name.length+1) * sizeof(char));
+    if(!functionName) {
+        printErrAndExit(ERROR_INTERNAL, "Malloc error!");
+    }
+    strcpy(functionName, name.str);
+}
+
 /**
  * @copydoc idToken
  */
@@ -24,8 +32,8 @@ void IdToken(int lexem) {
 /**
  * @copydoc createNode
  */
-void createNode(char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber) {
-    BinaryTreePtr node = btGetVariable(symtable, name);
+void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber) {
+    BinaryTreePtr node = btGetVariable(*table, name);
     if(node != NULL) {
         node->data.declared = node->data.declared || declared;
         node->data.defined = node->data.declared || defined;
@@ -41,7 +49,7 @@ void createNode(char *name, datatype type, bool declared, bool defined, bool isF
         val.typeOfParams = typeOfParams;
         val.treeOfFunction = *params;
 
-        btInsert(&symtable, val);
+        btInsert(table, val);
     }
 }
 
@@ -138,6 +146,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
     IdToken(Token.lexem);
 
     char *name = Token.value.str;
+    saveFunctionName(Token.value);
 
     /** Semantics: Check if identifier is already in symtable and it's declaration|definition */
     BinaryTreePtr node = btGetVariable(symtable, name);
@@ -192,7 +201,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
 
     //Creates new node of function in symtable
-    createNode(name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
+    createNode(&symtable, name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
 }
 
 
@@ -246,6 +255,8 @@ void functionEnd() {
     }
 
     Token = getNextToken();
+
+    gcfree(functionName);
 
     eol(Token.lexem);
 }
@@ -381,11 +392,45 @@ void statement() {
             datatype type;
             asDataType(&type);
 
-            //Create new node - declaration of variable
-            BinaryTreePtr params = NULL;
-            createNode(name, type, true, false, false, &params, NULL, 0); // Add new arguments
+            /** Semantics: Check if variable was already declared */
+            BinaryTreePtr node;
+            if(inFunction) {
+                BinaryTreePtr node1;
+                node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                node = btGetVariable(node1, name);
+                if(strcmp(name, functionName) == 0) {
+                    printErrAndExit(ERROR_PROG_SEM, "Already exists function '%s'!", name);
+                }
+                if (node && node->data.declared) {
+                    printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
+                }
+
+                //Create new node - declaration of variable
+                BinaryTreePtr params = NULL;
+                createNode(&node1, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+            }
+            else {
+                node = btGetVariable(symtable, name);
+                if (node && node->data.declared) {
+                    printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
+                }
+
+                //Create new node - declaration of variable
+                BinaryTreePtr params = NULL;
+                createNode(&symtable, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+            }
 
             assignment(true, name);
+
+            /** Add to variable definition to true */
+            if(inFunction) {
+                node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                node = btGetVariable(node, name);
+            }
+            else {
+                node = btGetVariable(symtable, name);
+            }
+            node->data.defined = true;
 
             break;
 
