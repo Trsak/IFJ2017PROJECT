@@ -31,7 +31,9 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
 };
 
 
-
+/**
+ * @copydoc getPositionInTable
+ */
 int getPositionInTable(int lexem) {
     switch (lexem) {
         case MULTIPLY:
@@ -74,6 +76,9 @@ int getPositionInTable(int lexem) {
 }
 
 
+/**
+ * @copydoc isOperator
+ */
 bool isOperator(precedStack symbol) {
     if (symbol == PREC_MULTIPLY || symbol == PREC_DIVISION ||
             symbol == PREC_BACKSLASH || symbol == PREC_PLUS || symbol == PREC_MINUS)
@@ -83,6 +88,9 @@ bool isOperator(precedStack symbol) {
 }
 
 
+/**
+ * @copydoc parseExpression
+ */
 void parseExpression(token *PreviousToken) {
     Stack stack;
     stackItem item;
@@ -167,6 +175,7 @@ void parseExpression(token *PreviousToken) {
 
                 stackTop(&stack, &item);
 
+                //until it finds '<' in stack
                 do {
                     stackPop(&stack);
                     stackTop(&stack, &item);
@@ -174,6 +183,7 @@ void parseExpression(token *PreviousToken) {
 
                 stackPop(&stack);
                 stack.maxTerm = stack.top;
+                //Replace all by 'E'
                 stackPush(&stack, NULL, NULL, NULL, PREC_E);
 
                 break;

@@ -14,6 +14,7 @@
 
 
 /**
+ * Returns position in precedence table of given lexem from Token
  *
  * @param lexem
  * @return
@@ -22,7 +23,7 @@ int getPositionInTable(int lexem);
 
 
 /**
- *
+ * Parses expression by precedence table
  */
 void parseExpression();
 
