@@ -27,5 +27,7 @@ int main(int argc, char **argv) {
 
     program();
 
+    printf(".IFJcode17\n");
+
     return 0;
 }
