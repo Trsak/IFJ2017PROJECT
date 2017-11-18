@@ -1,9 +1,7 @@
 TARGET   = ifj2017
-TRG_TEST = tests
 LEADER   = xbartl06
 
 SRCDIR   = .
-TESTDIR  = test
 TMPDIR   = tmpdir
 OBJDIR   = .
 
@@ -13,49 +11,66 @@ CFLAGS   = -std=c99 -I$(SRCDIR)/ -Wall -s -Wextra -c -Wno-unused-function -O3
 LINKER   = gcc
 LFLAGS   = -Wall -s -I$(SRCDIR)/ -lm
 
+BLACK    = tput setaf 0
+RED      = tput setaf 1
+GREEN    = tput setaf 2
+YELLOW   = tput setaf 3
+BLUE     = tput setaf 4
+MAGENTA  = tput setaf 5
+CYAN     = tput setaf 6
+WHITE    = tput setaf 7
+
+RESET    = tput sgr0
+
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm       = rm -rf
 
-SRC_TEST = \
-  $(wildcard $(TESTDIR)/src/*.c) \
-  $(filter-out $(SRCDIR)/main.c, $(SOURCES)) \
-  $(wildcard $(TESTDIR)/*.c)
-INC_DIRS = -I$(SRCDIR) -I$(TESTDIR)/src
-
 all: $(TARGET) clean
 
 .PHONY: pack
-pack: test $(TARGET) remove
+pack: test
 pack:
-	@echo -e "\033[0;33m [Creating .zip file...] \033[0m"
+	@$(BLUE)
+	@echo "[ Packing project ]"
+	@$(YELLOW)
+	@echo " -> Creating .zip file"
+	@$(RESET)
 	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni Makefile dokumentace.pdf
-	@echo -e "\033[0;32m [Zip archive created!] \033[0m"
-	@echo -e "\033[0;33m [Running is_it_ok.sh...] \033[0m"
+	@$(GREEN)
+	@echo " -> Zip archive created"
+	@$(YELLOW)
+	@echo " -> Running is_it_ok.sh"
+	@$(RESET)
 	sh is_it_ok.sh $(LEADER).zip $(TMPDIR)
-	@echo -e "\033[0;33m [Removing temp files...] \033[0m"
+	@$(YELLOW)
+	@echo " -> Removing temp files"
 	@$(rm) $(TMPDIR)
-	@echo -e "\033[0;32m [All done, check for errors and warnings!] \033[0m"
+	@$(BLUE)
+	@echo "[ All done, check for errors and warnings! ]"
+	@$(RESET)
 
 .PHONY: test
-test: run_tests clean_tests
+test: $(TARGET) run_tests remove
 
 $(TARGET): $(OBJECTS)
+	@$(BLUE)
+	@echo "[ Building project ]"
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
-	@echo -e "\033[0;33m [Binary file created...] \033[0m"
+	@$(GREEN)
+	@echo " -> Binary file \"$(TARGET)\" created"
+	@$(RESET)
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: run_tests
-run_tests: CFLAGS = -std=c99 -Wall -Wextra -s
 run_tests:
-	@echo -e "\033[0;33m [Building unit tests...] \033[0m"
-	@$(CC) -include $(TESTDIR)/src/unity_fixture_malloc_overrides.h $(CFLAGS) $(INC_DIRS) $(SRC_TEST) -o $(TRG_TEST)
-	@echo -e "\033[0;33m [Running unit tests...] \033[0m"
-	- ./$(TRG_TEST)
-	@echo -e "\033[0;33m [Unit testing completed...] \033[0m"
+	@$(BLUE)
+	@echo "[ Preparing tests ]"
+	@sh ./test/tests_runner.sh
+	@$(RESET)
 
 .PHONY: clean_tests
 clean_tests:
@@ -64,15 +79,28 @@ clean_tests:
 
 .PHONY: clean
 clean:
-	@echo -e "\033[0;33m [Cleaning object files...] \033[0m"
+	@$(BLUE)
+	@echo "[ Cleaning object files ]"
 	@$(rm) $(OBJECTS)
-	@echo -e "\033[0;32m [Object files cleaned!] \033[0m"
+	@$(GREEN)
+	@echo " -> Object files cleaned"
+	@$(RESET)
 
 .PHONY: remove
 remove: clean
 remove:
-	@echo -e "\033[0;33m [Removing all generated files...] \033[0m"
+	@$(BLUE)
+	@echo "[ Removing all generated files ]"
+	@$(YELLOW)
+	@echo " -> Removing binary file"
 	@$(rm) $(TARGET)
+	@echo " -> Removing .zip file"
 	@$(rm) $(LEADER).zip
+	@echo " -> Removing temp dir and files"
 	@$(rm) $(TMPDIR)
-	@echo -e "\033[0;32m [All generated files removed!] \033[0m"
+	@$(rm) ./tmp
+	@$(rm) ./tmp.bas
+	@$(rm) ./temp.code
+	@$(GREEN)
+	@echo " -> All generated files removed"
+	@$(RESET)
