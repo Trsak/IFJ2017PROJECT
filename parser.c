@@ -529,6 +529,10 @@ void statement() {
     Token = PreviousToken;
 
     if (Token.lexem != EOL) {
+        if(isExpression) {
+            printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
+        }
+
         Token = getNextToken();
 
         eol(Token.lexem);
@@ -537,6 +541,8 @@ void statement() {
         //Resetting token
         PreviousToken.lexem = -1;
     }
+
+    isExpression = false;
 
     statement();
 }
@@ -649,6 +655,7 @@ void eol(int lexem) {
 void assignment(bool isDeclaration, char *name) {
     token Token = getNextToken();
 
+
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
         if(!isDeclaration) {
             printErrAndExit(ERROR_SYNTAX, "'Identifier' cannot stand alone");
@@ -662,7 +669,10 @@ void assignment(bool isDeclaration, char *name) {
         printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
     }
 
-    expression();
+
+    parseExpression(&Token);
+    isExpression = true;
+    PreviousToken = Token;
 
 
 
@@ -712,12 +722,30 @@ bool unaryOperation(token Token) {
 /**
  * @copydoc params
  */
-bool params() {
-    //TODO
-
+void params() {
     expression();
+    //PreviousToken = getNextToken();
 
-    return true;
+    paramsNext();
+}
+
+
+/**
+ * @copydoc paramsNext
+ */
+void paramsNext() {
+    if(PreviousToken.lexem == BRACKET_RIGHT) {
+        return ;
+    }
+
+    token Token = getNextToken();
+
+    if (Token.lexem != COMMA) {
+        PreviousToken = Token;
+        return;
+    }
+
+    params();
 }
 
 
@@ -726,7 +754,7 @@ bool params() {
  */
 void expression() {
     //TODO expressions are not done ... delete this after
-    getNextToken();
+    PreviousToken = getNextToken();
 }
 
 

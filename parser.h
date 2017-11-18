@@ -13,9 +13,11 @@
 #include "error_codes.h"
 #include "garbage_collector.h"
 #include "symtable.h"
+#include "precedence.h"
 
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
+bool isExpression;
 char *functionName;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
@@ -264,16 +266,12 @@ bool expressionFirst(token Token);
 
 
 /**
- * TODO - don't use yet
  *
- * @return
  */
-bool params();
+void params();
 
 
 /**
- * TODO - don't use yet
  *
- * @return
  */
-bool paramsNext();
+void paramsNext();
