@@ -70,11 +70,5 @@ void btInsert(BinaryTreePtr *rootPtr, struct Values data);
  */
 BinaryTreePtr btGetVariable(BinaryTreePtr rootPtr, const char *name);
 
-/**
- * @param rootPtr - pointer to Binary Tree root.
- *
- * Destroys the whole tree and all the sub-roots.
- */
-void btDispose(BinaryTreePtr *rootPtr);
 
 #endif //IFJ2017_SYMTABLE_H

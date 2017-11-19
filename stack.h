@@ -1,16 +1,55 @@
 /**
  * @file stack.h
  * @author Jan Bartosek (xbarto92)
+ * @author Roman Bartl (xbartl06)
  * @brief Operations with Dynamic Stack
  */
+
+#include "ast.h"
+#include "scanner.h"
 
 #ifndef IFJ2017_STACK_H
 #define IFJ2017_STACK_H
 
+#define MAX_VALUE 18
+
+typedef enum {
+	PREC_MULTIPLY = 0,
+	PREC_DIVISION,
+	PREC_BACKSLASH,
+	PREC_PLUS,
+	PREC_MINUS,
+	PREC_ASSIGNMENT,
+	PREC_NOT_EQUAL,
+	PREC_LESS,
+	PREC_LESS_EQUAL,
+	PREC_GREATER,
+	PREC_GREATER_EQUAL,
+	PREC_BRACKET_LEFT,
+	PREC_BRACKET_RIGHT,
+	PREC_ID,
+	PREC_NUMBER,
+	PREC_DECIMAL_NUMBER,
+	PREC_STRING_EXPRESSION,
+	PREC_DOLLAR,                // special symbol '$' in precedence table
+	PREC_E,                     // special symbol 'E' in precedence table
+	PREC_LT                     // special symbol '<' in precedence table
+} precedStack;
+
+
+typedef struct stackItem {
+    BinaryTreePtr *ptr;
+    ast_exp *Exp;
+    token *Token;
+    precedStack symbol;
+} stackItem;
+
+
 typedef struct {
-	void* pointer;
-	int currentSize;
+    stackItem *item;
+	int size;
 	int top;
+    int maxTerm;
 } Stack;
 
 /**
@@ -19,7 +58,7 @@ typedef struct {
  *
  * Initialises the stack before the first use
  */
-int stackInit(Stack *S);
+void stackInit(Stack *S);
 
 /**
  * @param S - this is a stack to operate with.
@@ -49,13 +88,16 @@ bool stackEmpty(Stack *S);
 bool stackFull(Stack *S);
 
 /**
- * @param S - this is a stack to operate with.
- * @param ptr - pointer to save on the top of the stack.
- *
  * Saves new pointer on the top of the stack.
  * If the stack size is already full, resizes the stack by calling stackResize function and then saves the pointer.
+ *
+ * @param S
+ * @param ptr
+ * @param Exp
+ * @param Token
+ * @param symbol
  */
-void stackPush(Stack *S, void* ptr);
+void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol);
 
 /**
  * @param S - this is a stack to operate with.
@@ -63,6 +105,24 @@ void stackPush(Stack *S, void* ptr);
  *
  * Function also deletes the returned pointer from the stack.
  */
-void* stackPop(Stack *S);
+void stackPop(Stack *S);
+
+
+/**
+ * Returns top of the stack on address of *item
+ *
+ * @param S
+ * @param item
+ */
+void stackTop(Stack *S, stackItem *item);
+
+
+/**
+ * Returns terminal that is most top in stack and returns it on address of *item
+ *
+ * @param S
+ * @param item
+ */
+void stackTopTerminal(Stack *S, stackItem *item);
 
 #endif //IFJ2017_STACK_H

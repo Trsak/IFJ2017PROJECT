@@ -98,28 +98,3 @@ BinaryTreePtr btGetVariable(BinaryTreePtr rootPtr, const char *name) {
 	}
 	return NULL;
 }
-
-/**
- * @copydoc btDispose
- */
-void btDispose(BinaryTreePtr *rootPtr) {
-	if (*rootPtr != NULL) {
-		Stack *stack = (Stack *) gcmalloc(sizeof(Stack));
-		stackInit(stack);
-		do {
-			if (*rootPtr == NULL) {
-				if (!stackEmpty(stack)) {
-					*rootPtr = stackPop(stack);
-				}
-			} else {
-				if ((*rootPtr)->RPtr != NULL) {
-					stackPush(stack, (*rootPtr)->RPtr);
-				}
-				BinaryTreePtr helpPtr = *rootPtr;
-				*rootPtr = (*rootPtr)->LPtr;
-				gcfree(helpPtr);
-			}
-		} while (*rootPtr != NULL || !stackEmpty(stack));
-		gcfree(stack);
-	}
-}
