@@ -118,7 +118,7 @@ void parseExpression(token *PreviousToken) {
 
     operation = '0';
 
-    stackPush(&stack, NULL, NULL, NULL, PREC_DOLLAR);
+    stackPush(&stack, NULL, NULL, NULL, PREC_DOLLAR, NULL);
     stack.maxTerm++;
 
 
@@ -151,7 +151,7 @@ void parseExpression(token *PreviousToken) {
         switch (operation) {
             case '=':
                 //Rule ( E ) -> E
-                stackPush(&stack, NULL, NULL, NULL, PREC_BRACKET_RIGHT);
+                stackPush(&stack, NULL, NULL, NULL, PREC_BRACKET_RIGHT, NULL);
                 stack.maxTerm = stack.top;
                 Token = getNextToken();
 
@@ -165,11 +165,11 @@ void parseExpression(token *PreviousToken) {
                     stackPop(&stack);
 
                     //Then push '<' and E non-term
-                    stackPush(&stack, NULL, NULL, NULL, PREC_LT);
-                    stackPush(&stack, NULL, NULL, NULL, PREC_E);
+                    stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
+                    stackPush(&stack, NULL, NULL, NULL, PREC_E, NULL);
 
                     //Then push terminal (id, ..)
-                    stackPush(&stack, NULL, NULL, NULL, PrecTabCol);
+                    stackPush(&stack, NULL, NULL, NULL, PrecTabCol, NULL);
                 } else {
 
                     if (item.symbol == PREC_BRACKET_LEFT && isOperator(PrecTabCol)) {
@@ -177,8 +177,8 @@ void parseExpression(token *PreviousToken) {
                     }
 
                     //Here push '<' non-term and terminal like ID or constant or '(' .. etc.
-                    stackPush(&stack, NULL, NULL, NULL, PREC_LT);
-                    stackPush(&stack, NULL, NULL, &Token, PrecTabCol);
+                    stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
+                    stackPush(&stack, NULL, NULL, &Token, PrecTabCol, NULL);
                     //Now item on top is also a terminal
                 }
 
@@ -204,7 +204,7 @@ void parseExpression(token *PreviousToken) {
                 stackPop(&stack);
                 stack.maxTerm = stack.top;
                 //Replace all by 'E'
-                stackPush(&stack, NULL, NULL, NULL, PREC_E);
+                stackPush(&stack, NULL, NULL, NULL, PREC_E, NULL);
 
                 break;
 
