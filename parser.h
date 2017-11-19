@@ -260,3 +260,8 @@ void expression();
  */
 void params();
 
+
+/**
+ *
+ */
+void paramsNext();
