@@ -6,6 +6,44 @@
 
 #include "ast.h"
 
+void addArgumentToArray(functionArgs** args, ast_exp* argument) {
+	if(*args == NULL) {
+		(*args) = (functionArgs*) gcmalloc(sizeof(functionArgs));
+		(*args)->argument = argument;
+		(*args)->next = NULL;
+	}
+	else {
+		functionArgs* tmp = *args;
+		while (tmp->next != NULL) {
+			tmp = tmp->next;
+		}
+		tmp->next = (functionArgs*) gcmalloc(sizeof(functionArgs));
+		tmp = tmp->next;
+		tmp->argument = argument;
+		tmp->next = NULL;
+	}
+	//printf("%s\n", (*args)->argument->op.variableExp->data.name);
+}
+
+void stmtArrayInit(stmtArray* array) {
+	array->length = 0;
+	array->array = NULL;
+}
+
+void addStmtToArray(stmtArray* array, ast_stmt* stmt) {
+	if(array->length == 0) {
+		array->length++;
+		array->array = (ast_stmt*) gcmalloc(array->length * sizeof(ast_stmt));
+		array->array[array->length-1] = *stmt;
+	}
+	else {
+		array->array = (ast_stmt *) gcrealloc(array->array, (array->length + 1) * sizeof(ast_stmt));
+		array->array[array->length] = *stmt;
+		array->length++;
+	}
+}
+
+
 /**
  * @copydoc
  */
@@ -79,7 +117,7 @@ ast_exp* make_unaryExp(string oper, ast_exp* operand) {
 /**
  * @copydoc
  */
-ast_stmt* make_whileStmt(ast_exp* condition, ast_stmt* code_block) {
+ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = while_stmt;
@@ -126,7 +164,7 @@ ast_stmt* make_functionDeclStmt(BinaryTreePtr function, functionArgs *args) {
 /**
  * @copydoc
  */
-ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, ast_stmt* code_block) {
+ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtArray code_block) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = function_definition_stmt;
@@ -174,7 +212,7 @@ ast_stmt* make_returnStmt(ast_exp* ret) {
 /**
  * @copydoc
  */
-ast_stmt* make_ifStmt(ast_exp* condition, ast_stmt* ifBlock, ast_stmt* elseStmt) {
+ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = if_stmt;

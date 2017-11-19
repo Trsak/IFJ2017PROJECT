@@ -23,6 +23,7 @@ typedef struct Values {
 	datatype type;
 	bool declared;
 	bool defined;
+	bool hasReturn;
 	bool isFunction;
 	int paramNumber;
 	datatype *typeOfParams;

@@ -39,6 +39,11 @@ typedef struct functionArgs {
 	struct functionArgs *next;
 } functionArgs;
 
+typedef struct {
+	struct Stmt* array;
+	int length;
+} stmtArray;
+
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
 		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
@@ -47,7 +52,7 @@ typedef struct Stmt {
 	union {
 		struct {
 			ast_exp* condition;
-			struct Stmt* block;
+			stmtArray block;
 		} while_stmt;
 
 		struct {
@@ -67,7 +72,7 @@ typedef struct Stmt {
 		struct {
 			BinaryTreePtr function;
 			functionArgs *args;
-			struct Stmt* block;
+			stmtArray block;
 		} function_definition_stmt;
 
 		struct {
@@ -86,11 +91,17 @@ typedef struct Stmt {
 
 		struct {
 			ast_exp* condition;
-			struct Stmt* ifBlock;
+			stmtArray ifBlock;
 			struct Stmt* elseStmt;
 		} if_stmt;
 	} op;
 } ast_stmt;
+
+void stmtArrayInit(stmtArray* array);
+
+void addStmtToArray(stmtArray* array, ast_stmt* stmt);
+
+void addArgumentToArray(functionArgs** args, ast_exp* argument);
 
 
 /** =====EXPRESSION FUNCTIONS===== */
@@ -151,7 +162,7 @@ ast_exp* make_unaryExp(string oper, ast_exp *operand);
  * @param code_block Pointer to array of statements in while loop.
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_whileStmt(ast_exp* condition, ast_stmt* code_block);
+ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block);
 
 /**
  * @brief Create node in AST of variable declaration statement.
@@ -183,7 +194,7 @@ ast_stmt* make_functionDeclStmt(BinaryTreePtr function, functionArgs *args);
  * @param code_block
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, ast_stmt* code_block);
+ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtArray code_block);
 
 /**
  * @brief Create node in AST of call function statement.
@@ -215,6 +226,6 @@ ast_stmt* make_returnStmt(ast_exp* ret);
  * @param elseStmt
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_ifStmt(ast_exp* condition, ast_stmt* ifBlock, ast_stmt* elseStmt);
+ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt);
 
 #endif //IFJ2017PROJECT_AST_H

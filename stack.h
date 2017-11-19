@@ -42,6 +42,7 @@ typedef struct stackItem {
     ast_exp *Exp;
     token *Token;
     precedStack symbol;
+	ast_stmt* stmt;
 } stackItem;
 
 
@@ -97,7 +98,7 @@ bool stackFull(Stack *S);
  * @param Token
  * @param symbol
  */
-void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol);
+void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol, ast_stmt* stmt);
 
 /**
  * @param S - this is a stack to operate with.
