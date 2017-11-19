@@ -92,6 +92,22 @@ bool isOperator(precedStack symbol) {
  * @copydoc parseExpression
  */
 void parseExpression(token *PreviousToken) {
+    token Token = *PreviousToken;
+
+    if ((*PreviousToken).lexem == COMMA) {
+        Token = getNextToken();
+
+        if (Token.lexem == BRACKET_RIGHT) {
+            printErrAndExit(ERROR_SYNTAX, "Expression was expected after ','");
+        }
+
+    } else if (Token.lexem == -1) {
+        Token = getNextToken();
+
+    }
+
+
+
     Stack stack;
     stackItem item;
     stackInit(&stack);
@@ -105,7 +121,7 @@ void parseExpression(token *PreviousToken) {
     stackPush(&stack, NULL, NULL, NULL, PREC_DOLLAR);
     stack.maxTerm++;
 
-    token Token = getNextToken();
+
 
     if (isOperator(getPositionInTable(Token.lexem))) {
         printErrAndExit(ERROR_OTHER_SEM, "After '=' cannot follow any operation symbol");
@@ -156,6 +172,10 @@ void parseExpression(token *PreviousToken) {
                     stackPush(&stack, NULL, NULL, NULL, PrecTabCol);
                 } else {
 
+                    if (item.symbol == PREC_BRACKET_LEFT && isOperator(PrecTabCol)) {
+                        printErrAndExit(ERROR_SYNTAX, "Cannot put operator after '('");
+                    }
+
                     //Here push '<' non-term and terminal like ID or constant or '(' .. etc.
                     stackPush(&stack, NULL, NULL, NULL, PREC_LT);
                     stackPush(&stack, NULL, NULL, &Token, PrecTabCol);
@@ -200,7 +220,9 @@ void parseExpression(token *PreviousToken) {
                 return ;
 
             case '-':
-                printErrAndExit(ERROR_SYNTAX, "Bad expreesion: used more symbols ')' than expected");
+                //More ')' then expected .. return it to parser to handle with
+                //It could be closing bracket to calling a function
+                *PreviousToken = Token;
                 return ;
 
 
@@ -220,15 +242,6 @@ void parseExpression(token *PreviousToken) {
         //}
         //printf("\n\n");
 
-
-        if(stack.maxTerm == PREC_DOLLAR && Token.lexem == EOL) {
-            break;
-        }
     }
-
-
-    *PreviousToken = Token;
-
-    stackDestroy(&stack);
 }
 
