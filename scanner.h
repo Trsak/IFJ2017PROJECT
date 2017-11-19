@@ -98,8 +98,7 @@ typedef struct {
  */
 extern char *keyWords[];
 
-// Error codes
-//#define LEX_ERROR -1
+#define MAX_ID_LENGTH 128
 
 /**
  * @param T - this is a token structure to operate with.
