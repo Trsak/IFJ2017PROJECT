@@ -6,6 +6,15 @@
 
 #include "ast.h"
 
+void addArgumentToArray(functionArgs* args, ast_exp* argument) {
+	while(args->next != NULL) {
+		args = args->next;
+	}
+	args->next = (functionArgs*) gcmalloc(sizeof(functionArgs));
+	args->argument = argument;
+}
+
+
 /**
  * @copydoc
  */
@@ -79,7 +88,7 @@ ast_exp* make_unaryExp(string oper, ast_exp* operand) {
 /**
  * @copydoc
  */
-ast_stmt* make_whileStmt(ast_exp* condition, ast_stmt* code_block) {
+ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = while_stmt;
@@ -126,7 +135,7 @@ ast_stmt* make_functionDeclStmt(BinaryTreePtr function, functionArgs *args) {
 /**
  * @copydoc
  */
-ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, ast_stmt* code_block) {
+ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtArray code_block) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = function_definition_stmt;
@@ -174,7 +183,7 @@ ast_stmt* make_returnStmt(ast_exp* ret) {
 /**
  * @copydoc
  */
-ast_stmt* make_ifStmt(ast_exp* condition, ast_stmt* ifBlock, ast_stmt* elseStmt) {
+ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = if_stmt;
