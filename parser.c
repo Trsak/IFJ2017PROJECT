@@ -772,7 +772,12 @@ bool unaryOperation(token Token) {
  */
 void params() {
     parseExpression(&PreviousToken);
+    
+    paramsNext();
+}
 
+
+void paramsNext() {
     if (PreviousToken.lexem != COMMA) {
         return;
     }
