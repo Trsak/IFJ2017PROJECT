@@ -70,11 +70,22 @@ void createParamsNode(BinaryTreePtr *params, char *name, datatype type) {
     btInsert(params, val);
 }
 
+void showAruments(functionArgs* args) {
+	functionArgs* arg = args;
+	while (arg != NULL) {
+		printf("\t-arg: %s\n", arg->argument->op.variableExp->data.name);
+		arg = arg->next;
+	}
+}
 
 /**
  * @copydoc program
  */
 void program() {
+	stackInit(&stmtStack);
+
+	stmtArrayInit(&globalStmtArray);
+
     token Token = getNextToken();
 
     if (functionFirst(Token.lexem)) {
@@ -89,6 +100,18 @@ void program() {
     inFunction = false;
 
     mainBody();
+/*
+	for(int i = 0; i < globalStmtArray.length; i++) {
+		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
+			printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
+			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
+		}
+		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
+			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
+			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
+		}
+	}
+ */
 }
 
 
@@ -112,16 +135,34 @@ void functions() {
 
     inFunction = true;
 
+	stackItem item;
     if (Token.lexem != DECLARE) {
+
+		stmtArray functionStmtBlock;
+		stmtArrayInit(&functionStmtBlock);
+
+		stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, make_functionDefStmt(NULL, NULL, functionStmtBlock));
+
         functionHeader(false, true);
 
         statement();
 
+		stackTop(&stmtStack, &item);
+
+		addStmtToArray(&globalStmtArray, item.stmt);
+		stackPop(&stmtStack);
+
         functionEnd();
 
     } else {
+		stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, make_functionDeclStmt(NULL, NULL));
 
         functionHeader(true, false);
+
+		stackTop(&stmtStack, &item);
+
+		addStmtToArray(&globalStmtArray, item.stmt);
+		stackPop(&stmtStack);
     }
 
     functionNext();
@@ -151,6 +192,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     /** Semantics: Check if identifier is already in symtable and it's declaration|definition */
     BinaryTreePtr node = btGetVariable(symtable, name);
+	stackItem item;
     if(node != NULL) {
         if(node->data.declared && isDeclared) {
             printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
@@ -161,6 +203,10 @@ void functionHeader(bool isDeclared, bool isDefined) {
         else if(node->data.defined && isDeclared) {
             printErrAndExit(ERROR_PROG_SEM, "Can't declare already defined function '%s'!", name);
         }
+
+		/** Add function statement to stack */
+		stackTop(&stmtStack, &item);
+		item.stmt->op.function_definition_stmt.function = node;
     }
 
     Token = getNextToken();
@@ -203,6 +249,12 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     //Creates new node of function in symtable
     createNode(&symtable, name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
+
+	if(isDeclared) {
+		/** Add function statement to stack (declaration) */
+		stackTop(&stmtStack, &item);
+		item.stmt->op.function_definition_stmt.function = btGetVariable(symtable, name);
+	}
 }
 
 
@@ -286,17 +338,38 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
     datatype type;
     asDataType(&type);
 
-    if(node != NULL) {
-        if(currentArgumentNum >= node->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
-        }
+	stackItem item;
+
+	if(node != NULL) {
+		if(currentArgumentNum >= node->data.paramNumber) {
+			printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+		}
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
-            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
-        }
+			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
+		}
         else if(type != node->data.typeOfParams[currentArgumentNum]) {
-            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
-        }
-    }
+			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+		}
+
+		/** Add argument to function statement on top of stack */
+		stackTop(&stmtStack, &item);
+		addArgumentToArray(&item.stmt->op.function_definition_stmt.args, make_variableExp(btGetVariable(node->data.treeOfFunction, name)));
+
+		/*
+		stackItem it;
+		stackTop(&stmtStack, &it);
+		printf("function: %s\n", it.stmt->op.function_definition_stmt.function->data.name);
+		if(item.stmt->op.function_definition_stmt.args == NULL) {
+			printf("nefunguje\n");
+		}
+		else {
+			functionArgs *arg = item.stmt->op.function_definition_stmt.args;
+			while (arg != NULL) {
+				printf("--arg: %s\n", arg->argument->op.variableExp->data.name);
+				arg = arg->next;
+			}
+		}*/
+	}
     else {
         if(*typeOfParams == NULL) {
             *typeOfParams = gcmalloc(sizeof(datatype));
@@ -307,6 +380,9 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
         (*typeOfParams)[currentArgumentNum] = type;
         //Creates new node in tree of parameters
         createParamsNode(params, name, type);
+
+		stackTop(&stmtStack, &item);
+		addArgumentToArray(&item.stmt->op.function_definition_stmt.args, make_variableExp(btGetVariable(*params, name)));
     }
 
     *paramNumber = currentArgumentNum + 1;

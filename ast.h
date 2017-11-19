@@ -97,6 +97,12 @@ typedef struct Stmt {
 	} op;
 } ast_stmt;
 
+void stmtArrayInit(stmtArray* array);
+
+void addStmtToArray(stmtArray* array, ast_stmt* stmt);
+
+void addArgumentToArray(functionArgs** args, ast_exp* argument);
+
 
 /** =====EXPRESSION FUNCTIONS===== */
 /**

@@ -16,12 +16,14 @@
 #include "symtable.h"
 #include "precedence.h"
 #include "ast.h"
+#include "stack.h"
 
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
 bool isExpression;
 char *functionName;
 stmtArray globalStmtArray;
+Stack stmtStack;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 

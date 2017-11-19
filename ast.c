@@ -6,12 +6,41 @@
 
 #include "ast.h"
 
-void addArgumentToArray(functionArgs* args, ast_exp* argument) {
-	while(args->next != NULL) {
-		args = args->next;
+void addArgumentToArray(functionArgs** args, ast_exp* argument) {
+	if(*args == NULL) {
+		(*args) = (functionArgs*) gcmalloc(sizeof(functionArgs));
+		(*args)->argument = argument;
+		(*args)->next = NULL;
 	}
-	args->next = (functionArgs*) gcmalloc(sizeof(functionArgs));
-	args->argument = argument;
+	else {
+		functionArgs* tmp = *args;
+		while (tmp->next != NULL) {
+			tmp = tmp->next;
+		}
+		tmp->next = (functionArgs*) gcmalloc(sizeof(functionArgs));
+		tmp = tmp->next;
+		tmp->argument = argument;
+		tmp->next = NULL;
+	}
+	//printf("%s\n", (*args)->argument->op.variableExp->data.name);
+}
+
+void stmtArrayInit(stmtArray* array) {
+	array->length = 0;
+	array->array = NULL;
+}
+
+void addStmtToArray(stmtArray* array, ast_stmt* stmt) {
+	if(array->length == 0) {
+		array->length++;
+		array->array = (ast_stmt*) gcmalloc(array->length * sizeof(ast_stmt));
+		array->array[array->length-1] = *stmt;
+	}
+	else {
+		array->array = (ast_stmt *) gcrealloc(array->array, (array->length + 1) * sizeof(ast_stmt));
+		array->array[array->length] = *stmt;
+		array->length++;
+	}
 }
 
 
