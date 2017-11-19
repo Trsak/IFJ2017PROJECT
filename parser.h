@@ -250,20 +250,9 @@ void eol(int lexem);
 
 
 /**
- * TODO - don't use yet
  *
- * @return
  */
 void expression();
-
-
-/**
- * TODO - don't use yet
- *
- * @param token
- * @return
- */
-bool expressionFirst(token Token);
 
 
 /**
@@ -271,8 +260,3 @@ bool expressionFirst(token Token);
  */
 void params();
 
-
-/**
- *
- */
-void paramsNext();

@@ -444,11 +444,14 @@ void statement() {
         case PRINT:
             expression();
 
-            Token = getNextToken();
+            Token = PreviousToken;
 
             if (Token.lexem != SEMICOLON) {
                 printErrAndExit(ERROR_SYNTAX, "';' was expected");
             }
+
+            //Resetting prev.token
+            PreviousToken.lexem = -1;
 
             printNext();
 
@@ -463,9 +466,12 @@ void statement() {
 
             expression();
 
-            Token = getNextToken();
+            Token = PreviousToken;
 
             eol(Token.lexem);
+
+            //Reset prev. token
+            PreviousToken.lexem = -1;
 
             statement();
 
@@ -482,12 +488,13 @@ void statement() {
 
         case IF:
             expression();
-
-            Token = getNextToken();
+            Token = PreviousToken;
 
             if (Token.lexem != THEN) {
                 printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
             }
+            //Reset prev. token
+            PreviousToken.lexem = -1;
 
             Token = getNextToken();
 
@@ -553,23 +560,22 @@ void statement() {
  * @copydoc printNext
  */
 void printNext() {
-    token Token = getNextToken();
+
+    expression();
+    token Token = PreviousToken;
 
     if (Token.lexem == EOL) {
-        PreviousToken = Token;
         return;
     }
 
-    if (Token.lexem == 999) { //TODO
-        expression();
-    }
-
-    Token = getNextToken();
+    Token = PreviousToken;
 
     if (Token.lexem != SEMICOLON) {
         printErrAndExit(ERROR_SYNTAX, "';' was expected");
     }
 
+    //Resetting prev. token
+    PreviousToken.lexem = -1;
     printNext();
 }
 
@@ -607,11 +613,13 @@ void ifNext() {
 void elseIf() {
     expression();
 
-    token Token = getNextToken();
+    token Token = PreviousToken;
 
     if (Token.lexem != THEN) {
         printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
     }
+
+    PreviousToken.lexem = -1;
 
     Token = getNextToken();
 
@@ -671,12 +679,51 @@ void assignment(bool isDeclaration, char *name) {
     }
 
 
+    Token = getNextToken();
+
+    if (Token.lexem == EOL) {
+        //TODO - is this syntax or semantics??
+        printErrAndExit(ERROR_SYNTAX, "Assignment withnout expression");
+    }
+
+    if(Token.lexem == ID) {
+        BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
+
+
+        if(ptr == NULL) {
+            printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+        }
+
+        //if this one is a function, then brackets are expected
+        if (ptr->data.isFunction) {
+
+            Token = getNextToken();
+
+            if (Token.lexem != BRACKET_LEFT) {
+                //TODO - is this syntax or semantics??
+                printErrAndExit(ERROR_SYNTAX, "Try to call function without params. '(' was expected");
+            }
+
+            params();
+
+            Token = PreviousToken;
+
+            if (Token.lexem != BRACKET_RIGHT) {
+                //TODO - is this syntax or semantics??
+                printErrAndExit(ERROR_SYNTAX, "Try to call function. ')' was expected");
+            }
+
+            return;
+        }
+    }
+
+
     parseExpression(&Token);
     isExpression = true;
     PreviousToken = Token;
 
 
-
+    
     //TODO - store expression value into the symtable - expressions not done yet
     //it's an idea - maybe should be placed right in expression function
     BinaryTreePtr node = btGetVariable(symtable, name);
@@ -724,25 +771,9 @@ bool unaryOperation(token Token) {
  * @copydoc params
  */
 void params() {
-    expression();
-    //PreviousToken = getNextToken();
+    parseExpression(&PreviousToken);
 
-    paramsNext();
-}
-
-
-/**
- * @copydoc paramsNext
- */
-void paramsNext() {
-    if(PreviousToken.lexem == BRACKET_RIGHT) {
-        return ;
-    }
-
-    token Token = getNextToken();
-
-    if (Token.lexem != COMMA) {
-        PreviousToken = Token;
+    if (PreviousToken.lexem != COMMA) {
         return;
     }
 
@@ -754,18 +785,10 @@ void paramsNext() {
  * @copydoc expression
  */
 void expression() {
-    //TODO expressions are not done ... delete this after
-    PreviousToken = getNextToken();
-}
-
-
-/**
- * @copydoc  expressionFirst
- */
-bool expressionFirst(token Token) {
-    //TODO - delete after implementation this function
-    Token.lexem = Token.lexem + 1;
-    return true;
+    token Token;
+    Token.lexem = -1;
+    parseExpression(&Token);
+    PreviousToken = Token;
 }
 
 
