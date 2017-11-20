@@ -715,10 +715,6 @@ void printNext() {
 
     token Token = PreviousToken;
 
-    if (Token.lexem == EOL) {
-        return;
-    }
-
 	ast_stmt* print_stmt = make_printStmt(expressionTree);
 
 	stackItem item;
@@ -744,8 +740,14 @@ void printNext() {
         printErrAndExit(ERROR_SYNTAX, "';' was expected");
     }
 
-    //Resetting prev. token
-    PreviousToken.lexem = -1;
+
+    Token = getNextToken();
+    PreviousToken = Token;
+
+    if (Token.lexem == EOL) {
+        return;
+    }
+
     printNext();
 }
 
@@ -1007,15 +1009,22 @@ void expression(ast_exp** expressionTree) {
 void mainBody() {
     mainBodyIt();
 
+    token Token = getNextToken();
+    eol(Token.lexem);
+
     statement();
 
-    token Token = PreviousToken;
+    Token = PreviousToken;
 
     end(Token.lexem);
 
     mainBodyIt();
 
     Token = getNextToken();
+
+    if(Token.lexem == EOL) {
+        Token = getNextToken();
+    }
 
     if (Token.lexem != EOF) {
         printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
@@ -1040,8 +1049,4 @@ void mainBodyIt() {
         //Resetting token
         PreviousToken.lexem = -1;
     }
-
-    Token = getNextToken();
-
-    eol(Token.lexem);
 }
