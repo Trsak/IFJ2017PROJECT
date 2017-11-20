@@ -13,7 +13,7 @@
 
 typedef struct Exp {
 	enum { integerExp, doubleExp, stringExp, variableExp,
-		binaryExp, unaryExp} tag_exp;
+		binaryExp, unaryExp, bracketExp} tag_exp;
 
 	union {
 		int	numberExp;
@@ -31,6 +31,12 @@ typedef struct Exp {
 			struct Exp* operand;
 		} unaryExp;
 
+		struct {
+			string leftBracket;
+			struct Exp* expression;
+			string rightBracket;
+		} bracketExp;
+
 	} op;
 } ast_exp;
 
@@ -39,15 +45,20 @@ typedef struct functionArgs {
 	struct functionArgs *next;
 } functionArgs;
 
+typedef struct {
+	struct Stmt* array;
+	int length;
+} stmtArray;
+
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
 		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
-		var_assign_stmt, if_stmt, return_stmt} tag_stmt;
+		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt} tag_stmt;
 
 	union {
 		struct {
 			ast_exp* condition;
-			struct Stmt* block;
+			stmtArray block;
 		} while_stmt;
 
 		struct {
@@ -60,6 +71,11 @@ typedef struct Stmt {
 		} var_decl_assign_stmt;
 
 		struct {
+			ast_exp* left;
+			ast_exp* expression;
+		} var_assign_stmt;
+
+		struct {
 			BinaryTreePtr function;
 			functionArgs *args;
 		} function_decl_stmt;
@@ -67,7 +83,7 @@ typedef struct Stmt {
 		struct {
 			BinaryTreePtr function;
 			functionArgs *args;
-			struct Stmt* block;
+			stmtArray block;
 		} function_definition_stmt;
 
 		struct {
@@ -86,11 +102,25 @@ typedef struct Stmt {
 
 		struct {
 			ast_exp* condition;
-			struct Stmt* ifBlock;
+			stmtArray ifBlock;
 			struct Stmt* elseStmt;
 		} if_stmt;
+
+		struct {
+			ast_exp* identifier;
+		} input_stmt;
+
+		struct {
+			ast_exp* expression;
+		} print_stmt;
 	} op;
 } ast_stmt;
+
+void stmtArrayInit(stmtArray* array);
+
+void addStmtToArray(stmtArray* array, ast_stmt* stmt);
+
+void addArgumentToArray(functionArgs** args, ast_exp* argument);
 
 
 /** =====EXPRESSION FUNCTIONS===== */
@@ -143,6 +173,15 @@ ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
  */
 ast_exp* make_unaryExp(string oper, ast_exp *operand);
 
+/**
+ * @brief Create node in AST of expression in brackets. Represents E -> (E)
+ * @param leftBracket Left bracket
+ * @param expression Abstract syntax subtree for expression in brackets.
+ * @param rightBracket Right bracket
+ * @return Pointer to AST node (expression).
+ */
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket);
+
 
 /** =====STATEMENT FUNCTIONS===== */
 /**
@@ -151,7 +190,7 @@ ast_exp* make_unaryExp(string oper, ast_exp *operand);
  * @param code_block Pointer to array of statements in while loop.
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_whileStmt(ast_exp* condition, ast_stmt* code_block);
+ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block);
 
 /**
  * @brief Create node in AST of variable declaration statement.
@@ -183,7 +222,7 @@ ast_stmt* make_functionDeclStmt(BinaryTreePtr function, functionArgs *args);
  * @param code_block
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, ast_stmt* code_block);
+ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtArray code_block);
 
 /**
  * @brief Create node in AST of call function statement.
@@ -201,6 +240,14 @@ ast_stmt* make_callFunctionStmt(BinaryTreePtr, functionArgs *args);
 ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction);
 
 /**
+ * @brief Create node in AST of assignment to variable statement.
+ * @param left Variable (as ast_exp*) to store the result of expression.
+ * @param expression Expression to be assigned to variable
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_varAssignStmt(ast_exp* left, ast_exp* expression);
+
+/**
  * @brief Create node in AST of return statement.
  * @param ret
  * @return Pointer to AST node (statement).
@@ -215,6 +262,22 @@ ast_stmt* make_returnStmt(ast_exp* ret);
  * @param elseStmt
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_ifStmt(ast_exp* condition, ast_stmt* ifBlock, ast_stmt* elseStmt);
+ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt);
+
+/**
+ * @brief Create node in AST of input statement.
+ *
+ * @param identifier Identifier to store input from user
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_inputStmt(ast_exp* identifier);
+
+/**
+ * @brief Create node in AST of print statement.
+ *
+ * @param expression Expression (it's result) to print to standard output
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_printStmt(ast_exp* expression);
 
 #endif //IFJ2017PROJECT_AST_H

@@ -15,11 +15,15 @@
 #include "garbage_collector.h"
 #include "symtable.h"
 #include "precedence.h"
+#include "ast.h"
+#include "stack.h"
 
 
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
 bool isExpression;
 char *functionName;
+stmtArray globalStmtArray;
+Stack stmtStack;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 
@@ -86,7 +90,8 @@ void IdToken(int lexem);
  * @param isFunction
  * @param params
  */
-void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, bool defined, bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
+void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared,	bool defined,
+				bool isFunction, BinaryTreePtr *params, datatype *typeOfParams, int paramNumber);
 
 
 /**

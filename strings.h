@@ -8,9 +8,9 @@
 #define IFJ_STRINGS_H
 
 typedef struct {
-    char *str;        // string that ends with /0 char
-    int length;        // string length
-    int allocSize;    // size of allocated memory
+	char *str;        // string that ends with /0 char
+	int length;        // string length
+	int allocSize;    // size of allocated memory
 } string;
 
 #define STR_LEN_INC 8 // primary size of allocation in bytes
@@ -44,8 +44,16 @@ void strClear(string *s);
  * @param c - character to be added to the structure.
  * @return - 1 if any problem occurred, 0 if not.
  *
- * Adds a char 'c' on the end of the char *str.
+ * Adds a char 'c' on the end of the char *str and resize the string length if needed.
  */
 int strAddChar(string *s1, char c);
+
+/**
+ * @param s - this is a pointer for a string structure to operate with.
+ * @return - 1 if any problem occurred, 0 if not.
+ *
+ * Resize the string length twice. This function is called when the string is filled with hexadecimal number and converted to decimal. Otherwise it might cause a problem.
+ */
+int strSizeUp(string *s1);
 
 #endif //UNTITLED_STRING_H
