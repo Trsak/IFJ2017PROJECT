@@ -100,18 +100,44 @@ void program() {
     inFunction = false;
 
     mainBody();
+
 /*
 	for(int i = 0; i < globalStmtArray.length; i++) {
 		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
-			printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
+			// TODO: segfault if function is not declared but is defined!!
+			//printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 		}
 		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
 			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
 		}
-	}
- */
+		else if(globalStmtArray.array[i].tag_stmt == var_assign_stmt) {
+			printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->op.variableExp->data.name);
+			ast_exp* exp = globalStmtArray.array[i].op.var_assign_stmt.expression;
+			if(exp->op.binaryExp.left != NULL && exp->op.binaryExp.left->tag_exp == bracketExp) {
+				printf("%s", exp->op.binaryExp.left->op.bracketExp.leftBracket.str);
+				printf("%d", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.left->op.numberExp);
+				printf("%s", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.oper.str);
+				printf("%d", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.right->op.numberExp);
+				printf("%s", exp->op.binaryExp.left->op.bracketExp.rightBracket.str);
+
+				printf("%s", exp->op.binaryExp.oper.str);
+				printf("%d\n", exp->op.binaryExp.right->op.numberExp);
+			}
+		}
+		else if(globalStmtArray.array[i].tag_stmt == print_stmt) {
+			ast_exp* exp = globalStmtArray.array[i].op.print_stmt.expression;
+			if(exp->tag_exp == variableExp) {
+				printf("print %s;\n", exp->op.variableExp->data.name);
+			}
+			else if(exp->tag_exp == integerExp) {
+				printf("print %d;\n", exp->op.numberExp);
+			}
+		}
+		printf("\n");
+	}*/
+
 }
 
 
@@ -450,10 +476,36 @@ void statement() {
     token Token = getNextToken();
     char *name = "";
 
+	BinaryTreePtr node;
+	ast_exp* expressionTree = NULL;
 
     switch (Token.lexem) {
         case ID:
+
             name = Token.value.str;
+
+			/** Semantics: Check if variable was declared */
+			if(inFunction) {
+				BinaryTreePtr node1;
+				node1 = btGetVariable(symtable, name);
+				if(node1 && node1->data.isFunction) {
+					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
+				}
+				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+				node = btGetVariable(node1, name);
+				if(node == NULL || !node->data.declared) {
+					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
+				}
+			}
+			else {
+				node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
+				}
+				if(node == NULL || !node->data.declared) {
+					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
+				}
+			}
 
             assignment(false, name);
 
@@ -470,7 +522,6 @@ void statement() {
             asDataType(&type);
 
             /** Semantics: Check if variable was already declared */
-            BinaryTreePtr node;
             if(inFunction) {
                 BinaryTreePtr node1;
                 node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
@@ -488,6 +539,9 @@ void statement() {
             }
             else {
                 node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_OTHER_SEM, "Function '%s' already declared!", name);
+				}
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
                 }
@@ -518,7 +572,26 @@ void statement() {
             break;
 
         case PRINT:
-            expression();
+			expression(&expressionTree);
+
+			ast_stmt* print_stmt = make_printStmt(expressionTree);
+
+			stackItem item;
+			if(!stackEmpty(&stmtStack)) {
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, print_stmt);
+				}
+				else if(item.stmt->tag_stmt == while_stmt) {
+					addStmtToArray(&item.stmt->op.while_stmt.block, print_stmt);
+				}
+				else if(item.stmt->tag_stmt == if_stmt) {
+					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, print_stmt);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, print_stmt);
+			}
 
             Token = PreviousToken;
 
@@ -540,7 +613,7 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'While' was expected");
             }
 
-            expression();
+            expression(&expressionTree);
 
             Token = PreviousToken;
 
@@ -563,7 +636,7 @@ void statement() {
             break;
 
         case IF:
-            expression();
+            expression(&expressionTree);
             Token = PreviousToken;
 
             if (Token.lexem != THEN) {
@@ -601,7 +674,7 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
             }
 
-            expression();
+            expression(&expressionTree);
 
             break;
 
@@ -636,13 +709,34 @@ void statement() {
  * @copydoc printNext
  */
 void printNext() {
+	ast_exp* expressionTree;
 
-    expression();
+    expression(&expressionTree);
+
     token Token = PreviousToken;
 
     if (Token.lexem == EOL) {
         return;
     }
+
+	ast_stmt* print_stmt = make_printStmt(expressionTree);
+
+	stackItem item;
+	if(!stackEmpty(&stmtStack)) {
+		stackTop(&stmtStack, &item);
+		if(item.stmt->tag_stmt == function_definition_stmt) {
+			addStmtToArray(&item.stmt->op.function_definition_stmt.block, print_stmt);
+		}
+		else if(item.stmt->tag_stmt == while_stmt) {
+			addStmtToArray(&item.stmt->op.while_stmt.block, print_stmt);
+		}
+		else if(item.stmt->tag_stmt == if_stmt) {
+			addStmtToArray(&item.stmt->op.if_stmt.ifBlock, print_stmt);
+		}
+	}
+	else {
+		addStmtToArray(&globalStmtArray, print_stmt);
+	}
 
     Token = PreviousToken;
 
@@ -687,7 +781,8 @@ void ifNext() {
  * @copydoc elseIf
  */
 void elseIf() {
-    expression();
+	ast_exp* expressionTree;
+    expression(&expressionTree);
 
     token Token = PreviousToken;
 
@@ -772,6 +867,9 @@ void assignment(bool isDeclaration, char *name) {
 
         //if this one is a function, then brackets are expected
         if (ptr->data.isFunction) {
+			if(!ptr->data.defined) {
+				printErrAndExit(ERROR_PROG_SEM, "Try to call undefined function '%s'!", ptr->data.name);
+			}
 
             Token = getNextToken();
 
@@ -794,7 +892,36 @@ void assignment(bool isDeclaration, char *name) {
     }
 
 
-    parseExpression(&Token);
+	ast_exp* expressionTree;
+	parseExpression(&Token, &expressionTree);
+
+	BinaryTreePtr node;
+	if(inFunction) {
+		node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+		node = btGetVariable(node, name);
+	}
+	else {
+		node = btGetVariable(symtable, name);
+	}
+	ast_stmt* assign_stmt = make_varAssignStmt(make_variableExp(node), expressionTree);
+
+	stackItem item;
+	if(!stackEmpty(&stmtStack)) {
+		stackTop(&stmtStack, &item);
+		if(item.stmt->tag_stmt == function_definition_stmt) {
+			addStmtToArray(&item.stmt->op.function_definition_stmt.block, assign_stmt);
+		}
+		else if(item.stmt->tag_stmt == while_stmt) {
+			addStmtToArray(&item.stmt->op.while_stmt.block, assign_stmt);
+		}
+		else if(item.stmt->tag_stmt == if_stmt) {
+			addStmtToArray(&item.stmt->op.if_stmt.ifBlock, assign_stmt);
+		}
+	}
+	else {
+		addStmtToArray(&globalStmtArray, assign_stmt);
+	}
+
     isExpression = true;
     PreviousToken = Token;
 
@@ -802,7 +929,7 @@ void assignment(bool isDeclaration, char *name) {
     
     //TODO - store expression value into the symtable - expressions not done yet
     //it's an idea - maybe should be placed right in expression function
-    BinaryTreePtr node = btGetVariable(symtable, name);
+    node = btGetVariable(symtable, name);
     datatype type = node->data.type;
 
     char *value;
@@ -847,8 +974,9 @@ bool unaryOperation(token Token) {
  * @copydoc params
  */
 void params() {
-    parseExpression(&PreviousToken);
-    
+	ast_exp* expressionTree;
+	parseExpression(&PreviousToken, &expressionTree);
+
     paramsNext();
 }
 
@@ -865,10 +993,10 @@ void paramsNext() {
 /**
  * @copydoc expression
  */
-void expression() {
+void expression(ast_exp** expressionTree) {
     token Token;
     Token.lexem = -1;
-    parseExpression(&Token);
+	parseExpression(&Token, expressionTree);
     PreviousToken = Token;
 }
 
