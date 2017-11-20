@@ -87,6 +87,35 @@ bool isOperator(precedStack symbol) {
     return false;
 }
 
+char *getOperator(precedStack symbol) {
+	switch (symbol) {
+		case PREC_DIVISION:
+			return "/";
+		case PREC_GREATER:
+			return ">";
+		case PREC_GREATER_EQUAL:
+			return ">=";
+		case PREC_LESS:
+			return "<";
+		case PREC_LESS_EQUAL:
+			return "<=";
+		case PREC_ASSIGNMENT:
+			return "=";
+		case PREC_MINUS:
+			return "-";
+		case PREC_MULTIPLY:
+			return "*";
+		case PREC_NOT_EQUAL:
+			return "<>";
+		case PREC_PLUS:
+			return "+";
+		case PREC_BACKSLASH:
+			return "\\";
+		default:
+			return "";
+	}
+}
+
 
 /**
  * @copydoc parseExpression
@@ -111,6 +140,11 @@ void parseExpression(token *PreviousToken) {
     Stack stack;
     stackItem item;
     stackInit(&stack);
+
+	ast_exp* exp = NULL;
+	ast_exp* expTmp;
+	ast_exp* expRight = NULL;
+	BinaryTreePtr node;
 
     char operation;
     unsigned int PrecTabRow = 0;
@@ -162,11 +196,15 @@ void parseExpression(token *PreviousToken) {
 
                 if (item.symbol == PREC_E) {
                     //If E is on the top, then pop it
+					stackItem item;
+					stackTop(&stack, &item);
+					expTmp = item.Exp;
+
                     stackPop(&stack);
 
                     //Then push '<' and E non-term
                     stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
-                    stackPush(&stack, NULL, NULL, NULL, PREC_E, NULL);
+                    stackPush(&stack, NULL, expTmp, NULL, PREC_E, NULL);
 
                     //Then push terminal (id, ..)
                     stackPush(&stack, NULL, NULL, NULL, PrecTabCol, NULL);
@@ -178,6 +216,10 @@ void parseExpression(token *PreviousToken) {
 
                     //Here push '<' non-term and terminal like ID or constant or '(' .. etc.
                     stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
+					if(isOperator(item.symbol)) {
+						printf("%s\n", getOperator(item.symbol));
+					}
+					printf("push: %s\n", Token.value.str);
                     stackPush(&stack, NULL, NULL, &Token, PrecTabCol, NULL);
                     //Now item on top is also a terminal
                 }
@@ -195,17 +237,73 @@ void parseExpression(token *PreviousToken) {
 
                 stackTop(&stack, &item);
 
+				if(isOperator(item.symbol)) {
+					printf("%s\n", getOperator(item.symbol));
+				}
+
+				string oper;
+
+				if(item.symbol == PREC_ID) {
+					if(inFunction) {
+						node = btGetVariable(symtable, functionName);
+						BinaryTreePtr nodeTmp = btGetVariable(node, item.Token.value.str);
+						node = NULL;
+						node = gcmalloc(sizeof(struct BinaryTree));
+						memcpy(node, nodeTmp, sizeof(struct BinaryTree));
+					}
+					else {
+						node = symtable;
+						node = btGetVariable(node, item.Token.value.str);
+					}
+
+					if(node != NULL) {
+						exp = make_variableExp(node);
+					}
+					else {
+						printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", item.Token.value.str);
+					}
+				}
+				else if(item.symbol == PREC_E) {
+					printf("==REDUCTION E<OPER>E->E==\n");
+					printf("add right operand\n");
+					exp = make_binaryExp(oper, NULL, exp);
+				}
+				else if(item.symbol == PREC_NUMBER) {
+					printf("reduction number\n");
+					exp = make_numberExp(atoi(item.Token.value.str));
+				}
+				else if(item.symbol == PREC_DECIMAL_NUMBER) {
+					exp = make_decimalExp(strtod(item.Token.value.str, NULL));
+				}
                 //until it finds '<' in stack
                 do {
                     stackPop(&stack);
                     stackTop(&stack, &item);
+					if(isOperator(item.symbol)) {
+						printf("add operator\n");
+						exp->op.binaryExp.oper.str = getOperator(item.symbol);
+					}
+					else if(item.symbol == PREC_E) {
+						printf("add left operand\n\n");
+						exp->op.binaryExp.left = item.Exp;
+					}
                 } while (item.symbol != PREC_LT);
 
                 stackPop(&stack);
                 stack.maxTerm = stack.top;
                 //Replace all by 'E'
-                stackPush(&stack, NULL, NULL, NULL, PREC_E, NULL);
+                stackPush(&stack, NULL, exp, NULL, PREC_E, NULL);
 
+				if(exp != NULL && exp->op.binaryExp.left != NULL) {
+					if(exp->op.binaryExp.left->op.binaryExp.left != NULL) {
+						printf("%d", exp->op.binaryExp.left->op.binaryExp.left->op.numberExp);
+						printf("%s", exp->op.binaryExp.left->op.binaryExp.oper.str);
+						printf("%d", exp->op.binaryExp.left->op.binaryExp.right->op.numberExp);
+
+					}
+					printf("%s", exp->op.binaryExp.oper.str);
+					printf("%d\n", exp->op.binaryExp.right->op.numberExp);
+				}
                 break;
 
 
