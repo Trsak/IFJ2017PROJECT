@@ -113,6 +113,19 @@ ast_exp* make_unaryExp(string oper, ast_exp* operand) {
 	return e;
 }
 
+/**
+ * @copydoc
+ */
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket) {
+	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
+
+	e->tag_exp = bracketExp;
+	e->op.bracketExp.leftBracket = leftBracket;
+	e->op.bracketExp.expression = expression;
+	e->op.bracketExp.rightBracket = rightBracket;
+	return e;
+}
+
 
 /**
  * @copydoc
@@ -219,5 +232,27 @@ ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt)
 	e->op.if_stmt.condition = condition;
 	e->op.if_stmt.ifBlock = ifBlock;
 	e->op.if_stmt.elseStmt = elseStmt;
+	return e;
+}
+
+/**
+ * @copydoc
+ */
+ast_stmt* make_inputStmt(ast_exp* identifier) {
+	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+	e->tag_stmt = input_stmt;
+	e->op.input_stmt.identifier= identifier;
+	return e;
+}
+
+/**
+ * @copydoc
+ */
+ast_stmt* make_printStmt(ast_exp* expression) {
+	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+	e->tag_stmt = print_stmt;
+	e->op.print_stmt.expression = expression;
 	return e;
 }
