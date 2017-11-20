@@ -11,6 +11,7 @@
 #include "error_codes.h"
 #include "parser.h"
 #include "garbage_collector.h"
+#include "generator.h"
 
 int main(int argc, char **argv) {
     if (argc != 1) {
@@ -27,7 +28,7 @@ int main(int argc, char **argv) {
 
     program();
 
-    printf(".IFJcode17\n");
+    startGenerating();
 
     return 0;
 }

@@ -202,7 +202,7 @@ ast_stmt* make_callFunctionStmt(BinaryTreePtr function, functionArgs *args) {
 /**
  * @copydoc
  */
-ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction) {
+ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, ast_stmt* callingFunction) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_assign_function_stmt;
@@ -214,7 +214,7 @@ ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction) {
 /**
  * @copydoc
  */
-ast_stmt* make_varAssignStmt(ast_exp* left, ast_exp* expression) {
+ast_stmt* make_varAssignStmt(BinaryTreePtr left, ast_exp* expression) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_assign_stmt;
