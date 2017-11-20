@@ -104,6 +104,7 @@ void program() {
 /*
 	for(int i = 0; i < globalStmtArray.length; i++) {
 		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
+			// TODO: segfault if function is not declared but is defined!!
 			//printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 		}
@@ -125,9 +126,17 @@ void program() {
 				printf("%d\n", exp->op.binaryExp.right->op.numberExp);
 			}
 		}
+		else if(globalStmtArray.array[i].tag_stmt == print_stmt) {
+			ast_exp* exp = globalStmtArray.array[i].op.print_stmt.expression;
+			if(exp->tag_exp == variableExp) {
+				printf("print %s;\n", exp->op.variableExp->data.name);
+			}
+			else if(exp->tag_exp == integerExp) {
+				printf("print %d;\n", exp->op.numberExp);
+			}
+		}
 		printf("\n");
 	}*/
-
 
 }
 
@@ -468,6 +477,7 @@ void statement() {
     char *name = "";
 
 	BinaryTreePtr node;
+	ast_exp* expressionTree = NULL;
 
     switch (Token.lexem) {
         case ID:
@@ -562,7 +572,26 @@ void statement() {
             break;
 
         case PRINT:
-            expression();
+			expression(&expressionTree);
+
+			ast_stmt* print_stmt = make_printStmt(expressionTree);
+
+			stackItem item;
+			if(!stackEmpty(&stmtStack)) {
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, print_stmt);
+				}
+				else if(item.stmt->tag_stmt == while_stmt) {
+					addStmtToArray(&item.stmt->op.while_stmt.block, print_stmt);
+				}
+				else if(item.stmt->tag_stmt == if_stmt) {
+					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, print_stmt);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, print_stmt);
+			}
 
             Token = PreviousToken;
 
@@ -584,7 +613,7 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'While' was expected");
             }
 
-            expression();
+            expression(&expressionTree);
 
             Token = PreviousToken;
 
@@ -607,7 +636,7 @@ void statement() {
             break;
 
         case IF:
-            expression();
+            expression(&expressionTree);
             Token = PreviousToken;
 
             if (Token.lexem != THEN) {
@@ -645,7 +674,7 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
             }
 
-            expression();
+            expression(&expressionTree);
 
             break;
 
@@ -680,13 +709,34 @@ void statement() {
  * @copydoc printNext
  */
 void printNext() {
+	ast_exp* expressionTree;
 
-    expression();
+    expression(&expressionTree);
+
     token Token = PreviousToken;
 
     if (Token.lexem == EOL) {
         return;
     }
+
+	ast_stmt* print_stmt = make_printStmt(expressionTree);
+
+	stackItem item;
+	if(!stackEmpty(&stmtStack)) {
+		stackTop(&stmtStack, &item);
+		if(item.stmt->tag_stmt == function_definition_stmt) {
+			addStmtToArray(&item.stmt->op.function_definition_stmt.block, print_stmt);
+		}
+		else if(item.stmt->tag_stmt == while_stmt) {
+			addStmtToArray(&item.stmt->op.while_stmt.block, print_stmt);
+		}
+		else if(item.stmt->tag_stmt == if_stmt) {
+			addStmtToArray(&item.stmt->op.if_stmt.ifBlock, print_stmt);
+		}
+	}
+	else {
+		addStmtToArray(&globalStmtArray, print_stmt);
+	}
 
     Token = PreviousToken;
 
@@ -731,7 +781,8 @@ void ifNext() {
  * @copydoc elseIf
  */
 void elseIf() {
-    expression();
+	ast_exp* expressionTree;
+    expression(&expressionTree);
 
     token Token = PreviousToken;
 
@@ -942,10 +993,10 @@ void paramsNext() {
 /**
  * @copydoc expression
  */
-void expression(ast_exp* expressionTree) {
+void expression(ast_exp** expressionTree) {
     token Token;
     Token.lexem = -1;
-	parseExpression(&Token, &expressionTree);
+	parseExpression(&Token, expressionTree);
     PreviousToken = Token;
 }
 
