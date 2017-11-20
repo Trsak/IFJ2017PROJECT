@@ -67,7 +67,7 @@ bool stackFull(Stack *S) {
 /**
  * @copydoc stackPush
  */
-void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol) {
+void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedStack symbol, ast_stmt* stmt) {
     if (stackFull(S)) {
         stackResize(S);
     }
@@ -77,7 +77,10 @@ void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedS
     S->item[S->top].Exp = Exp;
     S->item[S->top].ptr = ptr;
     S->item[S->top].symbol = symbol;
-    S->item[S->top].Token = Token;
+	if(Token != NULL) {
+		S->item[S->top].Token = *Token;
+	}
+    S->item[S->top].stmt = stmt;
 }
 
 /**
