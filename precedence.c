@@ -215,10 +215,10 @@ void parseExpression(token *PreviousToken) {
 
                     //Here push '<' non-term and terminal like ID or constant or '(' .. etc.
                     stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
-					/*if(isOperator(item.symbol)) {
+					if(isOperator(item.symbol)) {
 						printf("%s\n", getOperator(item.symbol));
 					}
-					printf("push: %s\n", Token.value.str);*/
+					printf("push: %s\n", Token.value.str);
                     stackPush(&stack, NULL, NULL, &Token, PrecTabCol, NULL);
                     //Now item on top is also a terminal
                 }
@@ -235,11 +235,11 @@ void parseExpression(token *PreviousToken) {
                 //TODO - for example C(integer)  = A (string) + B (integer)
 
                 stackTop(&stack, &item);
-/*
+
 				if(isOperator(item.symbol)) {
 					printf("%s\n", getOperator(item.symbol));
 				}
-*/
+
 				string oper;
 
 				if(item.symbol == PREC_ID) {
@@ -263,28 +263,40 @@ void parseExpression(token *PreviousToken) {
 					}
 				}
 				else if(item.symbol == PREC_E) {
-					//printf("==REDUCTION E<OPER>E->E==\n");
-					//printf("add right operand\n");
+					printf("==REDUCTION E<OPER>E->E==\n");
+					printf("add right operand\n");
 					exp = make_binaryExp(oper, NULL, exp);
 				}
 				else if(item.symbol == PREC_NUMBER) {
-					//printf("reduction number\n");
+					printf("reduction number\n");
 					exp = make_numberExp(atoi(item.Token.value.str));
 				}
 				else if(item.symbol == PREC_DECIMAL_NUMBER) {
 					exp = make_decimalExp(strtod(item.Token.value.str, NULL));
+				}
+				else if(item.symbol == PREC_BRACKET_RIGHT) {
+					oper.str = ")";
+					exp = make_bracketExp(oper, NULL, oper);
 				}
                 //until it finds '<' in stack
                 do {
                     stackPop(&stack);
                     stackTop(&stack, &item);
 					if(isOperator(item.symbol)) {
-						//printf("add operator\n");
+						printf("add operator\n");
 						exp->op.binaryExp.oper.str = getOperator(item.symbol);
 					}
 					else if(item.symbol == PREC_E) {
-						//printf("add left operand\n\n");
-						exp->op.binaryExp.left = item.Exp;
+						if(exp->tag_exp == binaryExp) {
+							printf("add left operand\n\n");
+							exp->op.binaryExp.left = item.Exp;
+						}
+						else if(exp->tag_exp == bracketExp) {
+							exp->op.bracketExp.expression = item.Exp;
+						}
+					}
+					else if(item.symbol == PREC_BRACKET_LEFT) {
+						exp->op.bracketExp.leftBracket.str = "(";
 					}
                 } while (item.symbol != PREC_LT);
 
@@ -307,7 +319,7 @@ void parseExpression(token *PreviousToken) {
 				}*/
 
 				/** for 5+4*8 */
-/*
+				/*
 				if(exp != NULL && exp->op.binaryExp.left != NULL) {
 					printf("%d", exp->op.binaryExp.left->op.numberExp);
 					printf("%s", exp->op.binaryExp.oper.str);
@@ -318,6 +330,19 @@ void parseExpression(token *PreviousToken) {
 
 					}
 				}*/
+				/** for (5+4)*8 */
+				/*
+				if(exp != NULL && exp->op.binaryExp.left != NULL && exp->op.binaryExp.left->tag_exp == bracketExp) {
+					printf("%s", exp->op.binaryExp.left->op.bracketExp.leftBracket.str);
+					printf("%d", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.left->op.numberExp);
+					printf("%s", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.oper.str);
+					printf("%d", exp->op.binaryExp.left->op.bracketExp.expression->op.binaryExp.right->op.numberExp);
+					printf("%s", exp->op.binaryExp.left->op.bracketExp.rightBracket.str);
+
+					printf("%s", exp->op.binaryExp.oper.str);
+					printf("%d\n", exp->op.binaryExp.right->op.numberExp);
+				}
+				 */
                 break;
 
 
