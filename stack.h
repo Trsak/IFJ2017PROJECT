@@ -40,7 +40,7 @@ typedef enum {
 typedef struct stackItem {
     BinaryTreePtr *ptr;
     ast_exp *Exp;
-    token *Token;
+    token Token;
     precedStack symbol;
 	ast_stmt* stmt;
 } stackItem;

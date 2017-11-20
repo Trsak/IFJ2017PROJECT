@@ -77,7 +77,9 @@ void stackPush(Stack *S, BinaryTreePtr *ptr, ast_exp *Exp, token *Token, precedS
     S->item[S->top].Exp = Exp;
     S->item[S->top].ptr = ptr;
     S->item[S->top].symbol = symbol;
-    S->item[S->top].Token = Token;
+	if(Token != NULL) {
+		S->item[S->top].Token = *Token;
+	}
     S->item[S->top].stmt = stmt;
 }
 

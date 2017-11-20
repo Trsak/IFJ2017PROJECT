@@ -13,7 +13,7 @@
 
 typedef struct Exp {
 	enum { integerExp, doubleExp, stringExp, variableExp,
-		binaryExp, unaryExp} tag_exp;
+		binaryExp, unaryExp, bracketExp} tag_exp;
 
 	union {
 		int	numberExp;
@@ -31,6 +31,12 @@ typedef struct Exp {
 			struct Exp* operand;
 		} unaryExp;
 
+		struct {
+			string leftBracket;
+			struct Exp* expression;
+			string rightBracket;
+		} bracketExp;
+
 	} op;
 } ast_exp;
 
@@ -47,7 +53,7 @@ typedef struct {
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
 		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
-		var_assign_stmt, if_stmt, return_stmt} tag_stmt;
+		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt} tag_stmt;
 
 	union {
 		struct {
@@ -94,6 +100,14 @@ typedef struct Stmt {
 			stmtArray ifBlock;
 			struct Stmt* elseStmt;
 		} if_stmt;
+
+		struct {
+			ast_exp* identifier;
+		} input_stmt;
+
+		struct {
+			ast_exp* expression;
+		} print_stmt;
 	} op;
 } ast_stmt;
 
@@ -153,6 +167,15 @@ ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
  * @return Pointer to AST node (expression).
  */
 ast_exp* make_unaryExp(string oper, ast_exp *operand);
+
+/**
+ * @brief Create node in AST of expression in brackets. Represents E -> (E)
+ * @param leftBracket Left bracket
+ * @param expression Abstract syntax subtree for expression in brackets.
+ * @param rightBracket Right bracket
+ * @return Pointer to AST node (expression).
+ */
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket);
 
 
 /** =====STATEMENT FUNCTIONS===== */
@@ -227,5 +250,21 @@ ast_stmt* make_returnStmt(ast_exp* ret);
  * @return Pointer to AST node (statement).
  */
 ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt);
+
+/**
+ * @brief Create node in AST of input statement.
+ *
+ * @param identifier Identifier to store input from user
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_inputStmt(ast_exp* identifier);
+
+/**
+ * @brief Create node in AST of print statement.
+ *
+ * @param expression Expression (it's result) to print to standard output
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_printStmt(ast_exp* expression);
 
 #endif //IFJ2017PROJECT_AST_H
