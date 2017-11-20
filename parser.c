@@ -599,9 +599,6 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "';' was expected");
             }
 
-            //Resetting prev.token
-            PreviousToken.lexem = -1;
-
             printNext();
 
             break;
@@ -711,9 +708,15 @@ void statement() {
 void printNext() {
 	ast_exp* expressionTree;
 
-    expression(&expressionTree);
+    token Token = getNextToken();
+    PreviousToken = Token;
 
-    token Token = PreviousToken;
+    if (Token.lexem == EOL) {
+        return;
+    }
+
+    parseExpression(&Token, &expressionTree);
+
 
 	ast_stmt* print_stmt = make_printStmt(expressionTree);
 
@@ -734,19 +737,15 @@ void printNext() {
 		addStmtToArray(&globalStmtArray, print_stmt);
 	}
 
-    Token = PreviousToken;
+    //Token = PreviousToken;
 
     if (Token.lexem != SEMICOLON) {
         printErrAndExit(ERROR_SYNTAX, "';' was expected");
     }
 
 
-    Token = getNextToken();
-    PreviousToken = Token;
-
-    if (Token.lexem == EOL) {
-        return;
-    }
+    //Token = getNextToken();
+    //PreviousToken = Token;
 
     printNext();
 }
