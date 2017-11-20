@@ -71,7 +71,7 @@ typedef struct Stmt {
 		} var_decl_assign_stmt;
 
 		struct {
-			ast_exp* left;
+			BinaryTreePtr left;
 			ast_exp* expression;
 		} var_assign_stmt;
 
@@ -92,7 +92,7 @@ typedef struct Stmt {
 		} call_function_stmt;
 
 		struct {
-			ast_exp* left;
+			BinaryTreePtr left;
 			struct Stmt* callFunction;
 		} var_assign_function_stmt;
 
@@ -237,7 +237,7 @@ ast_stmt* make_callFunctionStmt(BinaryTreePtr, functionArgs *args);
  * @param callingFunction
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction);
+ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, ast_stmt* callingFunction);
 
 /**
  * @brief Create node in AST of assignment to variable statement.
@@ -245,7 +245,7 @@ ast_stmt* make_varAssignFunctionStmt(ast_exp* left, ast_stmt* callingFunction);
  * @param expression Expression to be assigned to variable
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varAssignStmt(ast_exp* left, ast_exp* expression);
+ast_stmt* make_varAssignStmt(BinaryTreePtr left, ast_exp* expression);
 
 /**
  * @brief Create node in AST of return statement.

@@ -101,7 +101,7 @@ void program() {
 
     mainBody();
 
-/*
+
 	for(int i = 0; i < globalStmtArray.length; i++) {
 		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
 			// TODO: segfault if function is not declared but is defined!!
@@ -113,7 +113,7 @@ void program() {
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
 		}
 		else if(globalStmtArray.array[i].tag_stmt == var_assign_stmt) {
-			printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->op.variableExp->data.name);
+			printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->data.name);
 			ast_exp* exp = globalStmtArray.array[i].op.var_assign_stmt.expression;
 			if(exp->op.binaryExp.left != NULL && exp->op.binaryExp.left->tag_exp == bracketExp) {
 				printf("%s", exp->op.binaryExp.left->op.bracketExp.leftBracket.str);
@@ -136,7 +136,7 @@ void program() {
 			}
 		}
 		printf("\n");
-	}*/
+	}
 
 }
 
@@ -905,7 +905,7 @@ void assignment(bool isDeclaration, char *name) {
 	else {
 		node = btGetVariable(symtable, name);
 	}
-	ast_stmt* assign_stmt = make_varAssignStmt(make_variableExp(node), expressionTree);
+	ast_stmt* assign_stmt = make_varAssignStmt(node, expressionTree);
 
 	stackItem item;
 	if(!stackEmpty(&stmtStack)) {
