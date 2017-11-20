@@ -26,8 +26,36 @@ void printExpression(ast_exp *expression);
 /**
  * @return void
  *
+ * Calculates binary expression and prints it
+ */
+void printBinaryExpression(ast_exp *expression);
+
+/**
+ * @return void
+ *
  * Generates code to assign value for variable
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression);
+
+/**
+ * @return integer
+ *
+ * Gets integer result for expression
+ */
+int getIntegerExpressionValue(ast_exp *expression);
+
+/**
+ * @return double
+ *
+ * Gets float result for expression
+ */
+double getFloatExpressionValue(ast_exp *expression);
+
+/**
+ * @return string
+ *
+ * Gets string result for expression
+ */
+char *getStringExpressionValue(ast_exp *expression);
 
 #endif //IFJ2017PROJECT_GENERATOR_H

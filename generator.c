@@ -5,11 +5,9 @@
  */
 
 #include "generator.h"
+#include "symtable.h"
 #include "parser.h"
 
-/**
- * @copydoc startGenerating
- */
 void startGenerating() {
     printf(".IFJcode17\n");
 
@@ -39,12 +37,54 @@ void printExpression(ast_exp *expression) {
         case stringExp:
             printf("WRITE string@%s\n", expression->op.stringExp.str);
             break;
+        case variableExp:
+            printf("WRITE GF@%s\n", expression->op.variableExp->data.name);
+            break;
+        case binaryExp:
+            printBinaryExpression(expression); //TODO :O
+            break;
         default: //TODO remove
             break;
     }
 }
 
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
-    printf("%s\n", var->data.name);
+    printf("DEFVAR GF@%s\n", var->data.name);
+
+    switch (var->data.type) {
+        case TYPE_NUMBER:
+            printf("MOVE GF@%s int@%d\n", var->data.name, getIntegerExpressionValue(expression));
+            break;
+        case TYPE_DECIMAL:
+            printf("MOVE GF@%s float@%g\n", var->data.name, getFloatExpressionValue(expression));
+            break;
+        case TYPE_STRING:
+            printf("MOVE GF@%s string@%s\n", var->data.name, getStringExpressionValue(expression));
+            break;
+    }
+}
+
+void printBinaryExpression(ast_exp *expression) {
     (void) expression;
+}
+
+int getIntegerExpressionValue(ast_exp *expression) {
+    switch (expression->tag_exp) {
+        case integerExp:
+            return expression->op.numberExp;
+        default: //TODO remove
+            break;
+    }
+
+    return 0;
+}
+
+double getFloatExpressionValue(ast_exp *expression) {
+    (void) expression;
+    return 0.0f;
+}
+
+char *getStringExpressionValue(ast_exp *expression) {
+    (void) expression;
+    return "";
 }
