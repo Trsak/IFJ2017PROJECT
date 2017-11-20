@@ -1,0 +1,5 @@
+SCOPE
+	DIM a AS INTEGER
+	a = 5
+	PRINT a;
+END SCOPE
