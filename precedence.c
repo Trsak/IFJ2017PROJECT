@@ -13,8 +13,8 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>><><<<S>",    //rules for  '*'   0
         ">>>>>>>>>>><><<<S>",    //ruses for  '/'   1
         "<<>>>>>>>>><><<IS>",    //rules for  '\'   2
-        "<<<<>>>>>>><><<<<>",    //rules for  '+'   3
-        "<<<<>>>>>>><><<<S>",    //rules for  '-'   4
+        "<<<>>>>>>>><><<<<>",    //rules for  '+'   3
+        "<<<>>>>>>>><><<<S>",    //rules for  '-'   4
         "<<<<<>>>>>><><<<<>",    //rules for  '='   5
         "<<<<<>>>>>><><<<<>",    //rules for  '<>'  6
         "<<<<<>>>>>><><<<<>",    //rules for  '<'   7
