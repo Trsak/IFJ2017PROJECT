@@ -416,7 +416,7 @@ token getNextToken() {
                     } else {
                         ungetc(next, stdin);
                     }
-                } else if ((ascii >= 0 && ascii <= 32) || ascii = 35) {
+                } else if ((ascii >= 0 && ascii <= 32) || ascii == 35) {
                     strAddChar(&T.value, (char) 92);
                     strAddChar(&T.value, '0');
 
