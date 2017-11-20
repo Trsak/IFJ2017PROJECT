@@ -29,7 +29,7 @@ int getPositionInTable(int lexem);
 /**
  * Parses expression by precedence table
  */
-void parseExpression();
+void parseExpression(token *PreviousToken, ast_exp** expressionTree);
 
 #endif
 

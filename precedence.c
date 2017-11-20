@@ -120,7 +120,7 @@ char *getOperator(precedStack symbol) {
 /**
  * @copydoc parseExpression
  */
-void parseExpression(token *PreviousToken) {
+void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
     token Token = *PreviousToken;
 
     if ((*PreviousToken).lexem == COMMA) {
@@ -350,6 +350,7 @@ void parseExpression(token *PreviousToken) {
                 //If there's end of parsing expression
                 if (stack.item[stack.maxTerm].symbol == PREC_DOLLAR) {
                     *PreviousToken = Token;
+					*expressionTree = exp;
                     return ;
                 }
 
