@@ -62,21 +62,36 @@ token getNextToken() {
 
     bool decimal = false;
     bool decimal_e = false;
+	bool button = false;
 
     while (1) {
         c = getchar();
         switch (state) {
             case 0: // The beginning
 
-                if (c ==
+                if (button || c ==
                     '\n') { // If there are multiple EOLs, returns only one and increments line counter with every EOL
-                    line++;
+					button = false;
+	                line++;
                     while (isspace(c)) {
                         c = getchar();
                         if (c == '\n') {
                             line++;
                         }
                     }
+	                if (c == 39){
+		                state = 1;
+		                break;
+	                } else if (c == '/') {
+		                c = getchar();
+		                if (c == 39){
+			                state = 3;
+			                button = true;
+			                break;
+		                } else {
+			                ungetc(c, stdin);
+		                }
+	                }
                     ungetc(c, stdin);
                     T.lexem = EOL_ENUM;
                     return T;

@@ -1,0 +1,4 @@
+scope
+	dim str1 as string = !"\"\n\t\\\238"
+	dim str0 as string = !"\001\255\\\n"
+end scope
