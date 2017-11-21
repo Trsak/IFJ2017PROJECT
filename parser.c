@@ -449,6 +449,15 @@ void declareParamsNext(BinaryTreePtr node, BinaryTreePtr *params, datatype **typ
     return;
 }
 
+char* getTypeString(datatype type) {
+	if(type == (datatype)exp_integer)
+		return "integer";
+	else if(type == (datatype)exp_decimal)
+		return "double";
+	else
+		return "string";
+}
+
 
 /**
  * @copydoc dataType
@@ -916,6 +925,10 @@ void assignment(bool isDeclaration, char *name) {
 	}
 	else {
 		node = btGetVariable(symtable, name);
+	}
+
+	if(node->data.type != (datatype)expressionTree->datatype) {
+		printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
 	}
 
 	node->data.defined = true;
