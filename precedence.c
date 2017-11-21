@@ -131,13 +131,13 @@ datatype getDatatype(datatype left, datatype right, string oper) {
 		if(right == (datatype)exp_string) {
 			printErrAndExit(ERROR_TYPE_SEM, "Integer and string can't be in one expression!", oper.str);
 		}
-		if(strcmp(oper.str, "\\")) {
+		if(!strcmp(oper.str, "\\")) {
 			if(right != (datatype)exp_integer) {
 				printErrAndExit(ERROR_TYPE_SEM, "In integer division both operands must be integers!");
 			}
 			return exp_integer;
 		}
-		else if(strcmp(oper.str, "/")) {
+		else if(!strcmp(oper.str, "/")) {
 			return exp_decimal;
 		}
 		if(right == (datatype)exp_decimal) {
