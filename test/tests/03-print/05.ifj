@@ -1,0 +1,3 @@
+SCOPE
+	PRINT !"Ahoj\nSve'te";
+END SCOPE

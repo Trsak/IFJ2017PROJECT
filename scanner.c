@@ -375,7 +375,7 @@ token getNextToken() {
 
                 int ascii = (int) c;
 
-                if (c == 92) {
+                if (ascii == 92) {
                     char next = getchar();
                     if (next == '"') {
                         strAddChar(&T.value, '"');

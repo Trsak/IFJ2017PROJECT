@@ -73,7 +73,7 @@ void createParamsNode(BinaryTreePtr *params, char *name, datatype type) {
 void showAruments(functionArgs* args) {
 	functionArgs* arg = args;
 	while (arg != NULL) {
-		printf("\t-arg: %s\n", arg->argument->op.variableExp->data.name);
+		//printf("\t-arg: %s\n", arg->argument->op.variableExp->data.name);
 		arg = arg->next;
 	}
 }
@@ -101,11 +101,11 @@ void program() {
 
     mainBody();
 
-
+/*
 	for(int i = 0; i < globalStmtArray.length; i++) {
 		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
 			// TODO: segfault if function is not declared but is defined!!
-			//printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
+			printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 		}
 		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
@@ -113,7 +113,7 @@ void program() {
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
 		}
 		else if(globalStmtArray.array[i].tag_stmt == var_assign_stmt) {
-			printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->data.name);
+			//printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->data.name);
 			ast_exp* exp = globalStmtArray.array[i].op.var_assign_stmt.expression;
 			if(exp->op.binaryExp.left != NULL && exp->op.binaryExp.left->tag_exp == bracketExp) {
 				printf("%s", exp->op.binaryExp.left->op.bracketExp.leftBracket.str);
@@ -134,9 +134,12 @@ void program() {
 			else if(exp->tag_exp == integerExp) {
 				printf("print %d;\n", exp->op.numberExp);
 			}
+			else if(exp->tag_exp == stringExp) {
+				printf("print %s\n", exp->op.stringExp.str);
+			}
 		}
 		printf("\n");
-	}
+	}*/
 
 }
 
