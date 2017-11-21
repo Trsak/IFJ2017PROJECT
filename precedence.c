@@ -87,6 +87,7 @@ bool isOperator(precedStack symbol) {
     return false;
 }
 
+
 char *getOperator(precedStack symbol) {
 	switch (symbol) {
 		case PREC_DIVISION:
@@ -116,6 +117,44 @@ char *getOperator(precedStack symbol) {
 	}
 }
 
+datatype getDatatype(datatype left, datatype right, string oper) {
+	if(left == (datatype)exp_string) {
+		if(!strcmp(oper.str, "-") || !strcmp(oper.str, "*") || !strcmp(oper.str, "/") || !strcmp(oper.str, "\\")) {
+			printErrAndExit(ERROR_TYPE_SEM, "Can't do operation '%s' with string literal!", oper.str);
+		}
+		if(right != (datatype)exp_string) {
+			printErrAndExit(ERROR_TYPE_SEM, "Expression must be string!");
+		}
+		return exp_string;
+	}
+	else if(left == (datatype)exp_integer) {
+		if(right == (datatype)exp_string) {
+			printErrAndExit(ERROR_TYPE_SEM, "Integer and string can't be in one expression!", oper.str);
+		}
+		if(strcmp(oper.str, "\\")) {
+			if(right != (datatype)exp_integer) {
+				printErrAndExit(ERROR_TYPE_SEM, "In integer division both operands must be integers!");
+			}
+			return exp_integer;
+		}
+		else if(strcmp(oper.str, "/")) {
+			return exp_decimal;
+		}
+		if(right == (datatype)exp_decimal) {
+			return exp_decimal;
+		}
+	}
+	else if(left == (datatype)exp_decimal) {
+		if(!strcmp(oper.str, "\\")) {
+			printErrAndExit(ERROR_TYPE_SEM, "In integer division both operands must be integers!");
+		}
+		if(right == (datatype)exp_string) {
+			printErrAndExit(ERROR_TYPE_SEM, "Double and string can't be in one expression!", oper.str);
+		}
+		return exp_decimal;
+	}
+	return exp_integer; // Never should come here.
+}
 
 /**
  * @copydoc parseExpression
@@ -244,11 +283,11 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 				if(item.symbol == PREC_ID) {
 					if(inFunction) {
-						node = btGetVariable(symtable, functionName);
-						BinaryTreePtr nodeTmp = btGetVariable(node, item.Token.value.str);
-						node = NULL;
-						node = gcmalloc(sizeof(struct BinaryTree));
-						memcpy(node, nodeTmp, sizeof(struct BinaryTree));
+						node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+						//BinaryTreePtr nodeTmp = btGetVariable(node, item.Token.value.str);
+						node = btGetVariable(node, item.Token.value.str);
+						//node = gcmalloc(sizeof(struct BinaryTree));
+						//memcpy(node, nodeTmp, sizeof(struct BinaryTree));
 					}
 					else {
 						node = symtable;
@@ -265,7 +304,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 				else if(item.symbol == PREC_E) {
 					//printf("==REDUCTION E<OPER>E->E==\n");
 					//printf("add right operand\n");
-					exp = make_binaryExp(oper, NULL, exp);
+					exp = make_binaryExp(oper, NULL, exp, exp_integer);
 				}
 				else if(item.symbol == PREC_NUMBER) {
 					//printf("reduction number\n");
@@ -279,7 +318,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 				}
 				else if(item.symbol == PREC_BRACKET_RIGHT) {
 					oper.str = ")";
-					exp = make_bracketExp(oper, NULL, oper);
+					exp = make_bracketExp(oper, NULL, oper, exp_integer);
 				}
                 //until it finds '<' in stack
                 do {
@@ -293,9 +332,11 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 						if(exp->tag_exp == binaryExp) {
 							//printf("add left operand\n\n");
 							exp->op.binaryExp.left = item.Exp;
+							exp->datatype = getDatatype(exp->op.binaryExp.left->datatype, exp->op.binaryExp.right->datatype, exp->op.binaryExp.oper);
 						}
 						else if(exp->tag_exp == bracketExp) {
 							exp->op.bracketExp.expression = item.Exp;
+							exp->datatype = exp->op.bracketExp.expression->datatype;
 						}
 					}
 					else if(item.symbol == PREC_BRACKET_LEFT) {
@@ -353,6 +394,17 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 //If there's end of parsing expression
                 if (stack.item[stack.maxTerm].symbol == PREC_DOLLAR) {
                     *PreviousToken = Token;
+					/*
+					if(exp->datatype == exp_integer) {
+						printf("exp is INTEGER\n");
+					}
+					else if(exp->datatype == exp_decimal) {
+						printf("exp is DOUBLE\n");
+					}
+					else {
+						printf("exp is STRING\n");
+					}
+					 */
 					*expressionTree = exp;
                     return ;
                 }

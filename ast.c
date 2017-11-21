@@ -52,6 +52,7 @@ ast_exp* make_numberExp(int number) {
 
 	e->tag_exp = integerExp;
 	e->op.numberExp = number;
+	e->datatype = exp_integer;
 	return e;
 }
 
@@ -63,6 +64,7 @@ ast_exp* make_decimalExp(double number) {
 
 	e->tag_exp = doubleExp;
 	e->op.decimalExp = number;
+	e->datatype = exp_decimal;
 	return e;
 }
 
@@ -74,6 +76,7 @@ ast_exp* make_stringExp(string str) {
 
 	e->tag_exp = stringExp;
 	e->op.stringExp = str;
+	e->datatype = exp_string;
 	return e;
 }
 
@@ -85,44 +88,48 @@ ast_exp* make_variableExp(BinaryTreePtr variable) {
 
 	e->tag_exp = variableExp;
 	e->op.variableExp = variable;
+	e->datatype = variable->data.type;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_binaryExp(string oper, ast_exp* left, ast_exp* right ) {
+ast_exp* make_binaryExp(string oper, ast_exp* left, ast_exp* right, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = binaryExp;
 	e->op.binaryExp.oper = oper;
 	e->op.binaryExp.left = left;
 	e->op.binaryExp.right = right;
+	e->datatype = dtype;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_unaryExp(string oper, ast_exp* operand) {
+ast_exp* make_unaryExp(string oper, ast_exp* operand, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = unaryExp;
 	e->op.unaryExp.oper = oper;
 	e->op.unaryExp.operand = operand;
+	e->datatype = dtype;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket) {
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = bracketExp;
 	e->op.bracketExp.leftBracket = leftBracket;
 	e->op.bracketExp.expression = expression;
 	e->op.bracketExp.rightBracket = rightBracket;
+	e->datatype = dtype;
 	return e;
 }
 

@@ -36,8 +36,10 @@ typedef struct Exp {
 			struct Exp* expression;
 			string rightBracket;
 		} bracketExp;
-
 	} op;
+
+	enum {exp_integer = 1, exp_decimal = 2, exp_string = 3} datatype;
+
 } ast_exp;
 
 typedef struct functionArgs {
@@ -161,7 +163,7 @@ ast_exp* make_variableExp(BinaryTreePtr variable);
  * @param right Right operand
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
+ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right, datatype dtype);
 
 /**
  * @brief Create node in AST of binary expression. Represents E -> <operator>E
@@ -171,7 +173,7 @@ ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
  * @param operand Operand
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_unaryExp(string oper, ast_exp *operand);
+ast_exp* make_unaryExp(string oper, ast_exp *operand, datatype dtype);
 
 /**
  * @brief Create node in AST of expression in brackets. Represents E -> (E)
@@ -180,7 +182,7 @@ ast_exp* make_unaryExp(string oper, ast_exp *operand);
  * @param rightBracket Right bracket
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket);
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket, datatype dtype);
 
 
 /** =====STATEMENT FUNCTIONS===== */
