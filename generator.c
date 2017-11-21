@@ -72,6 +72,25 @@ int getIntegerExpressionValue(ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
             return expression->op.numberExp;
+        case variableExp:
+            return atoi(expression->op.variableExp->data.value.str);
+        case binaryExp:
+            if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) +
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) -
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) *
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) /
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            }
+            break;
+        case bracketExp:
+            return getIntegerExpressionValue(expression->op.bracketExp.expression);
         default: //TODO remove
             break;
     }
