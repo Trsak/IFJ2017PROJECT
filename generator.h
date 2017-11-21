@@ -26,13 +26,6 @@ void printExpression(ast_exp *expression);
 /**
  * @return void
  *
- * Calculates binary expression and prints it
- */
-void printBinaryExpression(ast_exp *expression);
-
-/**
- * @return void
- *
  * Generates code to assign value for variable
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression);
@@ -42,7 +35,9 @@ void varAssign(BinaryTreePtr var, ast_exp *expression);
  *
  * Gets integer result for expression
  */
-int getIntegerExpressionValue(ast_exp *expression);
+void getIntegerExpressionValue(const char *variable, ast_exp *expression);
+
+char *generateSymbol(datatype type, char *value);
 
 /**
  * @return double
