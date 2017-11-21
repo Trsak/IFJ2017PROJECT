@@ -55,7 +55,7 @@ typedef struct {
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
 		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
-		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt} tag_stmt;
+		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt, scope_stmt} tag_stmt;
 
 	union {
 		struct {
@@ -281,5 +281,7 @@ ast_stmt* make_inputStmt(ast_exp* identifier);
  * @return Pointer to AST node (statement).
  */
 ast_stmt* make_printStmt(ast_exp* expression);
+
+ast_stmt* make_scopeStmt();
 
 #endif //IFJ2017PROJECT_AST_H
