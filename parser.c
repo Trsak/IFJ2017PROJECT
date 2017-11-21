@@ -520,7 +520,6 @@ void statement() {
 				}
 			}
 
-			node->data.defined = true;
             assignment(false, name);
 
             break;
@@ -565,17 +564,17 @@ void statement() {
                 createNode(&symtable, name, type, true, false, false, &params, NULL, 0); // Add new arguments
             }
 
-            assignment(true, name);
 
-            /** Add to variable definition to true */
-            if(inFunction) {
-                node = btGetVariable(symtable, functionName)->data.treeOfFunction;
-                node = btGetVariable(node, name);
-            }
+			assignment(true, name);
+
+			/** Add to variable definition to true */
+			if(inFunction) {
+				node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+				node = btGetVariable(node, name);
+			}
             else {
-                node = btGetVariable(symtable, name);
-            }
-            node->data.defined = true;
+				node = btGetVariable(symtable, name);
+			}
 
             break;
 
@@ -918,6 +917,9 @@ void assignment(bool isDeclaration, char *name) {
 	else {
 		node = btGetVariable(symtable, name);
 	}
+
+	node->data.defined = true;
+
 	ast_stmt* assign_stmt = make_varAssignStmt(node, expressionTree);
 
 	stackItem item;
