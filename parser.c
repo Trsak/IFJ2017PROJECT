@@ -37,7 +37,7 @@ void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, 
     BinaryTreePtr node = btGetVariable(*table, name);
     if(node != NULL) {
         node->data.declared = node->data.declared || declared;
-        node->data.defined = node->data.declared || defined;
+        node->data.defined = node->data.defined || defined;
     }
     else {
         Values val = initValues(name);
@@ -520,6 +520,7 @@ void statement() {
 				}
 			}
 
+			node->data.defined = true;
             assignment(false, name);
 
             break;
