@@ -275,3 +275,10 @@ ast_stmt* make_printStmt(ast_exp* expression) {
 	e->op.print_stmt.expression = expression;
 	return e;
 }
+
+ast_stmt* make_scopeStmt() {
+	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+	e->tag_stmt = scope_stmt;
+	return e;
+}

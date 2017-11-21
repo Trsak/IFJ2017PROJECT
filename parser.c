@@ -116,6 +116,9 @@ void printAST(stmtArray globalStmtArray) {
 				printf("print %s\n", exp->op.stringExp.str);
 			}
 		}
+		else if(globalStmtArray.array[i].tag_stmt == scope_stmt) {
+			printf("SCOPE is on\n");
+		}
 		printf("\n");
 	}
 }
@@ -1036,6 +1039,7 @@ void expression(ast_exp** expressionTree) {
  */
 void mainBody() {
     mainBodyIt();
+	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
     token Token = getNextToken();
     eol(Token.lexem);
