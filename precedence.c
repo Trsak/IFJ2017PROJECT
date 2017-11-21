@@ -274,6 +274,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 				else if(item.symbol == PREC_DECIMAL_NUMBER) {
 					exp = make_decimalExp(strtod(item.Token.value.str, NULL));
 				}
+				else if(item.symbol == PREC_STRING_EXPRESSION) {
+					exp = make_stringExp(item.Token.value);
+				}
 				else if(item.symbol == PREC_BRACKET_RIGHT) {
 					oper.str = ")";
 					exp = make_bracketExp(oper, NULL, oper);
