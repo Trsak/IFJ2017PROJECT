@@ -1,0 +1,9 @@
+SCOPE
+    DIM A AS INTEGER = 5
+    DIM B AS INTEGER = 7
+    DIM C AS DOUBLE
+
+	IF A < B THEN
+        C = A / B
+	END IF
+END SCOPE

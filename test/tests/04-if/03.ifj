@@ -1,0 +1,15 @@
+SCOPE
+    DIM A AS INTEGER = 5
+    DIM B AS INTEGER = 7
+    DIM C AS DOUBLE
+
+    IF A = B THEN
+        C = 1.0
+	ELSEIF A > B THEN
+        C = A / B
+	ELSEIF A < B THEN
+        C = B / A
+	ELSE
+        C = 0.0
+	END IF
+END SCOPE
