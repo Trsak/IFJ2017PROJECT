@@ -77,7 +77,7 @@ typedef enum {
 	SHARED = 62,
 	STATIC = 63,
 	TRUE = 64,
-    EOL = 65,
+    EOL_ENUM = 65,
 	help = -1
 } lexems;
 
@@ -87,7 +87,7 @@ typedef struct {
 	string value;   // if an ID was found, contains it's name, if it was a number it has it's value. The same with a string.
 } token;
 
-//#define EOL '\n'
+#define EOL '\n'
 
 // Keywords
 /*

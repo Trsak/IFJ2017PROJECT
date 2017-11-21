@@ -78,7 +78,7 @@ token getNextToken() {
                         }
                     }
                     ungetc(c, stdin);
-                    T.lexem = EOL;
+                    T.lexem = EOL_ENUM;
                     return T;
                 } else if (c == EOF) {
                     T.lexem = EOF;

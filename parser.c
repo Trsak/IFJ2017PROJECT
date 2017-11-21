@@ -685,7 +685,7 @@ void statement() {
 
     Token = PreviousToken;
 
-    if (Token.lexem != EOL) {
+    if (Token.lexem != EOL_ENUM) {
         if(isExpression) {
             printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
         }
@@ -714,7 +714,7 @@ void printNext() {
     token Token = getNextToken();
     PreviousToken = Token;
 
-    if (Token.lexem == EOL) {
+    if (Token.lexem == EOL_ENUM) {
         return;
     }
 
@@ -827,7 +827,7 @@ void end(int lexem) {
  * @copydoc eol
  */
 void eol(int lexem) {
-    if (lexem != EOL) {
+    if (lexem != EOL_ENUM) {
         printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
     }
 }
@@ -856,7 +856,7 @@ void assignment(bool isDeclaration, char *name) {
 
     Token = getNextToken();
 
-    if (Token.lexem == EOL) {
+    if (Token.lexem == EOL_ENUM) {
         //TODO - is this syntax or semantics??
         printErrAndExit(ERROR_SYNTAX, "Assignment withnout expression");
     }
@@ -1024,7 +1024,7 @@ void mainBody() {
 
     Token = getNextToken();
 
-    if(Token.lexem == EOL) {
+    if(Token.lexem == EOL_ENUM) {
         Token = getNextToken();
     }
 
