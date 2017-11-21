@@ -1,0 +1,7 @@
+scope
+	dim inte as integer
+	dim floate as double
+	dim stre as string
+
+	print inte; floate; stre;
+end scope

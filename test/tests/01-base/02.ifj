@@ -1,0 +1,5 @@
+scope
+Dim a as string
+Dim b as integer
+Dim c as double
+end scope

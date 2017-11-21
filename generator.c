@@ -38,7 +38,21 @@ void printExpression(ast_exp *expression) {
             printf("WRITE string@%s\n", expression->op.stringExp.str);
             break;
         case variableExp:
-            printf("WRITE GF@%s\n", expression->op.variableExp->data.name);
+            if (!expression->op.variableExp->data.defined) {
+                switch (expression->op.variableExp->data.type) {
+                    case TYPE_NUMBER:
+                        printf("WRITE int@0\n");
+                        break;
+                    case TYPE_DECIMAL:
+                        printf("WRITE float@0\n");
+                        break;
+                    case TYPE_STRING:
+                        printf("WRITE string@\n");
+                        break;
+                }
+            } else {
+                printf("WRITE GF@%s\n", expression->op.variableExp->data.name);
+            }
             break;
         case binaryExp:
             printBinaryExpression(expression); //TODO :O
@@ -72,6 +86,25 @@ int getIntegerExpressionValue(ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
             return expression->op.numberExp;
+        case variableExp:
+            return atoi(expression->op.variableExp->data.value.str);
+        case binaryExp:
+            if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) +
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) -
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) *
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) /
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
+            }
+            break;
+        case bracketExp:
+            return getIntegerExpressionValue(expression->op.bracketExp.expression);
         default: //TODO remove
             break;
     }
