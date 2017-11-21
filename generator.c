@@ -84,6 +84,9 @@ int getIntegerExpressionValue(ast_exp *expression) {
             } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
                 return getIntegerExpressionValue(expression->op.binaryExp.left) *
                        getIntegerExpressionValue(expression->op.binaryExp.right);
+            } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                return getIntegerExpressionValue(expression->op.binaryExp.left) /
+                       getIntegerExpressionValue(expression->op.binaryExp.right);
             }
             break;
         case bracketExp:
