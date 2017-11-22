@@ -132,6 +132,27 @@ void printAST(stmtArray globalStmtArray) {
 	}
 }
 
+void builtinFunctionsInit() {
+    builtinFunctions[0].argsNum = 1;
+    builtinFunctions[0].name = "length";
+    builtinFunctions[0].types[0] = exp_string;
+
+    builtinFunctions[1].argsNum = 3;
+    builtinFunctions[1].name = "substr";
+    builtinFunctions[1].types[0] = exp_string;
+    builtinFunctions[1].types[1] = exp_integer;
+    builtinFunctions[1].types[2] = exp_decimal;
+
+    builtinFunctions[2].argsNum = 2;
+    builtinFunctions[2].name = "asc";
+    builtinFunctions[2].types[0] = exp_string;
+    builtinFunctions[2].types[1] = exp_integer;
+
+    builtinFunctions[3].argsNum = 1;
+    builtinFunctions[3].name = "chr";
+    builtinFunctions[3].types[0] = exp_integer;
+}
+
 /**
  * @copydoc program
  */
@@ -140,6 +161,8 @@ void program() {
 
 	stmtArrayInit(&globalStmtArray);
     addStmtToArray(&globalStmtArray, make_optimalizationStmt());
+
+    builtinFunctionsInit();
 
     token Token = getNextToken();
 
