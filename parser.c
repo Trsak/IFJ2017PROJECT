@@ -81,11 +81,15 @@ void showAruments(functionArgs* args) {
 void printAST(stmtArray globalStmtArray) {
 	for(int i = 0; i < globalStmtArray.length; i++) {
 		if(globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
-			// TODO: segfault if function is not declared but is defined!!
 			printf("function: %s\n", globalStmtArray.array[i].op.function_definition_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == while_stmt) {
+            printf("while:\n");
+            // Add condition
+            printAST(globalStmtArray.array[i].op.while_stmt.block);
+        }
         else if(globalStmtArray.array[i].tag_stmt == optimalization_stmt) {
             printf("optimalization: %d\n", globalStmtArray.array[i].op.optimalization_stmt.nothing);
         }
@@ -695,23 +699,23 @@ void statement() {
         case PRINT:
 			expression(&expressionTree);
 
-			ast_stmt* print_stmt = make_printStmt(expressionTree);
+			ast_stmt* printStmt = make_printStmt(expressionTree);
 
 			stackItem item;
 			if(!stackEmpty(&stmtStack)) {
 				stackTop(&stmtStack, &item);
 				if(item.stmt->tag_stmt == function_definition_stmt) {
-					addStmtToArray(&item.stmt->op.function_definition_stmt.block, print_stmt);
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, printStmt);
 				}
 				else if(item.stmt->tag_stmt == while_stmt) {
-					addStmtToArray(&item.stmt->op.while_stmt.block, print_stmt);
-				}
+					addStmtToArray(&item.stmt->op.while_stmt.block, printStmt);
+                }
 				else if(item.stmt->tag_stmt == if_stmt) {
-					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, print_stmt);
+					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, printStmt);
 				}
 			}
 			else {
-				addStmtToArray(&globalStmtArray, print_stmt);
+				addStmtToArray(&globalStmtArray, printStmt);
 			}
 
             Token = PreviousToken;
@@ -733,12 +737,20 @@ void statement() {
 
             expression(&expressionTree);
 
+            stmtArray whileStmtBlock;
+            stmtArrayInit(&whileStmtBlock);
+
+            ast_stmt* whileStmt = make_whileStmt(expressionTree, whileStmtBlock);
+
+            stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, whileStmt);
+
             Token = PreviousToken;
 
             eol(Token.lexem);
 
             //Reset prev. token
             PreviousToken.lexem = -1;
+
 
             statement();
 
@@ -751,6 +763,25 @@ void statement() {
                 }
             }
 
+            stackTop(&stmtStack, &item);
+
+            stackPop(&stmtStack);
+
+            if(!stackEmpty(&stmtStack)) {
+                stackTop(&stmtStack, &item);
+                if(item.stmt->tag_stmt == function_definition_stmt) {
+                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, whileStmt);
+                }
+                else if(item.stmt->tag_stmt == while_stmt) {
+                    addStmtToArray(&item.stmt->op.while_stmt.block, whileStmt);
+                }
+                else if(item.stmt->tag_stmt == if_stmt) {
+                    addStmtToArray(&item.stmt->op.if_stmt.ifBlock, whileStmt);
+                }
+            }
+            else {
+                addStmtToArray(&globalStmtArray, whileStmt);
+            }
             break;
 
         case IF:
@@ -984,7 +1015,6 @@ void assignment(bool isDeclaration, char *name) {
         bool builtIn = false;
 
         BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
-
 
         if(ptr == NULL) {
             //check if called function isn't built in function
