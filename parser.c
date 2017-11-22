@@ -122,6 +122,9 @@ void printAST(stmtArray globalStmtArray) {
 		else if(globalStmtArray.array[i].tag_stmt == var_decl_stmt) {
 			printf("Declaration of '%s'\n", globalStmtArray.array[i].op.var_decl_stmt.variable->data.name);
 		}
+		else if(globalStmtArray.array[i].tag_stmt == input_stmt) {
+			printf("INPUT: '%s'\n", globalStmtArray.array[i].op.input_stmt.variable->data.name);
+		}
 		printf("\n");
 	}
 }
@@ -549,6 +552,7 @@ void statement() {
             datatype type;
             asDataType(&type);
 
+			// TODO: check if id == built-in function
             /** Semantics: Check if variable was already declared */
             if(inFunction) {
                 BinaryTreePtr node1;
@@ -614,6 +618,50 @@ void statement() {
         case INPUT:
             Token = getNextToken();
             IdToken(Token.lexem);
+
+			name = Token.value.str;
+
+			// TODO: check if id == built-in function
+			if(inFunction) {
+				BinaryTreePtr node1;
+				node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign to function '%s'!", name);
+				}
+				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+				node = btGetVariable(node1, name);
+				if (!node) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+				}
+			}
+			else {
+				node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_OTHER_SEM, "Can't assign to function '%s'!", name);
+				}
+				if (!node) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+				}
+			}
+
+			ast_stmt* inputStmt = make_inputStmt(node);
+
+			if(!stackEmpty(&stmtStack)) {
+				stackItem item;
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, inputStmt);
+				}
+				else if(item.stmt->tag_stmt == while_stmt) {
+					addStmtToArray(&item.stmt->op.while_stmt.block, inputStmt);
+				}
+				else if(item.stmt->tag_stmt == if_stmt) {
+					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, inputStmt);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, inputStmt);
+			}
 
             break;
 

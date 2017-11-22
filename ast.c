@@ -257,11 +257,11 @@ ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt)
 /**
  * @copydoc
  */
-ast_stmt* make_inputStmt(ast_exp* identifier) {
+ast_stmt* make_inputStmt(BinaryTreePtr variable) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = input_stmt;
-	e->op.input_stmt.identifier= identifier;
+	e->op.input_stmt.variable = variable;
 	return e;
 }
 
