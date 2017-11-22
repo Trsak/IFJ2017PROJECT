@@ -45,4 +45,6 @@ char *getNextRegister(char *nextReg);
 
 char *generateFloatSymbol(double value);
 
+void varDeclare(BinaryTreePtr var);
+
 #endif //IFJ2017PROJECT_GENERATOR_H

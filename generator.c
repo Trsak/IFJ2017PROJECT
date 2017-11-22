@@ -26,6 +26,9 @@ void startGenerating() {
                 strcpy(frame, "GF");
                 printf("LABEL $$main\n");
                 break;
+            case var_decl_stmt:
+                varDeclare(globalStmtArray.array[i].op.var_decl_stmt.variable);
+                break;
             case var_assign_stmt:
                 varAssign(globalStmtArray.array[i].op.var_assign_stmt.left,
                           globalStmtArray.array[i].op.var_assign_stmt.expression);
@@ -59,7 +62,7 @@ void printStatement(ast_exp *expression) {
 
             printf("DEFVAR %s@%s\n", frame, reg);
             generateBinaryExp(expression);
-            printf("MOVE %s@%s %s@R%d\n", frame, reg, frame, nextReg);
+            printf("MOVE %s@%s %s@%%R%d\n", frame, reg, frame, nextReg);
             printf("WRITE %s@%s\n", frame, reg);
             break;
         }
@@ -68,9 +71,23 @@ void printStatement(ast_exp *expression) {
     }
 }
 
-void varAssign(BinaryTreePtr var, ast_exp *expression) {
+void varDeclare(BinaryTreePtr var) {
     printf("DEFVAR %s@%s\n", frame, var->data.name);
 
+    switch (var->data.type) {
+        case TYPE_NUMBER:
+            printf("MOVE %s@%s int@0\n", frame, var->data.name);
+            break;
+        case TYPE_DECIMAL:
+            printf("MOVE %s@%s float@0\n", frame, var->data.name);
+            break;
+        case TYPE_STRING:
+            printf("MOVE %s@%s string@\n", frame, var->data.name);
+            break;
+    }
+}
+
+void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
             printf("MOVE %s@%s int@%d\n", frame, var->data.name, expression->op.numberExp);
@@ -86,9 +103,8 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
             break;
         case binaryExp: {
             int nextReg = currentRegister;
-            printf("DEFVAR %s@%s\n", frame, var->data.name);
             generateBinaryExp(expression);
-            printf("MOVE %s@%s %s@R%d\n", frame, var->data.name, frame, nextReg);
+            printf("MOVE %s@%s %s@%%R%d\n", frame, var->data.name, frame, nextReg);
             break;
         }
         default:
