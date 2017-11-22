@@ -1,8 +1,8 @@
 SCOPE
-    DIM A AS INTEGER = 5
+    DIM A AS INTEGER = 3
     DIM B AS INTEGER = 7
 
-	DO WHILE A <> B
+	DO WHILE A < B
 	    A = a+ 1
 	LOOP
 
