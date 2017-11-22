@@ -197,24 +197,25 @@ ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtA
 /**
  * @copydoc
  */
-ast_stmt* make_callFunctionStmt(BinaryTreePtr function, functionArgs *args) {
+ast_stmt* make_varAssignBuiltinFunctionStmt(enum builtin_function function, functionArgs *args) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
-	e->tag_stmt = call_function_stmt;
-	e->op.call_function_stmt.function = function;
-	e->op.call_function_stmt.args = args;
+	e->tag_stmt = var_assign_builtin_function_stmt;
+	e->op.var_assign_builtin_function_stmt.function = function;
+	e->op.var_assign_builtin_function_stmt.args = args;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, ast_stmt* callingFunction) {
+ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, BinaryTreePtr function, functionArgs* args) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_assign_function_stmt;
 	e->op.var_assign_function_stmt.left = left;
-	e->op.var_assign_function_stmt.callFunction = callingFunction;
+	e->op.var_assign_function_stmt.function = function;
+	e->op.var_assign_function_stmt.args = args;
 	return e;
 }
 
