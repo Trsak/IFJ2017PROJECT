@@ -1030,7 +1030,9 @@ void assignment(bool isDeclaration, char *name) {
             }
 
         } else {
-            function = true;
+            if(ptr->data.isFunction) {
+                function = true;
+            }
         }
 
         //if this one is a function, then brackets are expected
