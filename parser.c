@@ -1011,16 +1011,34 @@ void assignment(bool isDeclaration, char *name) {
     }
 
     if(Token.lexem == ID) {
+        bool function = false;
+        bool builtIn = false;
+
         BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
 
         if(ptr == NULL) {
-            printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+            //check if called function isn't built in function
+
+            if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
+                    strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
+
+                function = true;
+                builtIn = true;
+
+            } else {
+                printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+            }
+
+        } else {
+            function = true;
         }
 
         //if this one is a function, then brackets are expected
-        if (ptr->data.isFunction) {
-			if(!ptr->data.defined) {
-				printErrAndExit(ERROR_PROG_SEM, "Try to call undefined function '%s'!", ptr->data.name);
+        if (function) {
+			if(!builtIn) {
+                if(!ptr->data.defined) {
+                    printErrAndExit(ERROR_PROG_SEM, "Try to call undefined function '%s'!", ptr->data.name);
+                }
 			}
 
             Token = getNextToken();
@@ -1086,11 +1104,13 @@ void assignment(bool isDeclaration, char *name) {
 		addStmtToArray(&globalStmtArray, assign_stmt);
 	}
 
+
     isExpression = true;
     PreviousToken = Token;
 
 
-    
+
+    /*
     //TODO - store expression value into the symtable - expressions not done yet
     //it's an idea - maybe should be placed right in expression function
     node = btGetVariable(symtable, name);
@@ -1119,6 +1139,7 @@ void assignment(bool isDeclaration, char *name) {
 
     if(node != NULL)
         node->data.value.str = value;
+        */
 }
 
 

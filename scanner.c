@@ -15,9 +15,9 @@
 #include "symtable.h"
 
 //array of all the keywords for an easy return implementation
-char *keyWords[] = {"as", "asc", "declare", "dim", "do", "double", "else", "end", "chr",
-                    "function", "if", "input", "integer", "length", "loop", "print",
-                    "return", "scope", "string", "substr", "then", "while", "and",
+char *keyWords[] = {"as", "declare", "dim", "do", "double", "else", "end",
+                    "function", "if", "input", "integer", "loop", "print",
+                    "return", "scope", "string", "then", "while", "and",
                     "boolean", "continue", "elseif", "exit", "false", "for", "next",
                     "not", "or", "shared", "static", "true"};
 
