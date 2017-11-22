@@ -4,6 +4,7 @@
  * @brief Generating IFJCode2017 from AST
  */
 //TODO:  KONVERZE PROMĚNNÝCH!!
+//TODO: String + string
 
 #include <string.h>
 #include <ctype.h>

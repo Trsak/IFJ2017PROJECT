@@ -1,0 +1,5 @@
+SCOPE
+    DIM a AS String
+    INPUT a
+    PRINT a;
+END SCOPE
