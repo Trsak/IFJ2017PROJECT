@@ -73,7 +73,14 @@ void createParamsNode(BinaryTreePtr *params, char *name, datatype type) {
 void showAruments(functionArgs* args) {
 	functionArgs* arg = args;
 	while (arg != NULL) {
-		printf("\t-arg: %s\n", arg->argument->op.variableExp->data.name);
+        if(arg->argument->tag_exp == variableExp)
+		    printf("\t-arg: %s\n", arg->argument->op.variableExp->data.name);
+        else if(arg->argument->tag_exp == integerExp)
+            printf("\t-arg: %d\n", arg->argument->op.numberExp);
+        else if(arg->argument->tag_exp == doubleExp)
+            printf("\t-arg: %g\n", arg->argument->op.decimalExp);
+        else if(arg->argument->tag_exp == stringExp)
+            printf("\t-arg: %s\n", arg->argument->op.stringExp.str);
 		arg = arg->next;
 	}
 }
@@ -85,6 +92,16 @@ void printAST(stmtArray globalStmtArray) {
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == var_assign_function_stmt) {
+            printf("%s=", globalStmtArray.array[i].op.var_assign_function_stmt.left->data.name);
+            printf("%s()\n", globalStmtArray.array[i].op.var_assign_function_stmt.function->data.name);
+            showAruments(globalStmtArray.array[i].op.var_assign_function_stmt.args);
+        }
+        else if(globalStmtArray.array[i].tag_stmt == var_assign_builtin_function_stmt) {
+            printf("%s=", globalStmtArray.array[i].op.var_assign_builtin_function_stmt.left->data.name);
+            printf("built-in()\n");
+            showAruments(globalStmtArray.array[i].op.var_assign_builtin_function_stmt.args);
+        }
         else if(globalStmtArray.array[i].tag_stmt == while_stmt) {
             printf("while:\n");
             // Add condition
@@ -1013,6 +1030,7 @@ void assignment(bool isDeclaration, char *name) {
     if(Token.lexem == ID) {
         bool function = false;
         bool builtIn = false;
+        string funcName;
 
         BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
 
@@ -1024,6 +1042,7 @@ void assignment(bool isDeclaration, char *name) {
 
                 function = true;
                 builtIn = true;
+                funcName = Token.value;
 
             } else {
                 printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
@@ -1050,7 +1069,57 @@ void assignment(bool isDeclaration, char *name) {
                 printErrAndExit(ERROR_SYNTAX, "Try to call function without params. '(' was expected");
             }
 
+            ast_stmt* varAssignFunction;
+
+            BinaryTreePtr node;
+            if(inFunction) {
+                node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                node = btGetVariable(node, name);
+            }
+            else {
+                node = btGetVariable(symtable, name);
+            }
+
+            if(builtIn) {
+                enum builtin_function en;
+                if(strcmp(funcName.str, "length") == 0)
+                    en = Length;
+                else if(strcmp(funcName.str, "substr"))
+                    en = SubStr;
+                else if(strcmp(funcName.str, "asc"))
+                    en = Asc;
+                else
+                    en = Chr;
+                varAssignFunction = make_varAssignBuiltinFunctionStmt(node, en, NULL);
+            }
+            else {
+                varAssignFunction = make_varAssignFunctionStmt(node, ptr, NULL);
+            }
+
+            stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, varAssignFunction);
+
             params();
+
+            stackItem item;
+            stackTop(&stmtStack, &item);
+
+            stackPop(&stmtStack);
+
+            if(!stackEmpty(&stmtStack)) {
+                stackTop(&stmtStack, &item);
+                if(item.stmt->tag_stmt == function_definition_stmt) {
+                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, varAssignFunction);
+                }
+                else if(item.stmt->tag_stmt == while_stmt) {
+                    addStmtToArray(&item.stmt->op.while_stmt.block, varAssignFunction);
+                }
+                else if(item.stmt->tag_stmt == if_stmt) {
+                    addStmtToArray(&item.stmt->op.if_stmt.ifBlock, varAssignFunction);
+                }
+            }
+            else {
+                addStmtToArray(&globalStmtArray, varAssignFunction);
+            }
 
             Token = PreviousToken;
 
@@ -1161,8 +1230,23 @@ bool unaryOperation(token Token) {
  * @copydoc params
  */
 void params() {
+    //static int currentArgumentNum = -1;
+    //currentArgumentNum++;
+
 	ast_exp* expressionTree;
 	parseExpression(&PreviousToken, &expressionTree);
+
+
+    stackItem item;
+    stackTop(&stmtStack, &item);
+
+    if(item.stmt->tag_stmt == var_assign_function_stmt) {
+        addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
+        //printf("%d\n", item.stmt->op.var_assign_function_stmt.args->argument->op.numberExp);
+    }
+    else {
+        addArgumentToArray(&item.stmt->op.var_assign_builtin_function_stmt.args, expressionTree);
+    }
 
     paramsNext();
 }
