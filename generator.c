@@ -27,6 +27,9 @@ void startGenerating() {
                 strcpy(frame, "GF");
                 printf("LABEL $$main\n");
                 break;
+            case input_stmt:
+                getInput(globalStmtArray.array[i].op.input_stmt.variable);
+                break;
             case var_decl_stmt:
                 varDeclare(globalStmtArray.array[i].op.var_decl_stmt.variable);
                 break;
@@ -40,6 +43,20 @@ void startGenerating() {
             default: //TODO remove
                 break;
         }
+    }
+}
+
+void getInput(BinaryTreePtr var) {
+    switch (var->data.type) {
+        case TYPE_NUMBER:
+            printf("READ %s@%s int\n", frame, var->data.name);
+            break;
+        case TYPE_DECIMAL:
+            printf("READ %s@%s float\n", frame, var->data.name);
+            break;
+        case TYPE_STRING:
+            printf("READ %s@%s string\n", frame, var->data.name);
+            break;
     }
 }
 
