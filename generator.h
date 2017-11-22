@@ -10,6 +10,9 @@
 #include "parser.h"
 
 int currentRegister;
+
+int currentHelpRegister;
+
 char *frame;
 
 /**
@@ -42,6 +45,8 @@ void generateBinaryExp(ast_exp *expression);
 char *generateIntegerSymbol(int value);
 
 char *getNextRegister(char *nextReg);
+
+char *getHelpRegister();
 
 char *generateFloatSymbol(double value);
 

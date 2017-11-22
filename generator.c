@@ -14,6 +14,7 @@
 void startGenerating() {
     printf(".IFJcode17\n");
     currentRegister = 0;
+    currentHelpRegister = 0;
 
     frame = (char *) gcmalloc(3 * sizeof(char));
     strcpy(frame, "TF");
@@ -134,6 +135,15 @@ void generateBinaryExp(ast_exp *expression) {
                         printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
                         printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                        char *hReg1 = getHelpRegister();
+                        char *hReg2 = getHelpRegister();
+                        printf("DEFVAR %s@%s\n", frame, hReg1);
+                        printf("DEFVAR %s@%s\n", frame, hReg2);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
+                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
                     }
 
                     break;
@@ -207,5 +217,11 @@ char *getNextRegister(char *nextReg) {
 
     char *reg = (char *) gcmalloc(30 * sizeof(char));
     sprintf(reg, "%%R%ld", val + 1);
+    return reg;
+}
+
+char *getHelpRegister() {
+    char *reg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(reg, "%%HR%d", currentHelpRegister++);
     return reg;
 }
