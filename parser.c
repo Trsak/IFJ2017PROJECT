@@ -1003,9 +1003,14 @@ void assignment(bool isDeclaration, char *name) {
 		node = btGetVariable(symtable, name);
 	}
 
-	if(node->data.type != (datatype)expressionTree->datatype) {
-		printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+	if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+        if(expressionTree->datatype == exp_string) {
+            printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+        }
 	}
+    else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
+        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+    }
 
 	node->data.defined = true;
 
