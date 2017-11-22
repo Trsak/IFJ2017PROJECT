@@ -109,7 +109,7 @@ typedef struct Stmt {
 		} if_stmt;
 
 		struct {
-			ast_exp* identifier;
+			BinaryTreePtr variable;
 		} input_stmt;
 
 		struct {
@@ -272,7 +272,7 @@ ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt)
  * @param identifier Identifier to store input from user
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_inputStmt(ast_exp* identifier);
+ast_stmt* make_inputStmt(BinaryTreePtr variable);
 
 /**
  * @brief Create node in AST of print statement.
