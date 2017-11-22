@@ -119,6 +119,9 @@ void printAST(stmtArray globalStmtArray) {
 		else if(globalStmtArray.array[i].tag_stmt == scope_stmt) {
 			printf("SCOPE is on\n");
 		}
+		else if(globalStmtArray.array[i].tag_stmt == var_decl_stmt) {
+			printf("Declaration of '%s'\n", globalStmtArray.array[i].op.var_decl_stmt.variable->data.name);
+		}
 		printf("\n");
 	}
 }
@@ -552,7 +555,7 @@ void statement() {
                 node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 node = btGetVariable(node1, name);
                 if(strcmp(name, functionName) == 0) {
-                    printErrAndExit(ERROR_PROG_SEM, "Already exists function '%s'!", name);
+                    printErrAndExit(ERROR_PROG_SEM, "Can't declare variable, already exists function '%s'!", name);
                 }
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
@@ -561,6 +564,7 @@ void statement() {
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
                 createNode(&node1, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+				node = btGetVariable(node1, name);
             }
             else {
                 node = btGetVariable(symtable, name);
@@ -574,7 +578,24 @@ void statement() {
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
                 createNode(&symtable, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+				node = btGetVariable(symtable, name);
             }
+
+			ast_stmt* var_declStmt = make_varDeclStmt(node);
+
+			if(!stackEmpty(&stmtStack)) {
+				stackItem item;
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, var_declStmt);
+				}
+				else {
+					printErrAndExit(ERROR_SYNTAX, "Can't declare variable '%s' here!", node->data.name);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, var_declStmt);
+			}
 
 
 			assignment(true, name);

@@ -149,7 +149,7 @@ ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block) {
 /**
  * @copydoc
  */
-ast_stmt* make_varDeclStmt(ast_exp* variable) {
+ast_stmt* make_varDeclStmt(BinaryTreePtr variable) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_decl_stmt;
