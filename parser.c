@@ -86,6 +86,9 @@ void printAST(stmtArray globalStmtArray) {
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == optimalization_stmt) {
+            printf("optimalization: %d\n", globalStmtArray.array[i].op.optimalization_stmt.nothing);
+        }
 		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
 			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
@@ -116,8 +119,38 @@ void printAST(stmtArray globalStmtArray) {
 				printf("print %s\n", exp->op.stringExp.str);
 			}
 		}
+		else if(globalStmtArray.array[i].tag_stmt == scope_stmt) {
+			printf("SCOPE is on\n");
+		}
+		else if(globalStmtArray.array[i].tag_stmt == var_decl_stmt) {
+			printf("Declaration of '%s'\n", globalStmtArray.array[i].op.var_decl_stmt.variable->data.name);
+		}
+		else if(globalStmtArray.array[i].tag_stmt == input_stmt) {
+			printf("INPUT: '%s'\n", globalStmtArray.array[i].op.input_stmt.variable->data.name);
+		}
 		printf("\n");
 	}
+}
+
+void builtinFunctionsInit() {
+    builtinFunctions[0].argsNum = 1;
+    builtinFunctions[0].name = "length";
+    builtinFunctions[0].types[0] = exp_string;
+
+    builtinFunctions[1].argsNum = 3;
+    builtinFunctions[1].name = "substr";
+    builtinFunctions[1].types[0] = exp_string;
+    builtinFunctions[1].types[1] = exp_integer;
+    builtinFunctions[1].types[2] = exp_decimal;
+
+    builtinFunctions[2].argsNum = 2;
+    builtinFunctions[2].name = "asc";
+    builtinFunctions[2].types[0] = exp_string;
+    builtinFunctions[2].types[1] = exp_integer;
+
+    builtinFunctions[3].argsNum = 1;
+    builtinFunctions[3].name = "chr";
+    builtinFunctions[3].types[0] = exp_integer;
 }
 
 /**
@@ -127,6 +160,9 @@ void program() {
 	stackInit(&stmtStack);
 
 	stmtArrayInit(&globalStmtArray);
+    addStmtToArray(&globalStmtArray, make_optimalizationStmt());
+
+    builtinFunctionsInit();
 
     token Token = getNextToken();
 
@@ -449,6 +485,15 @@ void declareParamsNext(BinaryTreePtr node, BinaryTreePtr *params, datatype **typ
     return;
 }
 
+char* getTypeString(datatype type) {
+	if(type == (datatype)exp_integer)
+		return "integer";
+	else if(type == (datatype)exp_decimal)
+		return "double";
+	else
+		return "string";
+}
+
 
 /**
  * @copydoc dataType
@@ -534,13 +579,14 @@ void statement() {
             datatype type;
             asDataType(&type);
 
+			// TODO: check if id == built-in function
             /** Semantics: Check if variable was already declared */
             if(inFunction) {
                 BinaryTreePtr node1;
                 node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 node = btGetVariable(node1, name);
                 if(strcmp(name, functionName) == 0) {
-                    printErrAndExit(ERROR_PROG_SEM, "Already exists function '%s'!", name);
+                    printErrAndExit(ERROR_PROG_SEM, "Can't declare variable, already exists function '%s'!", name);
                 }
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
@@ -549,6 +595,7 @@ void statement() {
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
                 createNode(&node1, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+				node = btGetVariable(node1, name);
             }
             else {
                 node = btGetVariable(symtable, name);
@@ -562,7 +609,24 @@ void statement() {
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
                 createNode(&symtable, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+				node = btGetVariable(symtable, name);
             }
+
+			ast_stmt* var_declStmt = make_varDeclStmt(node);
+
+			if(!stackEmpty(&stmtStack)) {
+				stackItem item;
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, var_declStmt);
+				}
+				else {
+					printErrAndExit(ERROR_SYNTAX, "Can't declare variable '%s' here!", node->data.name);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, var_declStmt);
+			}
 
 
 			assignment(true, name);
@@ -581,6 +645,50 @@ void statement() {
         case INPUT:
             Token = getNextToken();
             IdToken(Token.lexem);
+
+			name = Token.value.str;
+
+			// TODO: check if id == built-in function
+			if(inFunction) {
+				BinaryTreePtr node1;
+				node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign to function '%s'!", name);
+				}
+				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+				node = btGetVariable(node1, name);
+				if (!node) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+				}
+			}
+			else {
+				node = btGetVariable(symtable, name);
+				if(node && node->data.isFunction) {
+					printErrAndExit(ERROR_OTHER_SEM, "Can't assign to function '%s'!", name);
+				}
+				if (!node) {
+					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+				}
+			}
+
+			ast_stmt* inputStmt = make_inputStmt(node);
+
+			if(!stackEmpty(&stmtStack)) {
+				stackItem item;
+				stackTop(&stmtStack, &item);
+				if(item.stmt->tag_stmt == function_definition_stmt) {
+					addStmtToArray(&item.stmt->op.function_definition_stmt.block, inputStmt);
+				}
+				else if(item.stmt->tag_stmt == while_stmt) {
+					addStmtToArray(&item.stmt->op.while_stmt.block, inputStmt);
+				}
+				else if(item.stmt->tag_stmt == if_stmt) {
+					addStmtToArray(&item.stmt->op.if_stmt.ifBlock, inputStmt);
+				}
+			}
+			else {
+				addStmtToArray(&globalStmtArray, inputStmt);
+			}
 
             break;
 
@@ -918,6 +1026,15 @@ void assignment(bool isDeclaration, char *name) {
 		node = btGetVariable(symtable, name);
 	}
 
+	if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+        if(expressionTree->datatype == exp_string) {
+            printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+        }
+	}
+    else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
+        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+    }
+
 	node->data.defined = true;
 
 	ast_stmt* assign_stmt = make_varAssignStmt(node, expressionTree);
@@ -1023,6 +1140,7 @@ void expression(ast_exp** expressionTree) {
  */
 void mainBody() {
     mainBodyIt();
+	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
     token Token = getNextToken();
     eol(Token.lexem);

@@ -36,8 +36,10 @@ typedef struct Exp {
 			struct Exp* expression;
 			string rightBracket;
 		} bracketExp;
-
 	} op;
+
+	enum {exp_integer = 1, exp_decimal = 2, exp_string = 3} datatype;
+
 } ast_exp;
 
 typedef struct functionArgs {
@@ -50,10 +52,14 @@ typedef struct {
 	int length;
 } stmtArray;
 
+enum builtin_function {
+	Length = 0, SubStr, Asc, Chr
+};
+
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
-		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, call_function_stmt,
-		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt} tag_stmt;
+		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, var_assign_builtin_function_stmt,
+		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt, scope_stmt, optimalization_stmt} tag_stmt;
 
 	union {
 		struct {
@@ -62,7 +68,7 @@ typedef struct Stmt {
 		} while_stmt;
 
 		struct {
-			ast_exp* variable;
+			BinaryTreePtr variable;
 		} var_decl_stmt;
 
 		struct {
@@ -87,13 +93,14 @@ typedef struct Stmt {
 		} function_definition_stmt;
 
 		struct {
-			BinaryTreePtr function;
+			enum builtin_function function;
 			functionArgs *args;
-		} call_function_stmt;
+		} var_assign_builtin_function_stmt;
 
 		struct {
 			BinaryTreePtr left;
-			struct Stmt* callFunction;
+			BinaryTreePtr function;
+			functionArgs *args;
 		} var_assign_function_stmt;
 
 		struct {
@@ -107,12 +114,16 @@ typedef struct Stmt {
 		} if_stmt;
 
 		struct {
-			ast_exp* identifier;
+			BinaryTreePtr variable;
 		} input_stmt;
 
 		struct {
 			ast_exp* expression;
 		} print_stmt;
+
+        struct {
+            int nothing;
+        } optimalization_stmt;
 	} op;
 } ast_stmt;
 
@@ -161,7 +172,7 @@ ast_exp* make_variableExp(BinaryTreePtr variable);
  * @param right Right operand
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
+ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right, datatype dtype);
 
 /**
  * @brief Create node in AST of binary expression. Represents E -> <operator>E
@@ -171,7 +182,7 @@ ast_exp* make_binaryExp(string oper, ast_exp *left, ast_exp* right);
  * @param operand Operand
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_unaryExp(string oper, ast_exp *operand);
+ast_exp* make_unaryExp(string oper, ast_exp *operand, datatype dtype);
 
 /**
  * @brief Create node in AST of expression in brackets. Represents E -> (E)
@@ -180,7 +191,7 @@ ast_exp* make_unaryExp(string oper, ast_exp *operand);
  * @param rightBracket Right bracket
  * @return Pointer to AST node (expression).
  */
-ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket);
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket, datatype dtype);
 
 
 /** =====STATEMENT FUNCTIONS===== */
@@ -197,7 +208,7 @@ ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block);
  * @param variable
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varDeclStmt(ast_exp* variable);
+ast_stmt* make_varDeclStmt(BinaryTreePtr variable);
 
 /**
  * @brief Create node in AST of variable declaration with inicialization statement.
@@ -229,7 +240,7 @@ ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtA
  * @param args
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_callFunctionStmt(BinaryTreePtr, functionArgs *args);
+ast_stmt* make_varAssignBuiltinFunctionStmt(enum builtin_function function, functionArgs *args);
 
 /**
  * @brief Create node in AST of assignment to varible of calling function statement.
@@ -237,7 +248,7 @@ ast_stmt* make_callFunctionStmt(BinaryTreePtr, functionArgs *args);
  * @param callingFunction
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, ast_stmt* callingFunction);
+ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, BinaryTreePtr function, functionArgs* args);
 
 /**
  * @brief Create node in AST of assignment to variable statement.
@@ -270,7 +281,7 @@ ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt)
  * @param identifier Identifier to store input from user
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_inputStmt(ast_exp* identifier);
+ast_stmt* make_inputStmt(BinaryTreePtr variable);
 
 /**
  * @brief Create node in AST of print statement.
@@ -279,5 +290,17 @@ ast_stmt* make_inputStmt(ast_exp* identifier);
  * @return Pointer to AST node (statement).
  */
 ast_stmt* make_printStmt(ast_exp* expression);
+
+/**
+ * @brief Create node in AST to show where the main block begins.
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_scopeStmt();
+
+/**
+ * @brief Create node in AST for optimalization purpose.
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_optimalizationStmt();
 
 #endif //IFJ2017PROJECT_AST_H

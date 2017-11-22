@@ -52,6 +52,7 @@ ast_exp* make_numberExp(int number) {
 
 	e->tag_exp = integerExp;
 	e->op.numberExp = number;
+	e->datatype = exp_integer;
 	return e;
 }
 
@@ -63,6 +64,7 @@ ast_exp* make_decimalExp(double number) {
 
 	e->tag_exp = doubleExp;
 	e->op.decimalExp = number;
+	e->datatype = exp_decimal;
 	return e;
 }
 
@@ -74,6 +76,7 @@ ast_exp* make_stringExp(string str) {
 
 	e->tag_exp = stringExp;
 	e->op.stringExp = str;
+	e->datatype = exp_string;
 	return e;
 }
 
@@ -85,44 +88,48 @@ ast_exp* make_variableExp(BinaryTreePtr variable) {
 
 	e->tag_exp = variableExp;
 	e->op.variableExp = variable;
+	e->datatype = variable->data.type;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_binaryExp(string oper, ast_exp* left, ast_exp* right ) {
+ast_exp* make_binaryExp(string oper, ast_exp* left, ast_exp* right, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = binaryExp;
 	e->op.binaryExp.oper = oper;
 	e->op.binaryExp.left = left;
 	e->op.binaryExp.right = right;
+	e->datatype = dtype;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_unaryExp(string oper, ast_exp* operand) {
+ast_exp* make_unaryExp(string oper, ast_exp* operand, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = unaryExp;
 	e->op.unaryExp.oper = oper;
 	e->op.unaryExp.operand = operand;
+	e->datatype = dtype;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket) {
+ast_exp* make_bracketExp(string leftBracket, ast_exp *expression, string rightBracket, datatype dtype) {
 	ast_exp* e = (ast_exp*) gcmalloc(sizeof(ast_exp));
 
 	e->tag_exp = bracketExp;
 	e->op.bracketExp.leftBracket = leftBracket;
 	e->op.bracketExp.expression = expression;
 	e->op.bracketExp.rightBracket = rightBracket;
+	e->datatype = dtype;
 	return e;
 }
 
@@ -142,7 +149,7 @@ ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block) {
 /**
  * @copydoc
  */
-ast_stmt* make_varDeclStmt(ast_exp* variable) {
+ast_stmt* make_varDeclStmt(BinaryTreePtr variable) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_decl_stmt;
@@ -190,24 +197,25 @@ ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtA
 /**
  * @copydoc
  */
-ast_stmt* make_callFunctionStmt(BinaryTreePtr function, functionArgs *args) {
+ast_stmt* make_varAssignBuiltinFunctionStmt(enum builtin_function function, functionArgs *args) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
-	e->tag_stmt = call_function_stmt;
-	e->op.call_function_stmt.function = function;
-	e->op.call_function_stmt.args = args;
+	e->tag_stmt = var_assign_builtin_function_stmt;
+	e->op.var_assign_builtin_function_stmt.function = function;
+	e->op.var_assign_builtin_function_stmt.args = args;
 	return e;
 }
 
 /**
  * @copydoc
  */
-ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, ast_stmt* callingFunction) {
+ast_stmt* make_varAssignFunctionStmt(BinaryTreePtr left, BinaryTreePtr function, functionArgs* args) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = var_assign_function_stmt;
 	e->op.var_assign_function_stmt.left = left;
-	e->op.var_assign_function_stmt.callFunction = callingFunction;
+	e->op.var_assign_function_stmt.function = function;
+	e->op.var_assign_function_stmt.args = args;
 	return e;
 }
 
@@ -250,11 +258,11 @@ ast_stmt* make_ifStmt(ast_exp* condition, stmtArray ifBlock, ast_stmt* elseStmt)
 /**
  * @copydoc
  */
-ast_stmt* make_inputStmt(ast_exp* identifier) {
+ast_stmt* make_inputStmt(BinaryTreePtr variable) {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = input_stmt;
-	e->op.input_stmt.identifier= identifier;
+	e->op.input_stmt.variable = variable;
 	return e;
 }
 
@@ -267,4 +275,25 @@ ast_stmt* make_printStmt(ast_exp* expression) {
 	e->tag_stmt = print_stmt;
 	e->op.print_stmt.expression = expression;
 	return e;
+}
+
+/**
+ * @copydoc
+ */
+ast_stmt* make_scopeStmt() {
+	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+	e->tag_stmt = scope_stmt;
+	return e;
+}
+
+/**
+ * @copydoc
+ */
+ast_stmt* make_optimalizationStmt() {
+    ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+    e->tag_stmt = optimalization_stmt;
+    e->op.optimalization_stmt.nothing = 0;
+    return e;
 }

@@ -5,6 +5,9 @@
  * @brief  Parsing all blocks, statements and expressions (.h file)
  */
 
+#ifndef IFJ2017PROJECT_PARSER_H
+#define IFJ2017PROJECT_PARSER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -18,7 +21,13 @@
 #include "ast.h"
 #include "stack.h"
 
+typedef struct {
+    char* name;
+    int argsNum;
+    datatype types[3];
+} builtinFunction;
 
+builtinFunction builtinFunctions[4];
 bool inFunction;            // flag for checking if parser is in body of function (for return statement)
 bool isExpression;
 char *functionName;
@@ -26,6 +35,7 @@ stmtArray globalStmtArray;
 Stack stmtStack;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
+
 
 
 
@@ -270,3 +280,5 @@ void params();
  *
  */
 void paramsNext();
+
+#endif
