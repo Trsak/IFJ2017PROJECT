@@ -1,0 +1,6 @@
+SCOPE
+    DIM a AS integer
+    INPUT a
+    a = a + 5
+    PRINT a;
+END SCOPE

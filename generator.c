@@ -82,7 +82,7 @@ void printStatement(ast_exp *expression) {
             printf("DEFVAR %s@%s\n", frame, reg);
             generateBinaryExp(expression);
             printf("MOVE %s@%s %s@%%R%d\n", frame, reg, frame, nextReg);
-            printf("WRITE %s@%s\n", frame, reg);
+            printf("WRITE %s@%s\n", frame, reg); //TODO VAR!!
             break;
         }
         default: //TODO remove
@@ -132,18 +132,52 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
 }
 
 void generateBinaryExp(ast_exp *expression) {
-    //int saveToReg = currentRegister;
     char *reg = getRegister();
     printf("DEFVAR %s@%s\n", frame, reg);
 
     switch (expression->tag_exp) {
         case binaryExp: {
             ast_exp *left = expression->op.binaryExp.left;
+            generateBinaryExp(expression->op.binaryExp.right);
 
             switch (left->tag_exp) {
                 case integerExp:
-                    generateBinaryExp(expression->op.binaryExp.right);
                     printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(left->op.numberExp));
+
+                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                        char *hReg1 = getHelpRegister();
+                        char *hReg2 = getHelpRegister();
+                        printf("DEFVAR %s@%s\n", frame, hReg1);
+                        printf("DEFVAR %s@%s\n", frame, hReg2);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
+                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
+                    }
+
+                    break;
+                case doubleExp:
+                    printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
+
+                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    }
+
+                    break;
+                case variableExp:
+                    printf("MOVE %s@%s %s@%s\n", frame, reg, frame, left->op.variableExp->data.name);
 
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
@@ -164,9 +198,6 @@ void generateBinaryExp(ast_exp *expression) {
                         printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
                     }
 
-                    break;
-                case doubleExp:
-                    printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
                     break;
                 default: //TODO OTHER
                     break;
