@@ -277,9 +277,23 @@ ast_stmt* make_printStmt(ast_exp* expression) {
 	return e;
 }
 
+/**
+ * @copydoc
+ */
 ast_stmt* make_scopeStmt() {
 	ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
 
 	e->tag_stmt = scope_stmt;
 	return e;
+}
+
+/**
+ * @copydoc
+ */
+ast_stmt* make_optimalizationStmt() {
+    ast_stmt* e = (ast_stmt*) gcmalloc(sizeof(ast_stmt));
+
+    e->tag_stmt = optimalization_stmt;
+    e->op.optimalization_stmt.nothing = 0;
+    return e;
 }

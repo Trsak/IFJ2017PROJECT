@@ -86,6 +86,9 @@ void printAST(stmtArray globalStmtArray) {
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == optimalization_stmt) {
+            printf("optimalization: %d\n", globalStmtArray.array[i].op.optimalization_stmt.nothing);
+        }
 		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
 			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
@@ -136,6 +139,7 @@ void program() {
 	stackInit(&stmtStack);
 
 	stmtArrayInit(&globalStmtArray);
+    addStmtToArray(&globalStmtArray, make_optimalizationStmt());
 
     token Token = getNextToken();
 

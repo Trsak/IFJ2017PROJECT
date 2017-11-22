@@ -59,7 +59,7 @@ enum builtin_function {
 typedef struct Stmt {
 	enum {while_stmt, var_decl_stmt, var_decl_assign_stmt,
 		function_decl_stmt, function_definition_stmt, var_assign_function_stmt, var_assign_builtin_function_stmt,
-		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt, scope_stmt} tag_stmt;
+		var_assign_stmt, if_stmt, return_stmt, input_stmt, print_stmt, scope_stmt, optimalization_stmt} tag_stmt;
 
 	union {
 		struct {
@@ -120,6 +120,10 @@ typedef struct Stmt {
 		struct {
 			ast_exp* expression;
 		} print_stmt;
+
+        struct {
+            int nothing;
+        } optimalization_stmt;
 	} op;
 } ast_stmt;
 
@@ -287,6 +291,16 @@ ast_stmt* make_inputStmt(BinaryTreePtr variable);
  */
 ast_stmt* make_printStmt(ast_exp* expression);
 
+/**
+ * @brief Create node in AST to show where the main block begins.
+ * @return Pointer to AST node (statement).
+ */
 ast_stmt* make_scopeStmt();
+
+/**
+ * @brief Create node in AST for optimalization purpose.
+ * @return Pointer to AST node (statement).
+ */
+ast_stmt* make_optimalizationStmt();
 
 #endif //IFJ2017PROJECT_AST_H
