@@ -86,6 +86,9 @@ void printAST(stmtArray globalStmtArray) {
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == optimalization_stmt) {
+            printf("optimalization: %d\n", globalStmtArray.array[i].op.optimalization_stmt.nothing);
+        }
 		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
 			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
 			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
@@ -129,6 +132,27 @@ void printAST(stmtArray globalStmtArray) {
 	}
 }
 
+void builtinFunctionsInit() {
+    builtinFunctions[0].argsNum = 1;
+    builtinFunctions[0].name = "length";
+    builtinFunctions[0].types[0] = exp_string;
+
+    builtinFunctions[1].argsNum = 3;
+    builtinFunctions[1].name = "substr";
+    builtinFunctions[1].types[0] = exp_string;
+    builtinFunctions[1].types[1] = exp_integer;
+    builtinFunctions[1].types[2] = exp_decimal;
+
+    builtinFunctions[2].argsNum = 2;
+    builtinFunctions[2].name = "asc";
+    builtinFunctions[2].types[0] = exp_string;
+    builtinFunctions[2].types[1] = exp_integer;
+
+    builtinFunctions[3].argsNum = 1;
+    builtinFunctions[3].name = "chr";
+    builtinFunctions[3].types[0] = exp_integer;
+}
+
 /**
  * @copydoc program
  */
@@ -136,6 +160,9 @@ void program() {
 	stackInit(&stmtStack);
 
 	stmtArrayInit(&globalStmtArray);
+    addStmtToArray(&globalStmtArray, make_optimalizationStmt());
+
+    builtinFunctionsInit();
 
     token Token = getNextToken();
 
@@ -999,9 +1026,14 @@ void assignment(bool isDeclaration, char *name) {
 		node = btGetVariable(symtable, name);
 	}
 
-	if(node->data.type != (datatype)expressionTree->datatype) {
-		printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+	if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+        if(expressionTree->datatype == exp_string) {
+            printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+        }
 	}
+    else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
+        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+    }
 
 	node->data.defined = true;
 
