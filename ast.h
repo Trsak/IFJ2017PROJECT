@@ -64,7 +64,7 @@ typedef struct Stmt {
 		} while_stmt;
 
 		struct {
-			ast_exp* variable;
+			BinaryTreePtr variable;
 		} var_decl_stmt;
 
 		struct {
@@ -199,7 +199,7 @@ ast_stmt* make_whileStmt(ast_exp* condition, stmtArray code_block);
  * @param variable
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varDeclStmt(ast_exp* variable);
+ast_stmt* make_varDeclStmt(BinaryTreePtr variable);
 
 /**
  * @brief Create node in AST of variable declaration with inicialization statement.
