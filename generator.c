@@ -3,22 +3,35 @@
  * @author Petr Sopf (xsopfp00)
  * @brief Generating IFJCode2017 from AST
  */
+//TODO:  KONVERZE PROMĚNNÝCH!!
 
+#include <string.h>
+#include <ctype.h>
 #include "generator.h"
 #include "symtable.h"
 #include "parser.h"
 
 void startGenerating() {
     printf(".IFJcode17\n");
+    currentRegister = 0;
+
+    frame = (char *) gcmalloc(3 * sizeof(char));
+    strcpy(frame, "TF");
+
+    printf("JUMP $$main\n");
 
     for (int i = 0; i < globalStmtArray.length; i++) {
         switch (globalStmtArray.array[i].tag_stmt) {
+            case scope_stmt:
+                strcpy(frame, "GF");
+                printf("LABEL $$main\n");
+                break;
             case var_assign_stmt:
                 varAssign(globalStmtArray.array[i].op.var_assign_stmt.left,
                           globalStmtArray.array[i].op.var_assign_stmt.expression);
                 break;
             case print_stmt:
-                printExpression(globalStmtArray.array[i].op.print_stmt.expression);
+                printStatement(globalStmtArray.array[i].op.print_stmt.expression);
                 break;
             default: //TODO remove
                 break;
@@ -26,7 +39,7 @@ void startGenerating() {
     }
 }
 
-void printExpression(ast_exp *expression) {
+void printStatement(ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
             printf("WRITE int@%d\n", expression->op.numberExp);
@@ -38,166 +51,145 @@ void printExpression(ast_exp *expression) {
             printf("WRITE string@%s\n", expression->op.stringExp.str);
             break;
         case variableExp:
-            if (!expression->op.variableExp->data.defined) {
-                switch (expression->op.variableExp->data.type) {
-                    case TYPE_NUMBER:
-                        printf("WRITE int@0\n");
-                        break;
-                    case TYPE_DECIMAL:
-                        printf("WRITE float@0\n");
-                        break;
-                    case TYPE_STRING:
-                        printf("WRITE string@\n");
-                        break;
-                }
-            } else {
-                printf("WRITE GF@%s\n", expression->op.variableExp->data.name);
-            }
+            printf("WRITE %s@%s\n", frame, expression->op.variableExp->data.name);
             break;
-        case binaryExp:
-            //TODO
+        case binaryExp: {
+            char *reg = getRegister();
+            int nextReg = currentRegister;
+
+            printf("DEFVAR %s@%s\n", frame, reg);
+            generateBinaryExp(expression);
+            printf("MOVE %s@%s %s@R%d\n", frame, reg, frame, nextReg);
+            printf("WRITE %s@%s\n", frame, reg);
             break;
+        }
         default: //TODO remove
             break;
     }
 }
 
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
-    printf("DEFVAR GF@%s\n", var->data.name);
+    printf("DEFVAR %s@%s\n", frame, var->data.name);
 
     switch (expression->tag_exp) {
         case integerExp:
-            printf("MOVE GF@%s int@%d\n", var->data.name, expression->op.numberExp);
+            printf("MOVE %s@%s int@%d\n", frame, var->data.name, expression->op.numberExp);
             break;
         case doubleExp:
-            printf("MOVE GF@%s float@%g\n", var->data.name, expression->op.decimalExp);
+            printf("MOVE %s@%s float@%g\n", frame, var->data.name, expression->op.decimalExp);
             break;
         case stringExp:
-            printf("MOVE GF@%s string@%s\n", var->data.name, expression->op.stringExp.str);
+            printf("MOVE %s@%s string@%s\n", frame, var->data.name, expression->op.stringExp.str);
             break;
         case variableExp:
-            printf("MOVE GF@%s GF@%s\n", var->data.name, expression->op.variableExp->data.name);
+            printf("MOVE %s@%s %s@%s\n", frame, var->data.name, frame, expression->op.variableExp->data.name);
             break;
         case binaryExp: {
-            string lastOp = expression->op.binaryExp.oper;
-            ast_exp *lastExpression = expression;
+            int nextReg = currentRegister;
+            printf("DEFVAR %s@%s\n", frame, var->data.name);
+            generateBinaryExp(expression);
+            printf("MOVE %s@%s %s@R%d\n", frame, var->data.name, frame, nextReg);
+            break;
+        }
+        default:
+            break;
+    }
+}
 
-            while (expression->op.binaryExp.right->tag_exp == binaryExp) {
-                lastExpression = expression;
-                expression = expression->op.binaryExp.right;
+void generateBinaryExp(ast_exp *expression) {
+    //int saveToReg = currentRegister;
+    char *reg = getRegister();
+    printf("DEFVAR %s@%s\n", frame, reg);
 
-                if (expression->tag_exp == binaryExp) {
-                    datatype var1;
-                    datatype var2;
+    switch (expression->tag_exp) {
+        case binaryExp: {
+            ast_exp *left = expression->op.binaryExp.left;
 
-                    if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("DEFVAR GF@%s\n", "dd");
+            switch (left->tag_exp) {
+                case integerExp:
+                    generateBinaryExp(expression->op.binaryExp.right);
+                    printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(left->op.numberExp));
 
-                        switch (expression->op.binaryExp.left->tag_exp) {
-                            case integerExp:
-                                var1 = TYPE_NUMBER;
-                                break;
-                            case doubleExp:
-                                var1 = TYPE_DECIMAL; //TODO VAR
-                                break;
-                            default:
-                                break;
-                        }
-
-                        switch (expression->op.binaryExp.right->tag_exp) {
-                            case integerExp:
-                                var2 = TYPE_NUMBER;
-                                printf("YEY\n");
-                                break;
-                            case doubleExp:
-                                var2 = TYPE_DECIMAL;
-                                break;
-                            default:
-                                break;
-                        }
-                        if (var2 == TYPE_NUMBER && var1 == TYPE_NUMBER) { //Both are integers
-                            printf("MUL GF@%s %s %s\n", "dd",
-                                   generateSymbol(TYPE_NUMBER, "5"),
-                                   generateSymbol(TYPE_NUMBER, "6"));
-                        }
+                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     }
-                }
 
-                lastOp = expression->op.binaryExp.oper;
+                    break;
+                case doubleExp:
+                    printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
+                    break;
+                default: //TODO OTHER
+                    break;
             }
 
             break;
         }
+        case integerExp:
+            printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(expression->op.numberExp));
+            break;
+        default:
+            break;
     }
 }
 
 char *generateSymbol(datatype type, char *value) {
-    char *typeString;
+    char *symbolString = (char *) gcmalloc((strlen(value) + 10) * sizeof(char));
 
     switch (type) {
         case TYPE_NUMBER:
-            typeString = "int@";
+            strcpy(symbolString, "int@");
             break;
         case TYPE_DECIMAL:
-            typeString = "float@";
+            strcpy(symbolString, "float@");
             break;
         case TYPE_STRING:
-            typeString = "string@";
-            break;
-    }
-    sprintf(value, "%s%s", typeString, value);
-
-    return value;
-}
-/*
-void integerVarAssign(const char *variable, ast_exp *expression) {
-    switch (expression->tag_exp) {
-        case integerExp:
-            printf("MOVE GF@%s int@%d\n", variable, expression->op.numberExp);
-            break;
-        case variableExp:
-            printf("MOVE GF@%s GF@%s\n", variable, expression->op.variableExp->data.name);
-            break;
-
-    }
-}
-
-void getIntegerExpressionValue(const char *variable, ast_exp *expression) {
-    switch (expression->tag_exp) {
-        case integerExp:
-            return expression->op.numberExp;
-        case variableExp:
-            return atoi(expression->op.variableExp->data.value.str);
-        case binaryExp:
-            if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                return getIntegerExpressionValue(expression->op.binaryExp.left) +
-                       getIntegerExpressionValue(expression->op.binaryExp.right);
-            } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                return getIntegerExpressionValue(expression->op.binaryExp.left) -
-                       getIntegerExpressionValue(expression->op.binaryExp.right);
-            } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                return getIntegerExpressionValue(expression->op.binaryExp.left) *
-                       getIntegerExpressionValue(expression->op.binaryExp.right);
-            } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
-                return getIntegerExpressionValue(expression->op.binaryExp.left) /
-                       getIntegerExpressionValue(expression->op.binaryExp.right);
-            }
-            break;
-        case bracketExp:
-            return getIntegerExpressionValue(expression->op.bracketExp.expression);
-        default: //TODO remove
+            strcpy(symbolString, "string@");
             break;
     }
 
-    return 0;
+    strcat(symbolString, value);
+    return symbolString;
 }
 
-double getFloatExpressionValue(ast_exp *expression) {
-    (void) expression;
-    return 0.0f;
+char *generateIntegerSymbol(int value) {
+    char *symbolString = (char *) gcmalloc((25) * sizeof(char));
+
+    sprintf(symbolString, "int@%d", value);
+    return symbolString;
 }
 
-char *getStringExpressionValue(ast_exp *expression) {
-    (void) expression;
-    return "";
-}*/
+char *generateFloatSymbol(double value) {
+    char *symbolString = (char *) gcmalloc((80) * sizeof(char));
+
+    sprintf(symbolString, "float@%g", value);
+    return symbolString;
+}
+
+char *getRegister() {
+    char *reg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(reg, "%%R%d", currentRegister++);
+    return reg;
+}
+
+char *getNextRegister(char *nextReg) {
+    long val = 0;
+    char *p = nextReg;
+
+    while (*p) {
+        if (isdigit(*p)) {
+            val = strtol(p, &p, 10);
+        } else {
+            p++;
+        }
+    }
+
+    char *reg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(reg, "%%R%ld", val + 1);
+    return reg;
+}

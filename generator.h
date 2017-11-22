@@ -9,6 +9,9 @@
 
 #include "parser.h"
 
+int currentRegister;
+char *frame;
+
 /**
  * @return void
  *
@@ -21,7 +24,7 @@ void startGenerating();
  *
  * Generates code to print given expression
  */
-void printExpression(ast_exp *expression);
+void printStatement(ast_exp *expression);
 
 /**
  * @return void
@@ -30,27 +33,16 @@ void printExpression(ast_exp *expression);
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression);
 
-/**
- * @return integer
- *
- * Gets integer result for expression
- */
-void getIntegerExpressionValue(const char *variable, ast_exp *expression);
-
 char *generateSymbol(datatype type, char *value);
 
-/**
- * @return double
- *
- * Gets float result for expression
- */
-double getFloatExpressionValue(ast_exp *expression);
+char *getRegister();
 
-/**
- * @return string
- *
- * Gets string result for expression
- */
-char *getStringExpressionValue(ast_exp *expression);
+void generateBinaryExp(ast_exp *expression);
+
+char *generateIntegerSymbol(int value);
+
+char *getNextRegister(char *nextReg);
+
+char *generateFloatSymbol(double value);
 
 #endif //IFJ2017PROJECT_GENERATOR_H
