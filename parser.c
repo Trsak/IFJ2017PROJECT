@@ -149,6 +149,10 @@ void printAST(stmtArray globalStmtArray) {
 		else if(globalStmtArray.array[i].tag_stmt == input_stmt) {
 			printf("INPUT: '%s'\n", globalStmtArray.array[i].op.input_stmt.variable->data.name);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == return_stmt) {
+            //printf("RETURN:\n", globalStmtArray.array[i].op.input_stmt.variable->data.name);
+            printf("RETURN: %d\n", globalStmtArray.array[i].op.return_stmt.ret->op.numberExp);
+        }
 		printf("\n");
 	}
 }
@@ -842,6 +846,26 @@ void statement() {
 
             expression(&expressionTree);
 
+            ast_stmt* returnStmt = make_returnStmt(expressionTree);
+            if(!stackEmpty(&stmtStack)) {
+                stackTop(&stmtStack, &item);
+                if(item.stmt->tag_stmt == function_definition_stmt) {
+                    // TODO: what datatypes can return?
+                    int i = stmtStack.top;
+                    while(item.stmt->tag_stmt != function_definition_stmt) {
+                        i = i - 1;
+                        item = stmtStack.item[i];
+                    }
+                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
+                }
+                else {
+                    printf("Never should come here!\n");
+                }
+            }
+            else {
+                addStmtToArray(&globalStmtArray, returnStmt);
+            }
+
             break;
 
         default:
@@ -1095,6 +1119,8 @@ void assignment(bool isDeclaration, char *name) {
             else {
                 varAssignFunction = make_varAssignFunctionStmt(node, ptr, NULL);
             }
+            // TODO: check args (number, datatypes, ...)
+            // TODO: valid return datype of function in assign.
 
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, varAssignFunction);
 

@@ -419,6 +419,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 //More ')' then expected .. return it to parser to handle with
                 //It could be closing bracket to calling a function
                 *PreviousToken = Token;
+				*expressionTree = exp;
                 return ;
 
 
