@@ -199,6 +199,31 @@ void generateBinaryExp(ast_exp *expression) {
                     }
 
                     break;
+                case bracketExp:
+                    generateBinaryExp(left->op.bracketExp.expression);
+                    printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
+                    printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(getNextRegister(reg)));
+
+                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
+                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
+                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                        char *hReg1 = getHelpRegister();
+                        char *hReg2 = getHelpRegister();
+                        printf("DEFVAR %s@%s\n", frame, hReg1);
+                        printf("DEFVAR %s@%s\n", frame, hReg2);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
+                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
+                    }
+
+                    break;
                 default: //TODO OTHER
                     break;
             }
@@ -207,6 +232,9 @@ void generateBinaryExp(ast_exp *expression) {
         }
         case integerExp:
             printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(expression->op.numberExp));
+            break;
+        case bracketExp:
+
             break;
         default:
             break;
