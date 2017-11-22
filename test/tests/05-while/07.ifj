@@ -1,0 +1,10 @@
+SCOPE
+    DIM A AS INTEGER = 10
+    DIM B AS INTEGER = 7
+
+	DO WHILE A <= B
+	    A = a + 1
+	LOOP
+
+	PRINT A;B;
+END SCOPE
