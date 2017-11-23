@@ -1,0 +1,8 @@
+SCOPE
+
+    Dim a as integer
+
+    a = 5 + 9 * () 'Empty brackets
+
+END SCOPE
+

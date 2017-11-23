@@ -1,0 +1,11 @@
+function funkce (cislo as Integer) AS integer
+    return 5 + cislo
+End Function
+
+SCOPE
+    Dim a AS integer
+    Dim b as Integer = 5
+
+    a = funkce(b))
+
+END SCOPE

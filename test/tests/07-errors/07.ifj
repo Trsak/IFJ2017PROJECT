@@ -1,6 +1,7 @@
 SCOPE
     DIM prom As STring = !"Wooow"
 
-
+    if then          'Missing expression
+    end if
 
 END SCOPE

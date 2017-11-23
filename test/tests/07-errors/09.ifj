@@ -1,0 +1,4 @@
+Function a () AS integer
+End Function
+
+END SCOPE
