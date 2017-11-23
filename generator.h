@@ -16,7 +16,7 @@ int currentRegister;
 
 int currentHelpRegister;
 
-int currentWhile;
+int currentLabel;
 
 char *frame;
 
@@ -47,9 +47,15 @@ void getInput(BinaryTreePtr var);
 
 char *generateSymbol(datatype type, char *value);
 
+void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr left);
+
 char *getRegister();
 
+void generateReturn(ast_exp *expression);
+
 void generateBinaryExp(ast_exp *expression);
+
+void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block);
 
 char *generateIntegerSymbol(int value);
 
@@ -57,7 +63,7 @@ char *getNextRegister(char *nextReg);
 
 char *getHelpRegister();
 
-char *getNewWhile();
+char *getNewLabel();
 
 char *generateFloatSymbol(double value);
 
