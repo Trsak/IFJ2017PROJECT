@@ -4,8 +4,6 @@
  * @brief Generating IFJCode2017 from AST
  */
 //TODO:  KONVERZE PROMĚNNÝCH!!
-//TODO: String + string
-//TODO: VAR ASSIGN = getVarFrame()!
 
 #include <string.h>
 #include <ctype.h>
@@ -380,7 +378,11 @@ void generateBinaryExp(ast_exp *expression) {
                     printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), left->op.variableExp->data.name);
 
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                        if (left->op.variableExp->data.type == TYPE_STRING) {
+                            printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                        } else {
+                            printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                        }
                     } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
                         printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
@@ -520,6 +522,11 @@ void generateBinaryExp(ast_exp *expression) {
                         printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
                     }
 
+                    break;
+                case stringExp:
+                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
+                        printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    }
                     break;
                 default: //TODO OTHER
                     break;

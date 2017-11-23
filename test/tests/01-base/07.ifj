@@ -1,0 +1,6 @@
+scope
+	dim a as string = !"\"\n\t\\\238"
+	dim b as string = !"\001\255\\\n"
+	dim c as string = a + b
+	print c;
+end scope
