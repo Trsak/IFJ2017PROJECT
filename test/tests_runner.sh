@@ -30,7 +30,9 @@ do
     tests_dir=`find ./test/ -type d -name "$dir-*"`
 
     info=`cat $tests_dir/tests.info`
+    printf "${cyan}---------------------------------\n"
     printf "${magenta}Running tests:$cyan $info$reset\n"
+    current_errors=$errors_total
 
     test=1
 
@@ -68,11 +70,15 @@ do
 	    test=$(( test+1 ))
     done
 
+    if [ "${errors_total}" = "${current_errors}" ]; then
+        printf "${reset}${green}ALL TESTS PASSED!${reset}\n"
+    fi
+
 	n=$(( n+1 ))
 done
 
 if [ "$errors_total" -eq "0" ]; then
-    printf "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n---------------------------------\n$reset"
+    printf "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n HOLY SHT WE ARE SO GOOD GUYS\n---------------------------------\n$reset"
 else
     printf "${red}---------------------------------\n Tests contains $errors_total errors!\n---------------------------------\n$reset"
 fi
