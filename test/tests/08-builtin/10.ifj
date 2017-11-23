@@ -1,0 +1,5 @@
+SCOPE
+    dim c as string
+    c = substr(!"zkouska", 0, 1)
+    print c;
+end scope
