@@ -78,7 +78,7 @@ do
 done
 
 if [ "$errors_total" -eq "0" ]; then
-    printf "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n HOLY SHT WE ARE SO GOOD GUYS\n---------------------------------\n$reset"
+    printf "${green}---------------------------------\n ALL TESTS ($tests_total) PASSED!\n---------------------------------\n$reset"
 else
     printf "${red}---------------------------------\n Tests contains $errors_total errors!\n---------------------------------\n$reset"
 fi
