@@ -1,0 +1,6 @@
+SCOPE
+    DIM prom As STring = !"Wooow"
+
+
+
+END SCOPE
