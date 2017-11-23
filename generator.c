@@ -596,7 +596,10 @@ void generateBinaryExp(ast_exp *expression) {
                         printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     }
                     break;
-                default: //TODO OTHER
+                case binaryExp:
+                    //TODO
+                    break;
+                default:
                     break;
             }
 
