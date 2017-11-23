@@ -1,0 +1,5 @@
+scope
+	dim a as integer = 6
+	a = a - 6 + 1
+	print a;
+end scope
