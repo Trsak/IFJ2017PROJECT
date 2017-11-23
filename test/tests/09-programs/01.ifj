@@ -13,8 +13,8 @@ Scope 'Hlavni telo programu
     Print !"Zadejte serazenou posloupnost vsech malych pismen a-h, ";
     Print !"pricemz se pismena nesmeji v posloupnosti opakovat";
     Input s1
-        Do While (s1 <> !"abcdefgh")
+    Do While (s1 <> !"abcdefgh")
         Print !"\nSpatne zadana posloupnost, zkuste znovu";
-    Input s1
+        Input s1
     Loop
 End Scope
