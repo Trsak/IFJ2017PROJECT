@@ -1,0 +1,5 @@
+scope
+    dim a as integer
+    a = Asc(!"test", 1)
+    print a;
+end scope

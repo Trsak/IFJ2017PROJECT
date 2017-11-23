@@ -86,6 +86,21 @@ void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_func
             printf("STRLEN %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
             break;
         }
+        case Chr: {
+            printf("YAYAY\n");
+            int reg = currentRegister;
+            generateBinaryExp(args->argument);
+            printf("INT2CHAR %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
+            break;
+        }
+        case Asc: {
+            //TODO
+            break;
+        }
+        case SubStr: {
+            //TODO
+            break;
+        }
     }
 }
 

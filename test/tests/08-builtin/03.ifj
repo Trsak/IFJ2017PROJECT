@@ -1,0 +1,5 @@
+scope
+    dim a as String
+    a = chr(49)
+    print a;
+end scope

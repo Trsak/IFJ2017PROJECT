@@ -1,0 +1,5 @@
+scope
+    dim a as string
+    a = SubStr(!"testicek", 2, 2)
+    print a;
+end scope

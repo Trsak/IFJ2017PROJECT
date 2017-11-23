@@ -1,0 +1,6 @@
+SCOPE
+    dim a as integer = 49
+    dim b as string
+    b = chr(a)
+    print a;b;
+end scope
