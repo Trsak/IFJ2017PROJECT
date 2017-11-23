@@ -48,9 +48,9 @@ void generateCode(stmtArray block) {
                                block.array[i].op.var_assign_function_stmt.left);
                 break;
             case var_assign_builtin_function_stmt:
-                getBultinFunction(block.array[i].op.var_assign_builtin_function_stmt.left,
-                                  block.array[i].op.var_assign_builtin_function_stmt.args,
-                                  block.array[i].op.var_assign_builtin_function_stmt.function);
+                getBuiltinFunction(block.array[i].op.var_assign_builtin_function_stmt.left,
+                                   block.array[i].op.var_assign_builtin_function_stmt.args,
+                                   block.array[i].op.var_assign_builtin_function_stmt.function);
                 break;
             case var_decl_stmt:
                 varDeclare(block.array[i].op.var_decl_stmt.variable);
@@ -147,7 +147,7 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     }
 }
 
-void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function) {
+void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function) {
     switch (function) {
         case Length: {
             int reg = currentRegister;
@@ -156,18 +156,35 @@ void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_func
             break;
         }
         case Chr: {
-            printf("YAYAY\n");
             int reg = currentRegister;
             generateBinaryExp(args->argument);
             printf("INT2CHAR %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
             break;
         }
         case Asc: {
-            //TODO
+            int s = currentRegister;
+            generateBinaryExp(args->argument);
+            int i = currentRegister;
+            generateBinaryExp(args->next->argument);
+            printf("STRLEN %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, s);
+            char *hReg1 = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, hReg1);
+            printf("GT %s@%s %s@%%R%d %s@%s \n", frame, hReg1, frame, i, getVarFrame(), left->data.name);
+
+            char *ascLabel = getNewLabel();
+            printf("JUMPIFNEQ %%WL%d %s@%s bool@true\n", currentLabel, frame, hReg1);
+            printf("MOVE %s@%s int@0\n", getVarFrame(), left->data.name);
+            printf("JUMP %%WL%dE\n", currentLabel);
+
+            printf("LABEL %%WL%d\n", currentLabel);
+            printf("SUB %s@%%R%d %s@%%R%d int@1\n", frame, i, frame, i);
+            printf("STRI2INT %s@%s %s@%%R%d %s@%%R%d\n", getVarFrame(), left->data.name, frame, s, frame, i);
+
+            printf("LABEL %%WL%dE\n", currentLabel);
             break;
         }
         case SubStr: {
-            //TODO
+            //printf("YAYAY substr\n");
             break;
         }
     }

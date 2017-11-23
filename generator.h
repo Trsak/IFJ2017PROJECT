@@ -73,6 +73,6 @@ void whileStatement(ast_exp *condition, stmtArray block);
 
 char *getVarFrame();
 
-void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
+void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
 
 #endif //IFJ2017PROJECT_GENERATOR_H
