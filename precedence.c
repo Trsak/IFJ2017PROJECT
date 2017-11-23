@@ -259,6 +259,13 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         switch (operation) {
             case '=':
                 //Rule ( E ) -> E
+
+				stackTop(&stack, &item);
+
+				if (item.symbol == PREC_BRACKET_LEFT) {
+					printErrAndExit(ERROR_SYNTAX, "Expression in brackets cannot be empty");
+				}
+
                 stackPush(&stack, NULL, NULL, NULL, PREC_BRACKET_RIGHT, NULL);
                 stack.maxTerm = stack.top;
                 Token = getNextToken();
