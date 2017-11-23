@@ -172,19 +172,70 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
             printf("GT %s@%s %s@%%R%d %s@%s \n", frame, hReg1, frame, i, getVarFrame(), left->data.name);
 
             char *ascLabel = getNewLabel();
-            printf("JUMPIFNEQ %%WL%d %s@%s bool@true\n", currentLabel, frame, hReg1);
+            printf("JUMPIFNEQ %s %s@%s bool@true\n", ascLabel, frame, hReg1);
             printf("MOVE %s@%s int@0\n", getVarFrame(), left->data.name);
-            printf("JUMP %%WL%dE\n", currentLabel);
+            printf("JUMP %sE\n", ascLabel);
 
-            printf("LABEL %%WL%d\n", currentLabel);
+            printf("LABEL %s\n", ascLabel);
             printf("SUB %s@%%R%d %s@%%R%d int@1\n", frame, i, frame, i);
             printf("STRI2INT %s@%s %s@%%R%d %s@%%R%d\n", getVarFrame(), left->data.name, frame, s, frame, i);
 
-            printf("LABEL %%WL%dE\n", currentLabel);
+            printf("LABEL %sE\n", ascLabel);
             break;
         }
         case SubStr: {
-            //printf("YAYAY substr\n");
+            int s = currentRegister;
+            generateBinaryExp(args->argument);
+            int i = currentRegister;
+            generateBinaryExp(args->next->argument);
+            int n = currentRegister;
+            generateBinaryExp(args->next->next->argument);
+
+            printf("MOVE %s@%s string@\n", getVarFrame(), left->data.name);
+            printf("SUB %s@%%R%d %s@%%R%d int@1\n", frame, i, frame, i);
+            printf("SUB %s@%%R%d %s@%%R%d int@1\n", frame, n, frame, n);
+
+            int lenN = currentHelpRegister;
+            char *len = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, len);
+            printf("STRLEN %s@%s %s@%%R%d\n", frame, len, frame, s);
+
+            char *substrLabel = getNewLabel();
+            printf("JUMPIFEQ %sE %s@%s int@0\n", substrLabel, frame, len);
+
+            char *limit = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, limit);
+            printf("LT %s@%s %s@%%R%d int@0\n", frame, limit, frame, i);
+            printf("JUMPIFEQ %sE %s@%s bool@true\n", substrLabel, frame, limit);
+
+            printf("LABEL %s\n", substrLabel);
+            strcpy(frame, "TF");
+            printf("CREATEFRAME\n");
+
+            char *less = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, less);
+
+            char *leftC = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, leftC);
+
+            char *charI = getHelpRegister();
+            printf("DEFVAR %s@%s\n", frame, charI);
+            printf("GETCHAR %s@%s %s@%%R%d %s@%%R%d\n", frame, charI, getVarFrame(), s, getVarFrame(), i);
+            printf("ADD %s@%%R%d %s@%%R%d int@1\n", getVarFrame(), i, getVarFrame(), i);
+            printf("CONCAT %s@%s %s@%s %s@%s\n", getVarFrame(), left->data.name, getVarFrame(), left->data.name, frame,
+                   charI);
+
+            printf("JUMPIFEQ %sE %s@%%R%d int@0\n", substrLabel, getVarFrame(), n);
+            printf("SUB %s@%%R%d %s@%%R%d int@1\n", getVarFrame(), n, getVarFrame(), n);
+            printf("LT %s@%s %s@%%R%d %s@%%HR%d\n", frame, less, getVarFrame(), i, getVarFrame(), lenN);
+            printf("JUMPIFEQ %s %s@%s bool@true\n", substrLabel, frame, less);
+            printf("LABEL %sE\n", substrLabel);
+
+            if (inScope) {
+                strcpy(frame, "GF");
+            } else {
+                strcpy(frame, "LF");
+            }
             break;
         }
     }
