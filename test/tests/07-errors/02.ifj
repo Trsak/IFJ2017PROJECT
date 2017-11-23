@@ -1,0 +1,10 @@
+SCOPE
+    Dim a as integer = 5
+    dim B AS InTeGeR = 10
+
+    Do While a <> b
+        A += 1
+
+    /'Here is missing Loop '/
+
+END SCOPE

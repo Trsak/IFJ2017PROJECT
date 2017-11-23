@@ -718,7 +718,8 @@ void statement() {
             break;
 
         case PRINT:
-			expression(&expressionTree);
+			//expression(&expressionTree);
+            parseExpression(&Token, &expressionTree);
 
 			ast_stmt* printStmt = make_printStmt(expressionTree);
 
@@ -739,7 +740,7 @@ void statement() {
 				addStmtToArray(&globalStmtArray, printStmt);
 			}
 
-            Token = PreviousToken;
+            //Token = PreviousToken;
 
             if (Token.lexem != SEMICOLON) {
                 printErrAndExit(ERROR_SYNTAX, "';' was expected");
@@ -756,7 +757,8 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'While' was expected");
             }
 
-            expression(&expressionTree);
+            parseExpression(&Token, &expressionTree);
+            //expression(&expressionTree);
 
             stmtArray whileStmtBlock;
             stmtArrayInit(&whileStmtBlock);
@@ -765,7 +767,7 @@ void statement() {
 
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, whileStmt);
 
-            Token = PreviousToken;
+            //Token = PreviousToken;
 
             eol(Token.lexem);
 
@@ -806,8 +808,10 @@ void statement() {
             break;
 
         case IF:
-            expression(&expressionTree);
-            Token = PreviousToken;
+            //expression(&expressionTree);
+            parseExpression(&Token, &expressionTree);
+
+            //Token = PreviousToken;
 
             if (Token.lexem != THEN) {
                 printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
@@ -844,7 +848,8 @@ void statement() {
                 printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
             }
 
-            expression(&expressionTree);
+            parseExpression(&Token, &expressionTree);
+            PreviousToken = Token;
 
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
             if(!stackEmpty(&stmtStack)) {
@@ -902,9 +907,9 @@ void printNext() {
 	ast_exp* expressionTree;
 
     token Token = getNextToken();
-    PreviousToken = Token;
 
     if (Token.lexem == EOL_ENUM) {
+        PreviousToken = Token;
         return;
     }
 
@@ -955,7 +960,6 @@ void ifNext() {
     }
 
     if (Token.lexem == ELSEIF) {
-
         elseIf();
         Token = PreviousToken;
     }
@@ -976,9 +980,11 @@ void ifNext() {
  */
 void elseIf() {
 	ast_exp* expressionTree;
-    expression(&expressionTree);
-
     token Token = PreviousToken;
+    //expression(&expressionTree);
+    parseExpression(&Token, &expressionTree);
+
+    //token Token = PreviousToken;
 
     if (Token.lexem != THEN) {
         printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
@@ -1308,22 +1314,15 @@ void mainBody() {
     mainBodyIt();
 	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
-    token Token = getNextToken();
-    eol(Token.lexem);
-
     statement();
 
-    Token = PreviousToken;
+    token Token = PreviousToken;
 
     end(Token.lexem);
 
     mainBodyIt();
 
     Token = getNextToken();
-
-    if(Token.lexem == EOL_ENUM) {
-        Token = getNextToken();
-    }
 
     if (Token.lexem != EOF) {
         printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
@@ -1348,4 +1347,8 @@ void mainBodyIt() {
         //Resetting token
         PreviousToken.lexem = -1;
     }
+
+    Token = getNextToken();
+
+    eol(Token.lexem);
 }

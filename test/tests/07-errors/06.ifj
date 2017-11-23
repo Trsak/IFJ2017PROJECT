@@ -1,0 +1,23 @@
+SCOPE
+    Dim a as integer = 5
+    Dim b as integer = 10
+
+
+    Do WHIlE 5
+        if a <> 1 then
+            print !"Nope"; !"Another print";
+
+            if a = 0 then
+                print !"Some message";
+            elseif a < 1 then
+                print !"Something";
+            else
+                print !"Don't know what to write here";
+            end                                                     'Missing if
+
+        else
+            print !"Yesss";
+        end if
+    lOOp
+
+END SCOPE
