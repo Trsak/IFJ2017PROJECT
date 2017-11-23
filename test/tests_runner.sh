@@ -30,7 +30,7 @@ do
     tests_dir=`find ./test/ -type d -name "$dir-*"`
 
     info=`cat $tests_dir/tests.info`
-    printf "${cyan}---------------------------------\n"
+    printf "${cyan}---------------------------------$reset\n"
     printf "${magenta}Running tests:$cyan $info$reset\n"
     current_errors=$errors_total
 
