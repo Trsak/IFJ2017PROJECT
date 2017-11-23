@@ -1106,12 +1106,15 @@ void assignment(bool isDeclaration, char *name) {
 
             if(builtIn) {
                 enum builtin_function en;
-                if(strcmp(funcName.str, "length") == 0)
+                if(strcmp(funcName.str, "length") == 0) {
                     en = Length;
-                else if(strcmp(funcName.str, "substr"))
+                }
+                else if(strcmp(funcName.str, "substr") == 0) {
                     en = SubStr;
-                else if(strcmp(funcName.str, "asc"))
+                }
+                else if(strcmp(funcName.str, "asc") == 0) {
                     en = Asc;
+                }
                 else
                     en = Chr;
                 varAssignFunction = make_varAssignBuiltinFunctionStmt(node, en, NULL);
