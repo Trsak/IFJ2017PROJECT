@@ -1308,22 +1308,15 @@ void mainBody() {
     mainBodyIt();
 	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
-    token Token = getNextToken();
-    eol(Token.lexem);
-
     statement();
 
-    Token = PreviousToken;
+    token Token = PreviousToken;
 
     end(Token.lexem);
 
     mainBodyIt();
 
     Token = getNextToken();
-
-    if(Token.lexem == EOL_ENUM) {
-        Token = getNextToken();
-    }
 
     if (Token.lexem != EOF) {
         printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
@@ -1348,4 +1341,8 @@ void mainBodyIt() {
         //Resetting token
         PreviousToken.lexem = -1;
     }
+
+    Token = getNextToken();
+
+    eol(Token.lexem);
 }
