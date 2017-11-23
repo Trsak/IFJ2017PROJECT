@@ -20,13 +20,6 @@ int currentWhile;
 
 char *frame;
 
-typedef enum {
-    NOWHERE = 0,
-    IN_WHILE = 1,
-    IN_IF = 2
-} inL;
-
-inL inside;
 /**
  * @return void
  *
@@ -73,5 +66,7 @@ void varDeclare(BinaryTreePtr var);
 void whileStatement(ast_exp *condition, stmtArray block);
 
 char *getVarFrame();
+
+void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
 
 #endif //IFJ2017PROJECT_GENERATOR_H

@@ -1,0 +1,5 @@
+scope
+    dim a as integer
+    a = Length(!"x\nz")
+    print a;
+end scope

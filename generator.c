@@ -18,7 +18,6 @@ void startGenerating() {
     currentRegister = 0;
     currentHelpRegister = 0;
     currentWhile = 0;
-    inside = NOWHERE;
     inScope = false;
 
     frame = (char *) gcmalloc(3 * sizeof(char));
@@ -39,6 +38,11 @@ void generateCode(stmtArray block) {
                 break;
             case input_stmt:
                 getInput(block.array[i].op.input_stmt.variable);
+                break;
+            case var_assign_builtin_function_stmt:
+                getBultinFunction(block.array[i].op.var_assign_builtin_function_stmt.left,
+                                  block.array[i].op.var_assign_builtin_function_stmt.args,
+                                  block.array[i].op.var_assign_builtin_function_stmt.function);
                 break;
             case var_decl_stmt:
                 varDeclare(block.array[i].op.var_decl_stmt.variable);
@@ -74,27 +78,31 @@ void getInput(BinaryTreePtr var) {
     }
 }
 
+void getBultinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function) {
+    switch (function) {
+        case Length: {
+            int reg = currentRegister;
+            generateBinaryExp(args->argument);
+            printf("STRLEN %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
+            break;
+        }
+    }
+}
+
 void whileStatement(ast_exp *condition, stmtArray block) {
     switch (condition->tag_exp) {
         case binaryExp: {
             char *whileLabel = getNewWhile();
-            inside = IN_WHILE;
 
             printf("LABEL %%WL%d\n", currentWhile);
             strcpy(frame, "TF");
             printf("CREATEFRAME\n");
 
             generateBinaryExp(condition);
-            inside = NOWHERE;
-
             generateCode(block);
-
-            if (inScope) {
-                strcpy(frame, "GF");
-            }
-
             printf("JUMP %s\n", whileLabel);
             printf("LABEL %sN\n", whileLabel);
+
             break;
         }
         default:
@@ -435,6 +443,12 @@ void generateBinaryExp(ast_exp *expression) {
         }
         case integerExp:
             printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(expression->op.numberExp));
+            break;
+        case doubleExp:
+            printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(expression->op.decimalExp));
+            break;
+        case stringExp:
+            printf("MOVE %s@%s %s\n", frame, reg, generateSymbol(TYPE_STRING, expression->op.stringExp.str));
             break;
         case variableExp:
             printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
