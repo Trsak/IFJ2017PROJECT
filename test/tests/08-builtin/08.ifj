@@ -1,0 +1,8 @@
+SCOPE
+    dim a as integer = 1
+    dim b as string = !"ZkouskaDD"
+    dim c as string
+    dim d as integer = 3
+    c = substr(b,a,d)
+    print a;b;c;d;
+end scope

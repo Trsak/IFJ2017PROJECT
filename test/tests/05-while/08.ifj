@@ -1,0 +1,13 @@
+SCOPE
+    DIM A AS INTEGER = 3
+    DIM B AS INTEGER = 4
+
+	DO WHILE A < 6
+	    DO WHILE B < 6
+    	    B = B + 1
+    	LOOP
+	    A = a + 1
+	LOOP
+
+	PRINT A;B;
+END SCOPE

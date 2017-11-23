@@ -1,0 +1,7 @@
+SCOPE
+    dim a as integer = 2
+    dim b as string = !"Zkouska"
+    dim c as integer
+    c = asc(b,a)
+    print a;b;c;
+end scope

@@ -1,0 +1,6 @@
+SCOPE
+    dim a as integer
+    dim b as string = !"test"
+    a = Length(b)
+    print a;b;
+end scope

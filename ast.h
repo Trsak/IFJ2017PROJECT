@@ -93,6 +93,7 @@ typedef struct Stmt {
 		} function_definition_stmt;
 
 		struct {
+            BinaryTreePtr left;
 			enum builtin_function function;
 			functionArgs *args;
 		} var_assign_builtin_function_stmt;
@@ -240,7 +241,7 @@ ast_stmt* make_functionDefStmt(BinaryTreePtr function, functionArgs *args, stmtA
  * @param args
  * @return Pointer to AST node (statement).
  */
-ast_stmt* make_varAssignBuiltinFunctionStmt(enum builtin_function function, functionArgs *args);
+ast_stmt* make_varAssignBuiltinFunctionStmt(BinaryTreePtr left, enum builtin_function function, functionArgs *args);
 
 /**
  * @brief Create node in AST of assignment to varible of calling function statement.

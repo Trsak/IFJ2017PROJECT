@@ -81,7 +81,9 @@ int getPositionInTable(int lexem) {
  */
 bool isOperator(precedStack symbol) {
     if (symbol == PREC_MULTIPLY || symbol == PREC_DIVISION ||
-            symbol == PREC_BACKSLASH || symbol == PREC_PLUS || symbol == PREC_MINUS)
+            symbol == PREC_BACKSLASH || symbol == PREC_PLUS || symbol == PREC_MINUS ||
+			symbol == PREC_GREATER || symbol == PREC_GREATER_EQUAL || symbol == PREC_LESS ||
+			symbol == PREC_LESS_EQUAL || symbol == PREC_NOT_EQUAL || symbol == PREC_ASSIGNMENT)
         return true;
 
     return false;
@@ -327,6 +329,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 					if(isOperator(item.symbol)) {
 						//printf("add operator\n");
 						exp->op.binaryExp.oper.str = getOperator(item.symbol);
+						//printf("operator: %s\n", getOperator(item.symbol));
 					}
 					else if(item.symbol == PREC_E) {
 						if(exp->tag_exp == binaryExp) {
@@ -416,6 +419,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 //More ')' then expected .. return it to parser to handle with
                 //It could be closing bracket to calling a function
                 *PreviousToken = Token;
+				*expressionTree = exp;
                 return ;
 
 
