@@ -31,7 +31,7 @@ do
 
     info=`cat $tests_dir/tests.info`
     printf "${cyan}---------------------------------$reset\n"
-    printf "${magenta}Running tests:$cyan $info$reset\n"
+    printf "${magenta} Running tests:$cyan $info$reset\n"
     current_errors=$errors_total
 
     test=1
@@ -71,7 +71,7 @@ do
     done
 
     if [ "${errors_total}" = "${current_errors}" ]; then
-        printf "${reset}${green}ALL TESTS PASSED!${reset}\n"
+        printf "${reset}${green} ALL TESTS PASSED!${reset}\n"
     fi
 
 	n=$(( n+1 ))
