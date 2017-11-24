@@ -101,15 +101,10 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
         generateCode(ifBlock);
         printf("JUMP %sNE\n", ifLabel);
         printf("LABEL %sN\n", ifLabel);
-/*
-        if (elseStmt->op.if_stmt.condition == NULL) {
-            printf ("\nODKAZ NA ELSE\n\n");
-        }
-        else {
-            printf ("\nOK\n\n");
-        }*/
 
-        generateIf(elseStmt->op.if_stmt.condition, elseStmt->op.if_stmt.ifBlock, elseStmt->op.if_stmt.elseStmt);
+        if (elseStmt != NULL) {
+            generateIf(elseStmt->op.if_stmt.condition, elseStmt->op.if_stmt.ifBlock, elseStmt->op.if_stmt.elseStmt);
+        }
         printf("LABEL %sNE\n", ifLabel);
     } else {
         generateCode(ifBlock);
