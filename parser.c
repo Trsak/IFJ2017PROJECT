@@ -217,7 +217,7 @@ void program() {
 
     mainBody();
 
-	printAST(globalStmtArray);
+	//printAST(globalStmtArray);
 
 }
 
