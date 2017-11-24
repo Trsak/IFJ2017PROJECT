@@ -1002,6 +1002,7 @@ void ifNext(int* pushCounter) {
 
 
     if (Token.lexem == ELSE) {
+        PreviousToken.lexem = -1;
         Token = getNextToken();
 
         eol(Token.lexem);
@@ -1128,18 +1129,37 @@ void assignment(bool isDeclaration, char *name) {
 
         BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
 
+
+        //if(inFunction) {
+        //    ptr = btGetVariable(symtable, functionName)->data.treeOfFunction;
+        //    ptr = btGetVariable(ptr, Token.value.str);
+        //}
+        //else {
+        //    ptr = btGetVariable(symtable, Token.value.str);
+        //}
+
+        //BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str);
+
+
         if(ptr == NULL) {
             //check if called function isn't built in function
 
-            if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
-                    strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
-
-                function = true;
-                builtIn = true;
-                funcName = Token.value;
+            if (inFunction) {
+                ptr = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                ptr = btGetVariable(ptr, Token.value.str);
 
             } else {
-                printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+
+                if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
+                        strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
+
+                    function = true;
+                    builtIn = true;
+                    funcName = Token.value;
+
+                } else {
+                    printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+                }
             }
 
         } else {
