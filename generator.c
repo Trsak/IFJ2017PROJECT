@@ -37,6 +37,10 @@ void generateCode(stmtArray block) {
             case input_stmt:
                 getInput(block.array[i].op.input_stmt.variable);
                 break;
+            case if_stmt:
+                generateIf(block.array[i].op.if_stmt.condition, block.array[i].op.if_stmt.ifBlock,
+                           block.array[i].op.if_stmt.elseStmt);
+                break;
             case function_definition_stmt:
                 generateFunction(block.array[i].op.function_definition_stmt.function,
                                  block.array[i].op.function_definition_stmt.args,
@@ -86,6 +90,29 @@ void getInput(BinaryTreePtr var) {
         case TYPE_STRING:
             printf("READ %s@%s string\n", getVarFrame(), var->data.name);
             break;
+    }
+}
+
+void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
+    char *ifLabel = getNewLabel();
+
+    if (condition != NULL) {
+        generateExp(condition);
+        generateCode(ifBlock);
+        printf("JUMP %sNE\n", ifLabel);
+        printf("LABEL %sN\n", ifLabel);
+/*
+        if (elseStmt->op.if_stmt.condition == NULL) {
+            printf ("\nODKAZ NA ELSE\n\n");
+        }
+        else {
+            printf ("\nOK\n\n");
+        }*/
+
+        generateIf(elseStmt->op.if_stmt.condition, elseStmt->op.if_stmt.ifBlock, elseStmt->op.if_stmt.elseStmt);
+        printf("LABEL %sNE\n", ifLabel);
+    } else {
+        generateCode(ifBlock);
     }
 }
 

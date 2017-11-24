@@ -43,6 +43,8 @@ void printStatement(ast_exp *expression);
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression);
 
+void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt);
+
 void getInput(BinaryTreePtr var);
 
 char *generateSymbol(datatype type, char *value);
