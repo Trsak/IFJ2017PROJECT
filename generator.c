@@ -583,9 +583,9 @@ void generateExp(ast_exp *expression) {
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg), frame, reg);
                     } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg), frame, reg);
                     } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
                         printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
