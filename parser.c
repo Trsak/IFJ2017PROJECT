@@ -156,6 +156,7 @@ void printAST(stmtArray globalStmtArray) {
         else if(globalStmtArray.array[i].tag_stmt == if_stmt) {
             printf("IF:\n");
             printAST(globalStmtArray.array[i].op.if_stmt.ifBlock);
+            // TODO: print else if and else
         }
 		printf("\n");
 	}
@@ -1003,22 +1004,6 @@ void ifNext() {
         stackTop(&stmtStack, &item);
 
         stackPop(&stmtStack);
-
-        if(!stackEmpty(&stmtStack)) {
-            stackTop(&stmtStack, &item);
-            if(item.stmt->tag_stmt == function_definition_stmt) {
-                addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
-            }
-            else if(item.stmt->tag_stmt == while_stmt) {
-                addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
-            }
-            else if(item.stmt->tag_stmt == if_stmt) {
-                addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
-            }
-        }
-        else {
-            addStmtToArray(&globalStmtArray, ifStmt);
-        }
     }
 }
 
@@ -1060,21 +1045,6 @@ void elseIf() {
 
     stackPop(&stmtStack);
 
-    if(!stackEmpty(&stmtStack)) {
-        stackTop(&stmtStack, &item);
-        if(item.stmt->tag_stmt == function_definition_stmt) {
-            addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
-        }
-        else if(item.stmt->tag_stmt == while_stmt) {
-            addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
-        }
-        else if(item.stmt->tag_stmt == if_stmt) {
-            addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
-        }
-    }
-    else {
-        addStmtToArray(&globalStmtArray, ifStmt);
-    }
 
     Token = PreviousToken;
 
