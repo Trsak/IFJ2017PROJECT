@@ -6,4 +6,6 @@ SCOPE
 	IF A < B THEN
         C = A / B
 	END IF
+
+	print c;
 END SCOPE

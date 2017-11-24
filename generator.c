@@ -124,7 +124,7 @@ void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray bloc
 
 void generateReturn(ast_exp *expression) {
     int reg = currentRegister;
-    generateBinaryExp(expression);
+    generateExp(expression);
     printf("MOVE LF@%%retval %s@%%R%d\n", frame, reg);
     printf("POPFRAME\n");
     printf("RETURN\n");
@@ -137,7 +137,7 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
 
     while (args != NULL) {
         int reg = currentRegister;
-        generateBinaryExp(args->argument);
+        generateExp(args->argument);
         printf("DEFVAR TF@%%arg%d\n", arg);
         args = args->next;
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
@@ -151,21 +151,21 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
     switch (function) {
         case Length: {
             int reg = currentRegister;
-            generateBinaryExp(args->argument);
+            generateExp(args->argument);
             printf("STRLEN %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
             break;
         }
         case Chr: {
             int reg = currentRegister;
-            generateBinaryExp(args->argument);
+            generateExp(args->argument);
             printf("INT2CHAR %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
             break;
         }
         case Asc: {
             int s = currentRegister;
-            generateBinaryExp(args->argument);
+            generateExp(args->argument);
             int i = currentRegister;
-            generateBinaryExp(args->next->argument);
+            generateExp(args->next->argument);
             printf("STRLEN %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, s);
             char *hReg1 = getHelpRegister();
             printf("DEFVAR %s@%s\n", frame, hReg1);
@@ -185,11 +185,11 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
         }
         case SubStr: {
             int s = currentRegister;
-            generateBinaryExp(args->argument);
+            generateExp(args->argument);
             int i = currentRegister;
-            generateBinaryExp(args->next->argument);
+            generateExp(args->next->argument);
             int n = currentRegister;
-            generateBinaryExp(args->next->next->argument);
+            generateExp(args->next->next->argument);
 
             printf("MOVE %s@%s string@\n", getVarFrame(), left->data.name);
             printf("SUB %s@%%R%d %s@%%R%d int@1\n", frame, i, frame, i);
@@ -250,7 +250,7 @@ void whileStatement(ast_exp *condition, stmtArray block) {
             strcpy(frame, "TF");
             printf("CREATEFRAME\n");
 
-            generateBinaryExp(condition);
+            generateExp(condition);
             generateCode(block);
             printf("JUMP %s\n", whileLabel);
             printf("LABEL %sN\n", whileLabel);
@@ -284,9 +284,19 @@ void printStatement(ast_exp *expression) {
             int nextReg = currentRegister;
 
             printf("DEFVAR %s@%s\n", frame, reg);
-            generateBinaryExp(expression);
+            generateExp(expression);
             printf("MOVE %s@%s %s@%%R%d\n", frame, reg, frame, nextReg);
-            printf("WRITE %s@%s\n", frame, reg); //TODO VAR!!
+            printf("WRITE %s@%s\n", frame, reg);
+            break;
+        }
+        case bracketExp: {
+            char *reg = getRegister();
+            int nextReg = currentRegister;
+
+            printf("DEFVAR %s@%s\n", frame, reg);
+            generateExp(expression->op.bracketExp.expression);
+            printf("MOVE %s@%s %s@%%R%d\n", frame, reg, frame, nextReg);
+            printf("WRITE %s@%s\n", frame, reg);
             break;
         }
         default: //TODO remove
@@ -327,7 +337,13 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
             break;
         case binaryExp: {
             int nextReg = currentRegister;
-            generateBinaryExp(expression);
+            generateExp(expression);
+            printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
+            break;
+        }
+        case bracketExp: {
+            int nextReg = currentRegister;
+            generateExp(expression->op.bracketExp.expression);
             printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
             break;
         }
@@ -336,14 +352,14 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
     }
 }
 
-void generateBinaryExp(ast_exp *expression) {
+void generateExp(ast_exp *expression) {
     char *reg = getRegister();
     printf("DEFVAR %s@%s\n", frame, reg);
 
     switch (expression->tag_exp) {
         case binaryExp: {
             ast_exp *left = expression->op.binaryExp.left;
-            generateBinaryExp(expression->op.binaryExp.right);
+            generateExp(expression->op.binaryExp.right);
 
             switch (left->tag_exp) {
                 case integerExp:
@@ -537,7 +553,7 @@ void generateBinaryExp(ast_exp *expression) {
 
                     break;
                 case bracketExp:
-                    generateBinaryExp(left->op.bracketExp.expression);
+                    generateExp(left->op.bracketExp.expression);
                     printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
                     printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
                            getNextRegister(getNextRegister(reg)));
@@ -601,9 +617,9 @@ void generateBinaryExp(ast_exp *expression) {
                     break;
                 case binaryExp: {
                     int first = currentRegister;
-                    generateBinaryExp(left->op.binaryExp.left);
+                    generateExp(left->op.binaryExp.left);
                     int second = currentRegister;
-                    generateBinaryExp(left->op.binaryExp.right);
+                    generateExp(left->op.binaryExp.right);
 
                     if (strcmp(left->op.binaryExp.oper.str, "+") == 0) {
                         printf("ADD %s@%s %s@%%R%d %s@%%R%d\n", frame, reg, frame, first, frame, second);
@@ -724,6 +740,10 @@ void generateBinaryExp(ast_exp *expression) {
             break;
         case variableExp:
             printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
+            break;
+        case bracketExp:
+            generateExp(expression->op.bracketExp.expression);
+            printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
             break;
         default:
             break;

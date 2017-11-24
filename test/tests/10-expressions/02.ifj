@@ -1,0 +1,4 @@
+scope
+    dim a as double = ((((4 + 4 * (5 + 4) * 6 ) - 3) * 4) + 7)
+    print a;
+end scope
