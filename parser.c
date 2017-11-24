@@ -875,6 +875,15 @@ void statement() {
             parseExpression(&Token, &expressionTree);
             PreviousToken = Token;
 
+            if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+                if(expressionTree->datatype == exp_string) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+                }
+            }
+            else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
+                printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+            }
+
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
             if(!stackEmpty(&stmtStack)) {
                 stackTop(&stmtStack, &item);
