@@ -381,7 +381,12 @@ void varDeclare(BinaryTreePtr var) {
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
-            printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            if(var->data.type == TYPE_DECIMAL) {
+                printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            }
+            else {
+                printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            }
             break;
         case doubleExp:
             printf("MOVE %s@%s float@%g\n", getVarFrame(), var->data.name, expression->op.decimalExp);
