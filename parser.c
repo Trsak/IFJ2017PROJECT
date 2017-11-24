@@ -23,9 +23,14 @@ void saveFunctionName(string name) {
 /**
  * @copydoc idToken
  */
-void IdToken(int lexem) {
-    if (lexem != ID) {
+void IdToken(token Token) {
+    if (Token.lexem != ID) {
         printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
+    }
+
+    if (!strcmp(Token.value.str, "substr") || !strcmp(Token.value.str, "lenght")
+        || !strcmp(Token.value.str, "asc") || !strcmp(Token.value.str, "chr")) {
+        printErrAndExit(ERROR_OTHER_SEM, "Identifier '%s' already defined", Token.value.str);
     }
 }
 
@@ -287,7 +292,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     Token = getNextToken();
 
-    IdToken(Token.lexem);
+    IdToken(Token);
 
     char *name = Token.value.str;
     saveFunctionName(Token.value);
@@ -573,6 +578,11 @@ void statement() {
 
     switch (Token.lexem) {
         case ID:
+            if (!strcmp(Token.value.str, "substr") || !strcmp(Token.value.str, "lenght")
+                || !strcmp(Token.value.str, "asc") || !strcmp(Token.value.str, "chr")) {
+                printErrAndExit(ERROR_OTHER_SEM, "Cannot store anything into a function", Token.value.str);
+            }
+
 
             name = Token.value.str;
 
@@ -606,7 +616,7 @@ void statement() {
         case DIM:
             Token = getNextToken();
 
-            IdToken(Token.lexem);
+            IdToken(Token);
 
             name = Token.value.str;
 
@@ -678,7 +688,7 @@ void statement() {
 
         case INPUT:
             Token = getNextToken();
-            IdToken(Token.lexem);
+            IdToken(Token);
 
 			name = Token.value.str;
 

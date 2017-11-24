@@ -1,10 +1,10 @@
 SCOPE
-    DIM A AS INTEGER = 5
-    DIM B AS INTEGER = 7
+    DIM A AS DOUBLE = 5
+    DIM B AS DOUBLE = 7
     DIM C AS DOUBLE
 
 	IF A < B THEN
-        C = A / B
+        C = A + B
 	END IF
 
 	print c;

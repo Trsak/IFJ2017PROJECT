@@ -82,12 +82,12 @@ void saveFunctionName(string name);
 
 
 /**
- * Checks if given lexem is equal to 'ID'.
+ * Checks if given Token is equal to 'ID'.
  * If not, calls printErrAndExit() function.
  *
- * @param lexem
+ * @param Token
  */
-void IdToken(int lexem);
+void IdToken(token Token);
 
 
 /**
