@@ -161,6 +161,10 @@ void printAST(stmtArray globalStmtArray) {
         else if(globalStmtArray.array[i].tag_stmt == if_stmt) {
             printf("IF:\n");
             printAST(globalStmtArray.array[i].op.if_stmt.ifBlock);
+            //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.ifBlock);
+            //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.ifBlock);
+            //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.ifBlock);
+            // TODO: print else if and else
         }
 		printf("\n");
 	}
@@ -570,6 +574,7 @@ void statement() {
 
 	BinaryTreePtr node;
 	ast_exp* expressionTree = NULL;
+    int pushCounter = 0;
 
     switch (Token.lexem) {
         case ID:
@@ -838,7 +843,12 @@ void statement() {
 
             statement();
 
-            ifNext();
+            ifNext(&pushCounter);
+
+            while(pushCounter != 0) {
+                stackPop(&stmtStack);
+                pushCounter--;
+            }
 
             stackTop(&stmtStack, &item);
 
@@ -883,6 +893,16 @@ void statement() {
 
             parseExpression(&Token, &expressionTree);
             PreviousToken = Token;
+
+            node = btGetVariable(symtable, functionName);
+            if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+                if(expressionTree->datatype == exp_string) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+                }
+            }
+            else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
+                printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+            }
 
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
             if(!stackEmpty(&stmtStack)) {
@@ -978,7 +998,7 @@ void printNext() {
 /**
  * @copydoc ifNext
  */
-void ifNext() {
+void ifNext(int* pushCounter) {
     token Token = PreviousToken;
 
     if (Token.lexem != ELSE && Token.lexem != ELSEIF) {
@@ -986,7 +1006,7 @@ void ifNext() {
     }
 
     if (Token.lexem == ELSEIF) {
-        elseIf();
+        elseIf(pushCounter);
         Token = PreviousToken;
     }
 
@@ -1006,28 +1026,14 @@ void ifNext() {
 
         item.stmt->op.if_stmt.elseStmt = ifStmt;
 
+        (*pushCounter)++;
         stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
 
         statement();
 
-        stackTop(&stmtStack, &item);
-
-        stackPop(&stmtStack);
-
-        if(!stackEmpty(&stmtStack)) {
-            stackTop(&stmtStack, &item);
-            if(item.stmt->tag_stmt == function_definition_stmt) {
-                addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
-            }
-            else if(item.stmt->tag_stmt == while_stmt) {
-                addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
-            }
-            else if(item.stmt->tag_stmt == if_stmt) {
-                addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
-            }
-        }
-        else {
-            addStmtToArray(&globalStmtArray, ifStmt);
+        while(*pushCounter != 0) {
+            stackPop(&stmtStack);
+            (*pushCounter)--;
         }
     }
 }
@@ -1036,7 +1042,7 @@ void ifNext() {
 /**
  * @copydoc elseIf
  */
-void elseIf() {
+void elseIf(int* pushCounter) {
 	ast_exp* expressionTree;
     token Token = PreviousToken;
 
@@ -1052,6 +1058,7 @@ void elseIf() {
 
     item.stmt->op.if_stmt.elseStmt = ifStmt;
 
+    (*pushCounter)++;
     stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
 
     if (Token.lexem != THEN) {
@@ -1066,31 +1073,10 @@ void elseIf() {
 
     statement();
 
-    stackTop(&stmtStack, &item);
-
-    stackPop(&stmtStack);
-
-    if(!stackEmpty(&stmtStack)) {
-        stackTop(&stmtStack, &item);
-        if(item.stmt->tag_stmt == function_definition_stmt) {
-            addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
-        }
-        else if(item.stmt->tag_stmt == while_stmt) {
-            addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
-        }
-        else if(item.stmt->tag_stmt == if_stmt) {
-            addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
-        }
-    }
-    else {
-        addStmtToArray(&globalStmtArray, ifStmt);
-    }
-
     Token = PreviousToken;
 
     if (Token.lexem == ELSEIF) {
-        elseIf();
-
+        elseIf(pushCounter);
     } else {
         PreviousToken = Token;
     }

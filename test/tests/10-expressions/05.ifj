@@ -1,0 +1,4 @@
+scope
+    dim a as integer = 0-21
+	print 42 + 96 + a + a;
+end scope

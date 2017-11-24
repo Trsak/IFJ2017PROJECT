@@ -1,16 +1,16 @@
 SCOPE
     DIM A AS INTEGER = 5
     DIM B AS INTEGER = 7
-    DIM C AS DOUBLE
+    DIM C AS INTEGER
 
     IF A = B THEN
-        C = 1.0
+        C = 1
 	ELSEIF A > B THEN
-        C = A / B
+        C = 2
 	ELSEIF A < B THEN
-        C = B / A
+        C = 3
 	ELSE
-        C = 0.0
+        C = 4
 	END IF
 
 	print c;
