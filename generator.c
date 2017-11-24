@@ -11,6 +11,9 @@
 #include "symtable.h"
 #include "parser.h"
 
+/**
+ * @copydoc startGenerating
+ */
 void startGenerating() {
     printf(".IFJcode17\n");
     currentRegister = 0;
@@ -26,6 +29,9 @@ void startGenerating() {
     generateCode(globalStmtArray);
 }
 
+/**
+ * @copydoc generateCode
+ */
 void generateCode(stmtArray block) {
     for (int i = 0; i < block.length; i++) {
         switch (block.array[i].tag_stmt) {
@@ -64,7 +70,7 @@ void generateCode(stmtArray block) {
                           block.array[i].op.var_assign_stmt.expression);
                 break;
             case while_stmt:
-                whileStatement(block.array[i].op.while_stmt.condition,
+                generateWhile(block.array[i].op.while_stmt.condition,
                                block.array[i].op.while_stmt.block);
                 break;
             case return_stmt:
@@ -79,6 +85,9 @@ void generateCode(stmtArray block) {
     }
 }
 
+/**
+ * @copydoc getInput
+ */
 void getInput(BinaryTreePtr var) {
     switch (var->data.type) {
         case TYPE_NUMBER:
@@ -93,6 +102,9 @@ void getInput(BinaryTreePtr var) {
     }
 }
 
+/**
+ * @copydoc generateIf
+ */
 void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
     char *ifLabel = getNewLabel();
 
@@ -111,6 +123,9 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
     }
 }
 
+/**
+ * @copydoc generateFunction
+ */
 void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block) {
     printf("LABEL %%FL%s\n", function->data.name);
     printf("PUSHFRAME\n");
@@ -144,6 +159,9 @@ void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray bloc
     strcpy(frame, "TF");
 }
 
+/**
+ * @copydoc generateReturn
+ */
 void generateReturn(ast_exp *expression) {
     int reg = currentRegister;
     generateExp(expression);
@@ -152,6 +170,9 @@ void generateReturn(ast_exp *expression) {
     printf("RETURN\n");
 }
 
+/**
+ * @copydoc assignFunction
+ */
 void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr left) {
     printf("CREATEFRAME\n");
 
@@ -169,6 +190,9 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     }
 }
 
+/**
+ * @copydoc getBuiltinFunction
+ */
 void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function) {
     switch (function) {
         case Length: {
@@ -263,7 +287,10 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
     }
 }
 
-void whileStatement(ast_exp *condition, stmtArray block) {
+/**
+ * @copydoc generateWhile
+ */
+void generateWhile(ast_exp *condition, stmtArray block) {
     switch (condition->tag_exp) {
         case binaryExp: {
             char *whileLabel = getNewLabel();
@@ -280,13 +307,16 @@ void whileStatement(ast_exp *condition, stmtArray block) {
             break;
         }
         case bracketExp:
-            whileStatement(condition->op.bracketExp.expression, block);
+            generateWhile(condition->op.bracketExp.expression, block);
             break;
         default:
             break;
     }
 }
 
+/**
+ * @copydoc printStatement
+ */
 void printStatement(ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
@@ -326,6 +356,9 @@ void printStatement(ast_exp *expression) {
     }
 }
 
+/**
+ * @copydoc varDeclare
+ */
 void varDeclare(BinaryTreePtr var) {
     printf("DEFVAR %s@%s\n", getVarFrame(), var->data.name);
 
@@ -342,6 +375,9 @@ void varDeclare(BinaryTreePtr var) {
     }
 }
 
+/**
+ * @copydoc varAssign
+ */
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
@@ -374,6 +410,9 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
     }
 }
 
+/**
+ * @copydoc generateExp
+ */
 void generateExp(ast_exp *expression) {
     char *reg = getRegister();
     printf("DEFVAR %s@%s\n", frame, reg);
@@ -772,6 +811,9 @@ void generateExp(ast_exp *expression) {
     }
 }
 
+/**
+ * @copydoc generateSymbol
+ */
 char *generateSymbol(datatype type, char *value) {
     char *symbolString = (char *) gcmalloc((strlen(value) + 10) * sizeof(char));
 
@@ -791,6 +833,9 @@ char *generateSymbol(datatype type, char *value) {
     return symbolString;
 }
 
+/**
+ * @copydoc generateIntegerSymbol
+ */
 char *generateIntegerSymbol(int value) {
     char *symbolString = (char *) gcmalloc((25) * sizeof(char));
 
@@ -798,6 +843,9 @@ char *generateIntegerSymbol(int value) {
     return symbolString;
 }
 
+/**
+ * @copydoc generateFloatSymbol
+ */
 char *generateFloatSymbol(double value) {
     char *symbolString = (char *) gcmalloc((80) * sizeof(char));
 
@@ -805,15 +853,21 @@ char *generateFloatSymbol(double value) {
     return symbolString;
 }
 
+/**
+ * @copydoc v
+ */
 char *getRegister() {
     char *reg = (char *) gcmalloc(30 * sizeof(char));
     sprintf(reg, "%%R%d", currentRegister++);
     return reg;
 }
 
-char *getNextRegister(char *nextReg) {
+/**
+ * @copydoc getNextRegister
+ */
+char *getNextRegister(char *reg) {
     long val = 0;
-    char *p = nextReg;
+    char *p = reg;
 
     while (*p) {
         if (isdigit(*p)) {
@@ -823,23 +877,32 @@ char *getNextRegister(char *nextReg) {
         }
     }
 
-    char *reg = (char *) gcmalloc(30 * sizeof(char));
-    sprintf(reg, "%%R%ld", val + 1);
-    return reg;
+    char *nextReg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(nextReg, "%%R%ld", val + 1);
+    return nextReg;
 }
 
+/**
+ * @copydoc getHelpRegister
+ */
 char *getHelpRegister() {
     char *reg = (char *) gcmalloc(30 * sizeof(char));
     sprintf(reg, "%%HR%d", currentHelpRegister++);
     return reg;
 }
 
+/**
+ * @copydoc v
+ */
 char *getNewLabel() {
     char *newLabel = (char *) gcmalloc(30 * sizeof(char));
     sprintf(newLabel, "%%WL%d", ++currentLabel);
     return newLabel;
 }
 
+/**
+ * @copydoc getVarFrame
+ */
 char *getVarFrame() {
     char *frameTP = (char *) gcmalloc(30 * sizeof(char));
     if (!inScope) {
