@@ -1,0 +1,7 @@
+SCOPE
+
+/'Test should cause error code 1 because using decimal numbers incorrectly - decimal number can't contain dot in exponent form'
+
+dim a as double
+
+a = 5e-456.5
