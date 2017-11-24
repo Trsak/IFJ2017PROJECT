@@ -12,4 +12,6 @@ SCOPE
 	ELSE
         C = 0.0
 	END IF
+
+	print c;
 END SCOPE

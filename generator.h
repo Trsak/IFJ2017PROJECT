@@ -53,7 +53,7 @@ char *getRegister();
 
 void generateReturn(ast_exp *expression);
 
-void generateBinaryExp(ast_exp *expression);
+void generateExp(ast_exp *expression);
 
 void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block);
 

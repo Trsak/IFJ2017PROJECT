@@ -12,4 +12,6 @@ SCOPE
 	ELSEIF A <= B THEN
         C = 0.0
 	END IF
+
+	print c;
 END SCOPE
