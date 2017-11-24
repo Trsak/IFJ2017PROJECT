@@ -41,6 +41,7 @@ void stackDestroy(Stack *S) {
 void stackResize(Stack *S) {
     //TODO - maybe here will be a mistake .. but for now it seems it's ok
 	S->item = gcrealloc(S->item, 2 * S->size * sizeof(struct stackItem));
+    S->size = 2 * S->size;
 }
 
 
