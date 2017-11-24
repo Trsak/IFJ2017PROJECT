@@ -1,0 +1,4 @@
+SCOPE
+    INPUT 42 'Here should be variable where input value'd be stored into
+END SCOPE
+
