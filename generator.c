@@ -71,7 +71,7 @@ void generateCode(stmtArray block) {
                 break;
             case while_stmt:
                 generateWhile(block.array[i].op.while_stmt.condition,
-                               block.array[i].op.while_stmt.block);
+                              block.array[i].op.while_stmt.block);
                 break;
             case return_stmt:
                 generateReturn(block.array[i].op.return_stmt.ret);
@@ -381,7 +381,11 @@ void varDeclare(BinaryTreePtr var) {
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
-            printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            if (var->data.type == TYPE_DECIMAL) {
+                printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            } else {
+                printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
+            }
             break;
         case doubleExp:
             printf("MOVE %s@%s float@%g\n", getVarFrame(), var->data.name, expression->op.decimalExp);
@@ -425,6 +429,13 @@ void generateExp(ast_exp *expression) {
             switch (left->tag_exp) {
                 case integerExp:
                     printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(left->op.numberExp));
+                    if (expression->datatype == exp_decimal) {
+                        printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
+
+                        if (expression->op.binaryExp.right->tag_exp == integerExp) {
+                            printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
+                        }
+                    }
 
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
@@ -432,6 +443,8 @@ void generateExp(ast_exp *expression) {
                         printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
                         printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
+                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
+                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
                         char *hReg1 = getHelpRegister();
                         char *hReg2 = getHelpRegister();
@@ -524,6 +537,17 @@ void generateExp(ast_exp *expression) {
                     break;
                 case variableExp:
                     printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), left->op.variableExp->data.name);
+                    if (expression->datatype == exp_decimal) {
+                        if (left->op.variableExp->data.type == TYPE_NUMBER) {
+                            printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
+                        }
+
+                        if (expression->op.binaryExp.right->tag_exp == integerExp ||
+                            (expression->op.binaryExp.right->tag_exp == variableExp &&
+                             expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
+                            printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
+                        }
+                    }
 
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         if (left->op.variableExp->data.type == TYPE_STRING) {

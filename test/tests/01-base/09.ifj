@@ -4,11 +4,10 @@ scope
 
 	dim __ as string = !""'tyui
 	dim _561_894dfgSJYESRTHDf8db98fghs2156df /'h'/as double = 5E-7
-	dim _A_ as integer = &B1010101010101
-	dim _b_ as integer = &O0123456701234
-	dim _c_ as integer = &HfFfFfFfFfFfFf
+	dim _A_ as double = &B10101
+	dim _b_ as double = &O0123
+	dim _c_ as double = &HfFf
 
-	_A_ = _b_\_c_
 	_A_ = _b_/_c_
 	_A_ = _b_*_c_
 	_A_ = _b_+_c_
