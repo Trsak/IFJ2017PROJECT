@@ -573,6 +573,11 @@ void statement() {
 
     switch (Token.lexem) {
         case ID:
+            if (!strcmp(Token.value.str, "substr") || !strcmp(Token.value.str, "lenght")
+                || !strcmp(Token.value.str, "asc") || !strcmp(Token.value.str, "chr")) {
+                printErrAndExit(ERROR_OTHER_SEM, "Cannot store anything into a function", Token.value.str);
+            }
+
 
             name = Token.value.str;
 
