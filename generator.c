@@ -15,7 +15,6 @@
  * @copydoc startGenerating
  */
 void startGenerating() {
-    printf(".IFJcode17\n");
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
