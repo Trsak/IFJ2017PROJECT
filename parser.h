@@ -267,12 +267,6 @@ void eol(int lexem);
 /**
  *
  */
-void expression();
-
-
-/**
- *
- */
 void params();
 
 

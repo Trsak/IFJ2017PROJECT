@@ -1,0 +1,3 @@
+scope
+    print ;          'Missing expression to print
+end scope

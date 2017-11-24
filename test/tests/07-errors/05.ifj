@@ -1,0 +1,23 @@
+Declare function Ahoj(cislo As InteGeR) As Integer
+
+Function ahoj(cislo as Integer) AS integer
+    If cislo > 1 then
+        return 1
+    end If
+
+    Return 0
+End Function
+
+SCOPE
+    Dim a as integer = 5
+    Dim vysl as integer
+
+    vysl = ahoj(a)
+
+    if vysl <> 1                                              'Here is missing Then
+        print !"Nope"; !"Here is missing semicollon";
+    else
+        print !"Yesss";
+    end if
+
+END SCOPE

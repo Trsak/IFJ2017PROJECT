@@ -257,6 +257,9 @@ void whileStatement(ast_exp *condition, stmtArray block) {
 
             break;
         }
+        case bracketExp:
+            whileStatement(condition->op.bracketExp.expression, block);
+            break;
         default:
             break;
     }

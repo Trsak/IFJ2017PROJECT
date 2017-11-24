@@ -171,9 +171,43 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
             printErrAndExit(ERROR_SYNTAX, "Expression was expected after ','");
         }
 
-    } else if (Token.lexem == -1) {
-        Token = getNextToken();
+    } else if ((*PreviousToken).lexem == PRINT || (*PreviousToken).lexem == SEMICOLON) {
+		Token = getNextToken();
 
+		if (Token.lexem == SEMICOLON || Token.lexem == EOL_ENUM) {
+			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'print' statement");
+		}
+
+	} else if ((*PreviousToken).lexem == WHILE) {
+		Token = getNextToken();
+
+		if (Token.lexem == EOL_ENUM) {
+			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'while' statement");
+		}
+
+	} else if ((*PreviousToken).lexem == IF) {
+		Token = getNextToken();
+
+		if (Token.lexem == THEN) {
+			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'if' statement");
+		}
+
+	} else if ((*PreviousToken).lexem == ELSEIF) {
+		Token = getNextToken();
+
+		if (Token.lexem == THEN) {
+			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'elseif' statement");
+		}
+
+	} else if ((*PreviousToken).lexem == RETURN) {
+		Token = getNextToken();
+
+		if (Token.lexem == EOL_ENUM) {
+			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'return' statement");
+		}
+
+	} else if (Token.lexem == -1) {
+        Token = getNextToken();
     }
 
 
@@ -225,6 +259,13 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         switch (operation) {
             case '=':
                 //Rule ( E ) -> E
+
+				stackTop(&stack, &item);
+
+				if (item.symbol == PREC_BRACKET_LEFT) {
+					printErrAndExit(ERROR_SYNTAX, "Expression in brackets cannot be empty");
+				}
+
                 stackPush(&stack, NULL, NULL, NULL, PREC_BRACKET_RIGHT, NULL);
                 stack.maxTerm = stack.top;
                 Token = getNextToken();
