@@ -153,6 +153,10 @@ void printAST(stmtArray globalStmtArray) {
             //printf("RETURN:\n", globalStmtArray.array[i].op.input_stmt.variable->data.name);
             printf("RETURN: %d\n", globalStmtArray.array[i].op.return_stmt.ret->op.numberExp);
         }
+        else if(globalStmtArray.array[i].tag_stmt == if_stmt) {
+            printf("IF:\n");
+            printAST(globalStmtArray.array[i].op.if_stmt.ifBlock);
+        }
 		printf("\n");
 	}
 }
@@ -804,6 +808,13 @@ void statement() {
         case IF:
             parseExpression(&Token, &expressionTree);
 
+            stmtArray ifBlock;
+            stmtArrayInit(&ifBlock);
+
+            ast_stmt* ifStmt= make_ifStmt(expressionTree, ifBlock, NULL);
+
+            stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
+
             if (Token.lexem != THEN) {
                 printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
             }
@@ -818,6 +829,26 @@ void statement() {
             statement();
 
             ifNext();
+
+            stackTop(&stmtStack, &item);
+
+            stackPop(&stmtStack);
+
+            if(!stackEmpty(&stmtStack)) {
+                stackTop(&stmtStack, &item);
+                if(item.stmt->tag_stmt == function_definition_stmt) {
+                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
+                }
+                else if(item.stmt->tag_stmt == while_stmt) {
+                    addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
+                }
+                else if(item.stmt->tag_stmt == if_stmt) {
+                    addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
+                }
+            }
+            else {
+                addStmtToArray(&globalStmtArray, ifStmt);
+            }
 
             Token = PreviousToken;
 
@@ -955,7 +986,39 @@ void ifNext() {
 
         eol(Token.lexem);
 
+        stmtArray ifBlock;
+        stmtArrayInit(&ifBlock);
+
+        ast_stmt* ifStmt = make_ifStmt(NULL, ifBlock, NULL);
+
+        stackItem item;
+        stackTop(&stmtStack, &item);
+
+        item.stmt->op.if_stmt.elseStmt = ifStmt;
+
+        stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
+
         statement();
+
+        stackTop(&stmtStack, &item);
+
+        stackPop(&stmtStack);
+
+        if(!stackEmpty(&stmtStack)) {
+            stackTop(&stmtStack, &item);
+            if(item.stmt->tag_stmt == function_definition_stmt) {
+                addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
+            }
+            else if(item.stmt->tag_stmt == while_stmt) {
+                addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
+            }
+            else if(item.stmt->tag_stmt == if_stmt) {
+                addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
+            }
+        }
+        else {
+            addStmtToArray(&globalStmtArray, ifStmt);
+        }
     }
 }
 
@@ -969,6 +1032,18 @@ void elseIf() {
 
     parseExpression(&Token, &expressionTree);
 
+    stmtArray ifBlock;
+    stmtArrayInit(&ifBlock);
+
+    ast_stmt* ifStmt = make_ifStmt(expressionTree, ifBlock, NULL);
+
+    stackItem item;
+    stackTop(&stmtStack, &item);
+
+    item.stmt->op.if_stmt.elseStmt = ifStmt;
+
+    stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
+
     if (Token.lexem != THEN) {
         printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
     }
@@ -980,6 +1055,26 @@ void elseIf() {
     eol(Token.lexem);
 
     statement();
+
+    stackTop(&stmtStack, &item);
+
+    stackPop(&stmtStack);
+
+    if(!stackEmpty(&stmtStack)) {
+        stackTop(&stmtStack, &item);
+        if(item.stmt->tag_stmt == function_definition_stmt) {
+            addStmtToArray(&item.stmt->op.function_definition_stmt.block, ifStmt);
+        }
+        else if(item.stmt->tag_stmt == while_stmt) {
+            addStmtToArray(&item.stmt->op.while_stmt.block, ifStmt);
+        }
+        else if(item.stmt->tag_stmt == if_stmt) {
+            addStmtToArray(&item.stmt->op.if_stmt.ifBlock, ifStmt);
+        }
+    }
+    else {
+        addStmtToArray(&globalStmtArray, ifStmt);
+    }
 
     Token = PreviousToken;
 
