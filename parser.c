@@ -23,14 +23,9 @@ void saveFunctionName(string name) {
 /**
  * @copydoc idToken
  */
-void IdToken(token Token) {
-    if (Token.lexem != ID) {
+void IdToken(int lexem) {
+    if (lexem != ID) {
         printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
-    }
-
-    if (!strcmp(Token.value.str, "substr") || !strcmp(Token.value.str, "lenght")
-        || !strcmp(Token.value.str, "asc") || !strcmp(Token.value.str, "chr")) {
-        printErrAndExit(ERROR_OTHER_SEM, "Identifier '%s' already defined", Token.value.str);
     }
 }
 
@@ -292,7 +287,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     Token = getNextToken();
 
-    IdToken(Token);
+    IdToken(Token.lexem);
 
     char *name = Token.value.str;
     saveFunctionName(Token.value);
@@ -578,11 +573,6 @@ void statement() {
 
     switch (Token.lexem) {
         case ID:
-            if (!strcmp(Token.value.str, "substr") || !strcmp(Token.value.str, "lenght")
-                || !strcmp(Token.value.str, "asc") || !strcmp(Token.value.str, "chr")) {
-                printErrAndExit(ERROR_OTHER_SEM, "Cannot store anything into a function", Token.value.str);
-            }
-
 
             name = Token.value.str;
 
@@ -616,7 +606,7 @@ void statement() {
         case DIM:
             Token = getNextToken();
 
-            IdToken(Token);
+            IdToken(Token.lexem);
 
             name = Token.value.str;
 
@@ -688,7 +678,7 @@ void statement() {
 
         case INPUT:
             Token = getNextToken();
-            IdToken(Token);
+            IdToken(Token.lexem);
 
 			name = Token.value.str;
 
@@ -1227,9 +1217,25 @@ void assignment(bool isDeclaration, char *name) {
 
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, varAssignFunction);
 
-            params();
-
+            int paramNumber = 0;
             stackItem item;
+            params(builtIn, &paramNumber);
+
+            if(builtIn) {
+                stackTop(&stmtStack, &item);
+                builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
+                if(paramNumber != fc.argsNum) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
+                }
+            }
+            else {
+                stackTop(&stmtStack, &item);
+                BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
+                if(paramNumber != fc->data.paramNumber) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
+                }
+            }
+
             stackTop(&stmtStack, &item);
 
             stackPop(&stmtStack);
@@ -1358,15 +1364,53 @@ bool unaryOperation(token Token) {
 /**
  * @copydoc params
  */
-void params() {
-    //static int currentArgumentNum = -1;
-    //currentArgumentNum++;
+void params(bool builtIn, int *paramNumber) {
+    static int currentArgumentNum = -1;
+    stackItem item;
+
+    currentArgumentNum++;
 
 	ast_exp* expressionTree;
 	parseExpression(&PreviousToken, &expressionTree);
 
+    if(builtIn) {
+        stackTop(&stmtStack, &item);
+        builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
+        if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
+        }
+        else if(currentArgumentNum >= fc.argsNum) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", fc.name, fc.argsNum);
+        }
+        else if(fc.types[currentArgumentNum] == (datatype)exp_integer || fc.types[currentArgumentNum] == (datatype)exp_decimal) {
+            if(expressionTree->datatype == exp_string) {
+                printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc.name, currentArgumentNum + 1);
+            }
+        }
+        else if(fc.types[currentArgumentNum] == (datatype)exp_string && expressionTree->datatype != exp_string) {
+            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc.name, currentArgumentNum + 1);
+        }
+    }
+    else {
+        stackTop(&stmtStack, &item);
+        BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
+        if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
+        }
+        else if(currentArgumentNum >= fc->data.paramNumber) {
+            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", fc->data.name, fc->data.paramNumber);
+        }
+        else if(fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_integer || fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_decimal) {
+            if(expressionTree->datatype == exp_string) {
+                printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc->data.name, currentArgumentNum + 1);
+            }
+        }
+        else if(fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_string && expressionTree->datatype != exp_string) {
+            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc->data.name, currentArgumentNum + 1);
+        }
+    }
 
-    stackItem item;
+
     stackTop(&stmtStack, &item);
 
     if(item.stmt->tag_stmt == var_assign_function_stmt) {
@@ -1377,16 +1421,20 @@ void params() {
         addArgumentToArray(&item.stmt->op.var_assign_builtin_function_stmt.args, expressionTree);
     }
 
-    paramsNext();
+    *paramNumber = currentArgumentNum + 1;
+
+    paramsNext(builtIn, paramNumber);
+
+    currentArgumentNum = -1;
 }
 
 
-void paramsNext() {
+void paramsNext(bool builtIn, int *paramNumber) {
     if (PreviousToken.lexem != COMMA) {
         return;
     }
 
-    params();
+    params(builtIn, paramNumber);
 }
 
 
