@@ -208,7 +208,7 @@ void functionEnd();
  * For 'ELSEIF' calls elseif() function and for 'ELSE' checks only if the following terminal is 'EOL'
  * then calls statement() function.
  */
-void ifNext();
+void ifNext(int* pushCounter);
 
 
 /**
@@ -217,7 +217,7 @@ void ifNext();
  * And if next token is 'ELSEIF' then the function calls itself to check another 'ELSEIF' statement.
  * If terminal is not 'ELSEIF' then returns back to ifNext() function.
  */
-void elseIf();
+void elseIf(int* pushCounter);
 
 
 /**
