@@ -1,0 +1,4 @@
+scope
+	dim variable as string
+	variable = 5
+end scope
