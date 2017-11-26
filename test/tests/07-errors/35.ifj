@@ -1,0 +1,4 @@
+scope
+	if 5 < !"ahoj" then
+	end if
+end scope

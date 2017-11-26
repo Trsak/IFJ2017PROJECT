@@ -1,0 +1,8 @@
+declare function fc (a as integer) as integer
+function fc (a as integer) as integer
+end function
+
+scope
+	dim var as integer
+	var = fc(!"ahoj")
+end scope
