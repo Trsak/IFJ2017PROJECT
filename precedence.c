@@ -230,8 +230,8 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
     stack.maxTerm++;
 
 
-
-    if (isOperator(getPositionInTable(Token.lexem))) {
+	precedStack symbol = getPositionInTable(Token.lexem);
+    if (isOperator(getPositionInTable(Token.lexem)) && (symbol != PREC_MINUS && symbol != PREC_PLUS)) {
         printErrAndExit(ERROR_OTHER_SEM, "After '=' cannot follow any operation symbol");
     }
 
@@ -291,18 +291,40 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                     stackPush(&stack, NULL, NULL, NULL, PrecTabCol, NULL);
                 } else {
 
-                    if (item.symbol == PREC_BRACKET_LEFT && isOperator(PrecTabCol)) {
+                    if (item.symbol == PREC_BRACKET_LEFT && isOperator(PrecTabCol) &&
+							(PrecTabCol != PREC_MINUS && PrecTabCol != PREC_PLUS)) {
                         printErrAndExit(ERROR_SYNTAX, "Cannot put operator after '('");
                     }
 
-                    //Here push '<' non-term and terminal like ID or constant or '(' .. etc.
-                    stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
-					/*if(isOperator(item.symbol)) {
-						printf("%s\n", getOperator(item.symbol));
+
+					if ((PrecTabCol == PREC_MINUS || PrecTabCol == PREC_PLUS) &&
+							(item.symbol == PREC_BRACKET_LEFT || item.symbol == PREC_DOLLAR)) {
+
+						token ZeroToken;
+
+						if (tokenInit(&ZeroToken) == ERROR_INTERNAL) {
+							printErrAndExit(ERROR_INTERNAL, "There is a memory error while allocating token structure.");
+						}
+
+						ZeroToken.lexem = INTEGER;
+						strAddChar(&ZeroToken.value, '0');
+
+						//paste 0 before unary operator
+						stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
+						stackPush(&stack, NULL, NULL, &ZeroToken, PREC_NUMBER, NULL);
+						stack.maxTerm = stack.top;
+
+						break;
+					} else {
+						//Here push '<' non-term and terminal like ID or constant or '(' .. etc.
+						stackPush(&stack, NULL, NULL, NULL, PREC_LT, NULL);
+						/*if(isOperator(item.symbol)) {
+                            printf("%s\n", getOperator(item.symbol));
+                        }
+                        printf("push: %s\n", Token.value.str);*/
+						stackPush(&stack, NULL, NULL, &Token, PrecTabCol, NULL);
+						//Now item on top is also a terminal
 					}
-					printf("push: %s\n", Token.value.str);*/
-                    stackPush(&stack, NULL, NULL, &Token, PrecTabCol, NULL);
-                    //Now item on top is also a terminal
                 }
 
                 //The term is now on top of the stack
