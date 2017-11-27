@@ -1392,7 +1392,7 @@ void params(bool builtIn, int *paramNumber) {
         stackTop(&stmtStack, &item);
         builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
         if(expressionTree == NULL && fc.argsNum == 0) {
-            item.stmt->op.var_assign_builtin_function_stmt.args = NULL;
+            addArgumentToArray(&item.stmt->op.var_assign_builtin_function_stmt.args, expressionTree);
             paramsNext(builtIn, paramNumber);
         }
         else if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
@@ -1414,7 +1414,7 @@ void params(bool builtIn, int *paramNumber) {
         stackTop(&stmtStack, &item);
         BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
         if(expressionTree == NULL && fc->data.paramNumber == 0) {
-            item.stmt->op.var_assign_function_stmt.args = NULL;
+            addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
             paramsNext(builtIn, paramNumber);
         }
         else if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
@@ -1453,6 +1453,12 @@ void params(bool builtIn, int *paramNumber) {
 
 
 void paramsNext(bool builtIn, int *paramNumber) {
+
+    /*stackItem item;
+    stackTop(&stmtStack, &item);
+    if(item.stmt->op.var_assign_function_stmt.args == NULL)
+        printf("neni\n");*/
+
     if (PreviousToken.lexem != COMMA) {
         return;
     }
