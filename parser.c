@@ -338,7 +338,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(node, &params, &typeOfParams, &paramNumber);
 
         if(paramNumber != node->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
         }
     }
     else {
@@ -460,13 +460,13 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
 	if(node != NULL) {
 		if(currentArgumentNum >= node->data.paramNumber) {
-			printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+			printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
 		}
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
 		}
         else if(type != node->data.typeOfParams[currentArgumentNum]) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
 		}
 
 		/** Add argument to function statement on top of stack */
@@ -649,7 +649,7 @@ void statement() {
             else {
                 node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Function '%s' already declared!", name);
+					printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
 				}
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
@@ -1239,14 +1239,14 @@ void assignment(bool isDeclaration, char *name) {
             if(builtIn) {
                 stackTop(&stmtStack, &item);
                 builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
-                if(paramNumber != fc.argsNum) {
+                if(paramNumber != fc.argsNum && fc.argsNum != 0) {
                     printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
                 }
             }
             else {
                 stackTop(&stmtStack, &item);
                 BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
-                if(paramNumber != fc->data.paramNumber) {
+                if(paramNumber != fc->data.paramNumber && fc->data.paramNumber != 0) {
                     printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
                 }
             }
@@ -1391,7 +1391,10 @@ void params(bool builtIn, int *paramNumber) {
     if(builtIn) {
         stackTop(&stmtStack, &item);
         builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
-        if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
+        if(expressionTree == NULL && fc.argsNum == 0) {
+            paramsNext(builtIn, paramNumber);
+        }
+        else if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
             printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
         }
         else if(currentArgumentNum >= fc.argsNum) {
@@ -1409,7 +1412,10 @@ void params(bool builtIn, int *paramNumber) {
     else {
         stackTop(&stmtStack, &item);
         BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
-        if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
+        if(expressionTree == NULL && fc->data.paramNumber == 0) {
+            paramsNext(builtIn, paramNumber);
+        }
+        else if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
             printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
         }
         else if(currentArgumentNum >= fc->data.paramNumber) {
