@@ -45,7 +45,7 @@ do
         fi
 
         next=`find $tests_dir/ -maxdepth 1 -type f -name "$test_id*" | wc -l`
-        if [ "$next" -eq 3 ]; then
+        if [ "$next" -gt 2 ]; then
             exitcode_expected=`cat $tests_dir/$test_id.exitcode`
             gencode=`./ifj2017 < $tests_dir/$test_id.ifj > temp.code 2>&1`
             exitcode="$?"
@@ -53,12 +53,17 @@ do
                 printf "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset\n"
                 errors_total=$(( errors_total+1 ))
             elif [ "$exitcode" -eq "0" ]; then
-                chmod +x ./test/ic17int
-                stdout_expected=`cat ./test/ifj17.bas $tests_dir/$test_id.ifj > tmp.bas; fbc -w 1000 tmp.bas; ./tmp < $tests_dir/$test_id.stdin`
+                if [ "$next" -eq 3 ]; then
+                    chmod +x ./test/ic17int
+                    stdout_expected=`cat ./test/ifj17.bas $tests_dir/$test_id.ifj > tmp.bas; fbc -w 1000 tmp.bas; ./tmp < $tests_dir/$test_id.stdin`
+                else
+                    stdout_expected=`cat $tests_dir/$test_id.stdout`
+                fi
+
                 stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
-                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n $reset $stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset\n"
+                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset\n"
                     errors_total=$(( errors_total+1 ))
                 fi
             fi
