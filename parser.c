@@ -1391,11 +1391,7 @@ void params(bool builtIn, int *paramNumber) {
     if(builtIn) {
         stackTop(&stmtStack, &item);
         builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
-        if(expressionTree == NULL && fc.argsNum == 0) {
-            item.stmt->op.var_assign_builtin_function_stmt.args = NULL;
-            paramsNext(builtIn, paramNumber);
-        }
-        else if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
+        if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
             printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
         }
         else if(currentArgumentNum >= fc.argsNum) {
@@ -1414,7 +1410,7 @@ void params(bool builtIn, int *paramNumber) {
         stackTop(&stmtStack, &item);
         BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
         if(expressionTree == NULL && fc->data.paramNumber == 0) {
-            item.stmt->op.var_assign_function_stmt.args = NULL;
+            item.stmt->op.var_assign_builtin_function_stmt.args = NULL;
             paramsNext(builtIn, paramNumber);
         }
         else if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
@@ -1437,8 +1433,9 @@ void params(bool builtIn, int *paramNumber) {
     stackTop(&stmtStack, &item);
 
     if(item.stmt->tag_stmt == var_assign_function_stmt) {
-        addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
-        //printf("%d\n", item.stmt->op.var_assign_function_stmt.args->argument->op.numberExp);
+        if (expressionTree != NULL) {
+            addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
+        }
     }
     else {
         addArgumentToArray(&item.stmt->op.var_assign_builtin_function_stmt.args, expressionTree);
