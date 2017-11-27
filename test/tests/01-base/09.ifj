@@ -8,6 +8,10 @@ scope
 	dim _b_ as double = &O0123
 	dim _c_ as double = &HfFf
 
+    print _A_;
+    print _b_;
+    print _c_;
+
 	_A_ = _b_/_c_
 	_A_ = _b_*_c_
 	_A_ = _b_+_c_

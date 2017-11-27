@@ -245,13 +245,13 @@ token getNextToken() {
                 } else if (c == '&') {
                     c = getchar();
                     if (c == 'B' || c == 'b') {
-                        strAddChar(&T.value, 0);
+                        strAddChar(&T.value, '0');
                         state = 7;
                     } else if (c == 'O' || c == 'o') {
-                        strAddChar(&T.value, 0);
+                        strAddChar(&T.value, '0');
                         state = 8;
                     } else if (c == 'H' || c == 'h') {
-                        strAddChar(&T.value, 0);
+                        strAddChar(&T.value, '0');
                         state = 9;
                     } else {
                         printErrAndExit(ERROR_SCANNER, "on line: %d - Character %c was given but B, O or H was expected", T.line, c);
