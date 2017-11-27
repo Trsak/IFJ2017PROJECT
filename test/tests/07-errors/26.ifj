@@ -1,0 +1,6 @@
+declare function fc (a as integer) as integer
+function fc (a as double) as integer
+end function
+
+scope
+end scope

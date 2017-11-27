@@ -165,14 +165,14 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
 void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
 
 /**
- * @return New register
+ * @return void
  *
  * Creates new register
  */
 char *getRegister();
 
 /**
- * @return Next register
+ * @return void
  * @param reg Register
  *
  * Gets next register
@@ -180,21 +180,21 @@ char *getRegister();
 char *getNextRegister(char *reg);
 
 /**
- * @return New help register
+ * @return void
  *
  * Creates new help register
  */
 char *getHelpRegister();
 
 /**
- * @return New label
+ * @return void
  *
  * Creates new label
  */
 char *getNewLabel();
 
 /**
- * @return Variable frame
+ * @return void
  *
  * Gets frame for varibale
  */

@@ -1,0 +1,6 @@
+declare function fc (a as integer, b as integer) as integer
+function fc (a as integer) as integer
+end function
+
+scope
+end scope

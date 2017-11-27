@@ -114,7 +114,7 @@ token getNextToken() {
                     c = getchar();
                     if (c == 34) { // ASCII 34 == "
                         state = 6;
-                    } else if (c == EOL || c == EOF) {
+                    } else {
                         printErrAndExit(ERROR_SCANNER,
                                         "on line: %d - The '!' was given and the following should be '\"' but %c was given",
                                         T.line, c);
@@ -244,11 +244,11 @@ token getNextToken() {
                     }
                 } else if (c == '&') {
                     c = getchar();
-                    if (c == 'B') {
+                    if (c == 'B' || c == 'b') {
                         state = 7;
-                    } else if (c == 'O') {
+                    } else if (c == 'O' || c == 'o') {
                         state = 8;
-                    } else if (c == 'H') {
+                    } else if (c == 'H' || c == 'h') {
                         state = 9;
                     }
                 } else {
@@ -485,14 +485,14 @@ token getNextToken() {
                 }
 
             case 9: // Hex number
-                if (isalnum(c)) {
+                if (isalnum(c) || c == '_') {
                     if (isdigit(c) || c == 'a' || c == 'A' || c == 'b' || c == 'B' || c == 'c' || c == 'C' ||
                         c == 'd' || c == 'D' || c == 'e' || c == 'E' || c == 'f' || c == 'F') {
                         strAddChar(&T.value, c);
                         break;
                     }
                     printErrAndExit(ERROR_SCANNER,
-                                    "on line: %d - Octal number input contains letter bigger than F",
+                                    "on line: %d - Hexa number input contains letter bigger than F",
                                     T.line);
                 } else {
                     ungetc(c, stdin);
