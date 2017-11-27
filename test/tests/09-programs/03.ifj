@@ -23,6 +23,6 @@ Scope 'Hlavni telo programu
         Print !"\nFaktorial nelze spocitat\n";
     Else
         vysl = factorial(a)
-        Print !"\nVysledek je:" ; vysl ; !"\n";
+        Print !"\nVysledek je:" ; vysl;
     End If
 End Scope

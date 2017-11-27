@@ -63,7 +63,7 @@ do
                 stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
-                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset\n"
+                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout$reset\n"
                     errors_total=$(( errors_total+1 ))
                 fi
             fi

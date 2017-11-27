@@ -12,6 +12,6 @@ scope 'Hlavni telo programu
             VYSL = vysl * a
             a = A - 1
         LooP
-        Print !"\nVysledek je:" ; vYsl ; !"\n";
+        Print !"\nVysledek je:" ; vYsl;
     end IF
 END SCOPE
