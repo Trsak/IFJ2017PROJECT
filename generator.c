@@ -645,16 +645,21 @@ void generateExp(ast_exp *expression) {
                         left = left->op.bracketExp.expression;
                     }
 
-                    //int first = currentRegister;
+                    int first = currentRegister;
                     generateExp(left->op.bracketExp.expression);
-
-                    if (left->op.bracketExp.expression->tag_exp == variableExp) {
-                        //printf("YYYAYAY\n");
-                    }
+                    int second = currentRegister;
 
                     printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
-                    printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
-                           getNextRegister(getNextRegister(reg)));
+
+                    if (left->op.bracketExp.expression->tag_exp == binaryExp) {
+                        printf("MOVE %s@%s %s@%%R%d\n", frame, getNextRegister(reg), frame, first);
+                    }
+                    else if (left->op.bracketExp.expression->tag_exp == variableExp || left->op.bracketExp.expression->tag_exp == integerExp || left->op.bracketExp.expression->tag_exp == doubleExp) {
+                        printf("MOVE %s@%s %s@%%R%d\n", frame, getNextRegister(reg), frame, second - 1);
+                    } else {
+                        printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
+                               getNextRegister(getNextRegister(reg)));
+                    }
 
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
