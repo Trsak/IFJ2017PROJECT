@@ -338,7 +338,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(node, &params, &typeOfParams, &paramNumber);
 
         if(paramNumber != node->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
         }
     }
     else {
@@ -460,13 +460,13 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
 	if(node != NULL) {
 		if(currentArgumentNum >= node->data.paramNumber) {
-			printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+			printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
 		}
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
 		}
         else if(type != node->data.typeOfParams[currentArgumentNum]) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
 		}
 
 		/** Add argument to function statement on top of stack */
