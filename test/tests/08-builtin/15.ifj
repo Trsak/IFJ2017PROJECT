@@ -1,0 +1,5 @@
+function CHr() as integer
+end function
+
+scope
+end scope

@@ -71,7 +71,7 @@ void generateCode(stmtArray block) {
                 break;
             case while_stmt:
                 generateWhile(block.array[i].op.while_stmt.condition,
-                              block.array[i].op.while_stmt.block);
+                               block.array[i].op.while_stmt.block);
                 break;
             case return_stmt:
                 generateReturn(block.array[i].op.return_stmt.ret);
@@ -381,9 +381,10 @@ void varDeclare(BinaryTreePtr var) {
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
-            if (var->data.type == TYPE_DECIMAL) {
+            if(var->data.type == TYPE_DECIMAL) {
                 printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
-            } else {
+            }
+            else {
                 printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
             }
             break;
@@ -542,9 +543,7 @@ void generateExp(ast_exp *expression) {
                             printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
                         }
 
-                        if (expression->op.binaryExp.right->tag_exp == integerExp ||
-                            (expression->op.binaryExp.right->tag_exp == variableExp &&
-                             expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
+                        if (expression->op.binaryExp.right->tag_exp == integerExp || (expression->op.binaryExp.right->tag_exp == variableExp && expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
                             printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
                         }
                     }

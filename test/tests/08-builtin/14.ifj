@@ -1,0 +1,7 @@
+declare function SUBSTR() as integer
+
+function SUBSTR() as integer
+end function
+
+scope
+end scope

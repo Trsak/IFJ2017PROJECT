@@ -1,0 +1,4 @@
+declare function length() as integer
+
+scope
+end scope
