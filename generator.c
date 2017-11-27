@@ -89,6 +89,8 @@ void generateCode(stmtArray block) {
  * @copydoc getInput
  */
 void getInput(BinaryTreePtr var) {
+    printf("WRITE string@?\\032 \n");
+
     switch (var->data.type) {
         case TYPE_NUMBER:
             printf("READ %s@%s int\n", getVarFrame(), var->data.name);
