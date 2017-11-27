@@ -594,6 +594,8 @@ void statement() {
 					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
 				}
 				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                if(node1 == NULL)
+                    printf("sta\n");
 				node = btGetVariable(node1, name);
 				if(node == NULL || !node->data.declared) {
 					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
@@ -643,8 +645,10 @@ void statement() {
 
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
-                createNode(&node1, name, type, true, false, false, &params, NULL, 0); // Add new arguments
-				node = btGetVariable(node1, name);
+
+                createNode(&btGetVariable(symtable, functionName)->data.treeOfFunction, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+                node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                node = btGetVariable(node1, name);
             }
             else {
                 node = btGetVariable(symtable, name);
