@@ -1,0 +1,5 @@
+scope
+    dim a as integer
+
+    a = - 20 - ( - 5 * 5) * ( - 60 + 5)
+end scope
