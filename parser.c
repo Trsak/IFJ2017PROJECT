@@ -644,7 +644,7 @@ void statement() {
             else {
                 node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Function '%s' already declared!", name);
+					printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
 				}
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
