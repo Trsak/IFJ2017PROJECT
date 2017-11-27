@@ -618,6 +618,11 @@ void statement() {
 
             IdToken(Token.lexem);
 
+            if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
+            strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
+                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
+            }
+
             name = Token.value.str;
 
             datatype type;
