@@ -446,6 +446,8 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
             printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
         }
 
+        currentArgumentNum = -1;
+
         PreviousToken = Token;
         return;
     }
