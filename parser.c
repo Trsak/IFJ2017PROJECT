@@ -918,18 +918,12 @@ void statement() {
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
             if(!stackEmpty(&stmtStack)) {
                 stackTop(&stmtStack, &item);
-                if(item.stmt->tag_stmt == function_definition_stmt) {
-                    // TODO: what datatypes can return?
-                    int i = stmtStack.top;
-                    while(item.stmt->tag_stmt != function_definition_stmt) {
-                        i = i - 1;
-                        item = stmtStack.item[i];
-                    }
-                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
+                int i = stmtStack.top;
+                while(item.stmt->tag_stmt != function_definition_stmt) {
+                    i = i - 1;
+                    item = stmtStack.item[i];
                 }
-                else {
-                    printf("Never should come here!\n");
-                }
+                addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
             }
             else {
                 addStmtToArray(&globalStmtArray, returnStmt);
