@@ -71,7 +71,7 @@ void generateCode(stmtArray block) {
                 break;
             case while_stmt:
                 generateWhile(block.array[i].op.while_stmt.condition,
-                               block.array[i].op.while_stmt.block);
+                              block.array[i].op.while_stmt.block);
                 break;
             case return_stmt:
                 generateReturn(block.array[i].op.return_stmt.ret);
@@ -186,10 +186,11 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
         printf("DEFVAR TF@%%arg%d\n", arg);
         args = args->next;
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-        printf("CALL %%FL%s\n", function->data.name);
-        printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
         ++arg;
     }
+
+    printf("CALL %%FL%s\n", function->data.name);
+    printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
 }
 
 /**
@@ -383,10 +384,9 @@ void varDeclare(BinaryTreePtr var) {
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
-            if(var->data.type == TYPE_DECIMAL) {
+            if (var->data.type == TYPE_DECIMAL) {
                 printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
-            }
-            else {
+            } else {
                 printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
             }
             break;
@@ -545,7 +545,9 @@ void generateExp(ast_exp *expression) {
                             printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
                         }
 
-                        if (expression->op.binaryExp.right->tag_exp == integerExp || (expression->op.binaryExp.right->tag_exp == variableExp && expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
+                        if (expression->op.binaryExp.right->tag_exp == integerExp ||
+                            (expression->op.binaryExp.right->tag_exp == variableExp &&
+                             expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
                             printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
                         }
                     }
@@ -638,8 +640,18 @@ void generateExp(ast_exp *expression) {
                     }
 
                     break;
-                case bracketExp:
+                case bracketExp: {
+                    while (left->op.bracketExp.expression->tag_exp == bracketExp) {
+                        left = left->op.bracketExp.expression;
+                    }
+
+                    //int first = currentRegister;
                     generateExp(left->op.bracketExp.expression);
+
+                    if (left->op.bracketExp.expression->tag_exp == variableExp) {
+                        //printf("YYYAYAY\n");
+                    }
+
                     printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
                     printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
                            getNextRegister(getNextRegister(reg)));
@@ -696,10 +708,12 @@ void generateExp(ast_exp *expression) {
                     }
 
                     break;
+                }
                 case stringExp:
                     if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
                         printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
                     }
+
                     break;
                 case binaryExp: {
                     int first = currentRegister;
@@ -828,6 +842,9 @@ void generateExp(ast_exp *expression) {
             printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
             break;
         case bracketExp:
+            while (expression->op.bracketExp.expression->tag_exp == bracketExp) {
+                expression = expression->op.bracketExp.expression;
+            }
             generateExp(expression->op.bracketExp.expression);
             printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
             break;
