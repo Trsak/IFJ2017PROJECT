@@ -199,6 +199,10 @@ void program() {
 
     token Token = getNextToken();
 
+    if (Token.lexem == EOL_ENUM) {
+        Token = getNextToken();
+    }
+
     if (functionFirst(Token.lexem)) {
         PreviousToken = Token;
 
