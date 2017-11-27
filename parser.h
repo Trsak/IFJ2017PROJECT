@@ -25,6 +25,7 @@ typedef struct {
     char* name;
     int argsNum;
     datatype types[3];
+    datatype returnType;
 } builtinFunction;
 
 builtinFunction builtinFunctions[4];
