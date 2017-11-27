@@ -1443,17 +1443,25 @@ void paramsNext(bool builtIn, int *paramNumber) {
  */
 void mainBody() {
     mainBodyIt();
+
+    token Token = getNextToken();
+    eol(Token.lexem);
+
 	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
     statement();
 
-    token Token = PreviousToken;
+    Token = PreviousToken;
 
     end(Token.lexem);
 
     mainBodyIt();
 
     Token = getNextToken();
+
+    if (Token.lexem == EOL_ENUM) {
+        Token = getNextToken();
+    }
 
     if (Token.lexem != EOF) {
         printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
@@ -1479,7 +1487,7 @@ void mainBodyIt() {
         PreviousToken.lexem = -1;
     }
 
-    Token = getNextToken();
+    //Token = getNextToken();
 
-    eol(Token.lexem);
+    //eol(Token.lexem);
 }
