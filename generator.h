@@ -42,6 +42,13 @@ void generateCode(stmtArray block);
 
 /**
  * @return void
+ *
+ * Generates code for builtin functions
+ */
+void generateBuiltInFunctions();
+
+/**
+ * @return void
  * @param condition Condition expression
  * @param ifBlock Block of code inside if
  * @param elseStmt Pointer to next if-else or else
