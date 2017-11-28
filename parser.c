@@ -365,6 +365,12 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     eol(Token.lexem);
 
+    node = btGetVariable(symtable, name);
+    if(node != NULL) {
+        if(type != node->data.type) {
+            printErrAndExit(ERROR_PROG_SEM, "Declaration of function '%s' has different datatype than it's definition!", node->data.name);
+        }
+    }
 
     //Creates new node of function in symtable
     createNode(&symtable, name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
