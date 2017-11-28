@@ -551,6 +551,10 @@ void generateExp(ast_exp *expression) {
                     printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
                     generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
+                case stringExp:
+                    printf("MOVE %s@%s %s\n", frame, reg, generateSymbol(TYPE_STRING, left->op.stringExp.str));
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
+                    break;
                 case variableExp:
                     printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), left->op.variableExp->data.name);
                     generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, left->op.variableExp->data.type);
@@ -580,9 +584,6 @@ void generateExp(ast_exp *expression) {
                     generateOperation(reg, getNextRegister(reg), reg, expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 }
-                case stringExp:
-                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
-                    break;
                 case binaryExp: {
                     int first = currentRegister;
                     generateExp(left->op.binaryExp.left);
@@ -624,7 +625,9 @@ void generateExp(ast_exp *expression) {
 }
 
 void generateOperation(char *destination, char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type) {
-    generateDataConversion(operand1, operand2, operatorStr);
+    if (operand1Type != TYPE_STRING && operand2Type != TYPE_STRING) {
+        generateDataConversion(operand1, operand2, operatorStr);
+    }
 
     if (strcmp(operatorStr, "+") == 0) {
         if (operand1Type == TYPE_STRING || operand2Type == TYPE_STRING) {
