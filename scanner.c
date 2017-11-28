@@ -445,13 +445,12 @@ token getNextToken() {
                                 strAddChar(&T.value, second);
                                 strAddChar(&T.value, third);
                             } else {
-                                ungetc(next, stdin);
-                                ungetc(second, stdin);
-                                ungetc(third, stdin);
+                                printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                                T.line);
                             }
                         } else {
-                            ungetc(next, stdin);
-                            ungetc(second, stdin);
+                            printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                            T.line);
                         }
 
                     } else {
