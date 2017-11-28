@@ -102,12 +102,10 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
  * @param operatorStr Operator string
  * @param operand1 First operand
  * @param operand2 Second operand
- * @param operand1Type First datatype
- * @param operand2Type Second datatype
  *
  * Generates data conversions
  */
-void generateDataConversion(char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type);
+void generateDataConversion(char *operand1, char *operand2, char *operatorStr);
 
 /**
  * @return void

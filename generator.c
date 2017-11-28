@@ -3,7 +3,6 @@
  * @author Petr Sopf (xsopfp00)
  * @brief Generating IFJCode2017 from AST
  */
-//TODO:  KONVERZE PROMĚNNÝCH!!
 
 #include <string.h>
 #include <ctype.h>
@@ -280,7 +279,8 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
         int reg = currentRegister;
         generateExp(args->argument);
         sprintf(argS, "%s@%%R%d", frame, reg);
-        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[0]);
+
+        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[arg]);
 
         printf("DEFVAR TF@%%arg%d\n", arg);
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
@@ -551,6 +551,10 @@ void generateExp(ast_exp *expression) {
                     printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
                     generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
+                case stringExp:
+                    printf("MOVE %s@%s %s\n", frame, reg, generateSymbol(TYPE_STRING, left->op.stringExp.str));
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
+                    break;
                 case variableExp:
                     printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), left->op.variableExp->data.name);
                     generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, left->op.variableExp->data.type);
@@ -580,9 +584,6 @@ void generateExp(ast_exp *expression) {
                     generateOperation(reg, getNextRegister(reg), reg, expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 }
-                case stringExp:
-                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
-                    break;
                 case binaryExp: {
                     int first = currentRegister;
                     generateExp(left->op.binaryExp.left);
@@ -624,10 +625,12 @@ void generateExp(ast_exp *expression) {
 }
 
 void generateOperation(char *destination, char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type) {
-    generateDataConversion(operand1, operand2, operatorStr, operand1Type, operand2Type);
+    if (operand1Type != TYPE_STRING && operand2Type != TYPE_STRING) {
+        generateDataConversion(operand1, operand2, operatorStr);
+    }
 
     if (strcmp(operatorStr, "+") == 0) {
-        if (operand2Type == TYPE_STRING) {
+        if (operand1Type == TYPE_STRING || operand2Type == TYPE_STRING) {
             printf("CONCAT %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
         } else {
             printf("ADD %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
@@ -682,24 +685,28 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
     }
 }
 
-void generateDataConversion(char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type) {
+void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
     if (strcmp(operatorStr, "+") == 0 || strcmp(operatorStr, "-") == 0 || strcmp(operatorStr, "*") == 0 || strcmp(operatorStr, "<") == 0 || strcmp(operatorStr, "<=") == 0 ||
         strcmp(operatorStr, ">") == 0 || strcmp(operatorStr, ">=") == 0 || strcmp(operatorStr, "=") == 0 || strcmp(operatorStr, "<>") == 0) {
-        if (operand1Type == TYPE_DECIMAL || operand2Type == TYPE_DECIMAL) {
-            char *hReg1 = getHelpRegister();
-            char *conversionLabel = getHelpRegister();
-            printf("DEFVAR %s@%s\n", frame, hReg1);
-            printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-            printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
-            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
-            printf("LABEL %s\n", conversionLabel);
 
-            conversionLabel = getHelpRegister();
-            printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-            printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
-            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
-            printf("LABEL %s\n", conversionLabel);
-        }
+        char *hReg1 = getHelpRegister();
+        char *hReg2 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("DEFVAR %s@%s\n", frame, hReg2);
+
+        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
+        printf("TYPE %s@%s %s@%s\n", frame, hReg2, frame, operand2);
+
+        char *conversionLabel = getHelpRegister();
+        printf("JUMPIFEQ %s %s@%s %s@%s\n", conversionLabel, frame, hReg1, frame, hReg2);
+        printf("JUMPIFEQ %sN %s@%s string@float\n", conversionLabel, frame, hReg1);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
+
+        printf("LABEL %sN\n", conversionLabel);
+        printf("JUMPIFEQ %s %s@%s string@float\n", conversionLabel, frame, hReg2);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
+        printf("LABEL %s\n", conversionLabel);
+
     } else if (strcmp(operatorStr, "/") == 0) {
         char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();

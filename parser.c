@@ -919,7 +919,24 @@ void statement() {
             }
 
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
+
             if(!stackEmpty(&stmtStack)) {
+                stackTop(&stmtStack, &item);
+                if(item.stmt->tag_stmt == function_definition_stmt) {
+                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
+                }
+                else if(item.stmt->tag_stmt == while_stmt) {
+                    addStmtToArray(&item.stmt->op.while_stmt.block, returnStmt);
+                }
+                else if(item.stmt->tag_stmt == if_stmt) {
+                    addStmtToArray(&item.stmt->op.if_stmt.ifBlock, returnStmt);
+                }
+            }
+            else {
+                addStmtToArray(&globalStmtArray, returnStmt);
+            }
+
+            /*if(!stackEmpty(&stmtStack)) {
                 stackTop(&stmtStack, &item);
                 int i = stmtStack.top;
                 while(item.stmt->tag_stmt != function_definition_stmt) {
@@ -930,7 +947,7 @@ void statement() {
             }
             else {
                 addStmtToArray(&globalStmtArray, returnStmt);
-            }
+            }*/
 
             break;
 
