@@ -445,7 +445,8 @@ token getNextToken() {
                         }
 
                     } else {
-                        ungetc(next, stdin);
+                        printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                        T.line);
                     }
                 } else if ((ascii >= 0 && ascii <= 32) || ascii == 35) {
                     strAddChar(&T.value, (char) 92);
