@@ -3,7 +3,6 @@
  * @author Petr Sopf (xsopfp00)
  * @brief Generating IFJCode2017 from AST
  */
-//TODO:  KONVERZE PROMĚNNÝCH!!
 
 #include <string.h>
 #include <ctype.h>
