@@ -110,7 +110,7 @@ token getNextToken() {
                 } else if (isdigit(c)) { // It's a number
                     strAddChar(&T.value, c);
                     state = 5;
-                } else if (c == 33) { // It's a string
+                } else if (c == '!') { // It's a string
                     c = getchar();
                     if (c == 34) { // ASCII 34 == "
                         state = 6;
@@ -367,11 +367,6 @@ token getNextToken() {
                                         T.line, c);
                         return T;
                     }
-                } else if (isalpha(c) || c == '_') {
-                    printErrAndExit(ERROR_SCANNER,
-                                    "on line: %d - Wrong number format. %c char was given but a number is required",
-                                    T.line, c);
-                    return T;
                 } else {
                     ungetc(c, stdin);
                     if (decimal || decimal_e) {
