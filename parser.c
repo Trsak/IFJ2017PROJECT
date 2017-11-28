@@ -613,7 +613,9 @@ void statement() {
 					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
 				}
 			}
-
+            
+            //resetting Prev. token
+            PreviousToken.lexem = -1;
             assignment(false, name);
 
             break;
