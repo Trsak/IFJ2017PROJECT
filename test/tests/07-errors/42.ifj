@@ -1,0 +1,5 @@
+scope
+
+    print * 3 + 9;
+
+end scope
