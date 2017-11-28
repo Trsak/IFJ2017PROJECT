@@ -276,6 +276,11 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     }
 
     printf("CALL %%FL%s\n", function->data.name);
+
+    char *implicit = (char *) gcmalloc(20 * sizeof(char));
+    sprintf(implicit, "TF@%%retval");
+    generateArgumentsConversion(implicit, function->data.type, left->data.type);
+
     printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
 }
 
@@ -445,32 +450,64 @@ void varDeclare(BinaryTreePtr var) {
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
-        case integerExp:
-            if (var->data.type == TYPE_DECIMAL) {
-                printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
-            } else {
-                printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
-            }
+        case integerExp: {
+            char *reg = getRegister();
+            printf("DEFVAR %s@%s\n", frame, reg);
+            printf("MOVE %s@%s int@%d\n", frame, reg, expression->op.numberExp);
+
+            char *implicit = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(implicit, "%s@%s", frame, reg);
+            generateArgumentsConversion(implicit, TYPE_NUMBER, var->data.type);
+
+            printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
             break;
-        case doubleExp:
-            printf("MOVE %s@%s float@%g\n", getVarFrame(), var->data.name, expression->op.decimalExp);
+        }
+        case doubleExp: {
+            char *reg = getRegister();
+            printf("DEFVAR %s@%s\n", frame, reg);
+            printf("MOVE %s@%s float@%g\n", frame, reg, expression->op.decimalExp);
+
+            char *implicit = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(implicit, "%s@%s", frame, reg);
+            generateArgumentsConversion(implicit, TYPE_DECIMAL, var->data.type);
+
+            printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
             break;
+        }
         case stringExp:
             printf("MOVE %s@%s string@%s\n", getVarFrame(), var->data.name, expression->op.stringExp.str);
             break;
-        case variableExp:
-            printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, getVarFrame(),
-                   expression->op.variableExp->data.name);
+        case variableExp: {
+            char *reg = getRegister();
+            printf("DEFVAR %s@%s\n", frame, reg);
+            printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
+
+            char *implicit = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(implicit, "%s@%s", frame, reg);
+            generateArgumentsConversion(implicit, expression->op.variableExp->data.type, var->data.type);
+
+            printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
             break;
+        }
         case binaryExp: {
             int nextReg = currentRegister;
             generateExp(expression);
+
+            char *implicit = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(implicit, "%s@%%R%d", frame, nextReg);
+            generateArgumentsConversion(implicit, expression->datatype, var->data.type);
+
             printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
             break;
         }
         case bracketExp: {
             int nextReg = currentRegister;
             generateExp(expression->op.bracketExp.expression);
+
+            char *implicit = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(implicit, "%s@%%R%d", frame, nextReg);
+            generateArgumentsConversion(implicit, expression->datatype, var->data.type);
+
             printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
             break;
         }
@@ -672,8 +709,7 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr, d
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
     if (argType == TYPE_DECIMAL && destType == TYPE_NUMBER) {
         printf("FLOAT2R2EINT %s %s\n", arg, arg);
-    }
-    else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
+    } else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
         printf("INT2FLOAT %s %s\n", arg, arg);
     }
 }
