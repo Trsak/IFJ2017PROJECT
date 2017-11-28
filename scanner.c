@@ -62,7 +62,7 @@ token getNextToken() {
 
     bool decimal = false;
     bool decimal_e = false;
-	bool button = false;
+    bool button = false;
 
     while (1) {
         c = getchar();
@@ -70,28 +70,28 @@ token getNextToken() {
             case 0: // The beginning
 
                 if (button || c ==
-                    '\n') { // If there are multiple EOLs, returns only one and increments line counter with every EOL
-					button = false;
-	                line++;
+                              '\n') { // If there are multiple EOLs, returns only one and increments line counter with every EOL
+                    button = false;
+                    line++;
                     while (isspace(c)) {
                         c = getchar();
                         if (c == '\n') {
                             line++;
                         }
                     }
-	                if (c == 39){
-		                state = 1;
-		                break;
-	                } else if (c == '/') {
-		                c = getchar();
-		                if (c == 39){
-			                state = 3;
-			                button = true;
-			                break;
-		                } else {
-			                ungetc(c, stdin);
-		                }
-	                }
+                    if (c == 39) {
+                        state = 1;
+                        break;
+                    } else if (c == '/') {
+                        c = getchar();
+                        if (c == 39) {
+                            state = 3;
+                            button = true;
+                            break;
+                        } else {
+                            ungetc(c, stdin);
+                        }
+                    }
                     ungetc(c, stdin);
                     T.lexem = EOL_ENUM;
                     return T;
@@ -360,6 +360,16 @@ token getNextToken() {
                     strAddChar(&T.value, c);
                     c = getchar();
                     if (isdigit(c) || c == '+' || c == '-') {
+                        if (c == '+' || c == '-') {
+                            char next = getchar();
+                            if (!isdigit(next)) {
+                                printErrAndExit(ERROR_SCANNER,
+                                                "on line: %d - Wrong exponent sequence was given.",
+                                                T.line);
+                            }
+                            ungetc(next, stdin);
+                        }
+
                         strAddChar(&T.value, c);
                     } else {
                         printErrAndExit(ERROR_SCANNER,
@@ -411,26 +421,41 @@ token getNextToken() {
                         strAddChar(&T.value, '9');
                         strAddChar(&T.value, '2');
                     } else if (next >= '0' && next <= '9') {
+                        if (next > '2') {
+                            printErrAndExit(ERROR_SCANNER, "on line: %d - Given escape character is out of range",
+                                            T.line);
+                        }
+
                         char second = getchar();
                         if (second >= '0' && second <= '9') {
+                            if (next == '2' && second > '5') {
+                                printErrAndExit(ERROR_SCANNER, "on line: %d - Given escape character is out of range",
+                                                T.line);
+                            }
+
                             char third = getchar();
                             if (third >= '0' && third <= '9') {
+                                if ((next == '2' && second == '5' && third > '5') || (next == '0' && second == '0' && third == '0')) {
+                                    printErrAndExit(ERROR_SCANNER, "on line: %d - Given escape character is out of range",
+                                                    T.line);
+                                }
+
                                 strAddChar(&T.value, (char) 92);
                                 strAddChar(&T.value, next);
                                 strAddChar(&T.value, second);
                                 strAddChar(&T.value, third);
                             } else {
-                                ungetc(next, stdin);
-                                ungetc(second, stdin);
-                                ungetc(third, stdin);
+                                printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                                T.line);
                             }
                         } else {
-                            ungetc(next, stdin);
-                            ungetc(second, stdin);
+                            printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                            T.line);
                         }
 
                     } else {
-                        ungetc(next, stdin);
+                        printErrAndExit(ERROR_SCANNER, "on line: %d - Wrong escape sequence was given",
+                                        T.line);
                     }
                 } else if ((ascii >= 0 && ascii <= 32) || ascii == 35) {
                     strAddChar(&T.value, (char) 92);
