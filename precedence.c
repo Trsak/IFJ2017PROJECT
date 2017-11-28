@@ -354,10 +354,11 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 //TODO - for example C(integer)  = A (string) + B (integer)
 
                 stackTop(&stack, &item);
-/*
-				if(isOperator(item.symbol)) {
-					printf("%s\n", getOperator(item.symbol));
-				}*/
+
+				if(isOperator(item.symbol) || PrecTabCol == PREC_DOLLAR) {
+					printErrAndExit(ERROR_SYNTAX, "Expression ended with operator");
+				}
+
 
 				string oper;
 
