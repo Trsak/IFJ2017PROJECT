@@ -355,7 +355,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
                 stackTop(&stack, &item);
 
-				if(isOperator(item.symbol) || PrecTabCol == PREC_DOLLAR) {
+				if(isOperator(item.symbol) && PrecTabCol == PREC_DOLLAR) {
 					printErrAndExit(ERROR_SYNTAX, "Expression ended with operator");
 				}
 
