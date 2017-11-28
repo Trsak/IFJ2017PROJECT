@@ -401,7 +401,11 @@ token getNextToken() {
 
                 int ascii = (int) c;
 
-                if (ascii == 92) {
+                if (ascii <= 31) {
+                    printErrAndExit(ERROR_SCANNER, "on line: %d - All standalone characters in string must have bigger ASCII value then 31!",
+                                    T.line);
+                }
+                else if (ascii == 92) {
                     char next = getchar();
                     if (next == '"') {
                         strAddChar(&T.value, '"');
