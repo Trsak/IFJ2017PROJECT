@@ -19,6 +19,7 @@ void startGenerating() {
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
+    currentFunction = NULL;
     inScope = false;
 
     frame = (char *) gcmalloc(3 * sizeof(char));
@@ -210,6 +211,7 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
  * @copydoc generateFunction
  */
 void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block) {
+    currentFunction = function;
     printf("LABEL %%FL%s\n", function->data.name);
     printf("PUSHFRAME\n");
     strcpy(frame, "LF");
@@ -249,6 +251,11 @@ void generateReturn(ast_exp *expression) {
     int reg = currentRegister;
     generateExp(expression);
     printf("MOVE LF@%%retval %s@%%R%d\n", frame, reg);
+
+    char *argS = (char *) gcmalloc(20 * sizeof(char));
+    sprintf(argS, "LF@%%retval");
+    generateArgumentsConversion(argS, expression->datatype, currentFunction->data.type);
+
     printf("POPFRAME\n");
     printf("RETURN\n");
 }
@@ -265,11 +272,11 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     while (args != NULL) {
         int reg = currentRegister;
         generateExp(args->argument);
-        printf("DEFVAR TF@%%arg%d\n", arg);
-        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-
         sprintf(argS, "%s@%%R%d", frame, reg);
         generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[0]);
+
+        printf("DEFVAR TF@%%arg%d\n", arg);
+        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
 
         args = args->next;
         ++arg;
