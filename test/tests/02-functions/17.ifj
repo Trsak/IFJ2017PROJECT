@@ -1,0 +1,10 @@
+'implicit conversions in functions calling
+
+scope
+    dim res as double
+
+    res = length(!"Hello")
+
+    print res;
+
+end scope

@@ -1,0 +1,17 @@
+'implicit conversions in functions calling
+
+declare function funct(a as double, b as double, c as double) as integer
+
+function funct(a as double, b as double, c as double) as integer
+    print a + b + c;
+end function
+
+scope
+    dim res as integer
+    dim integer_number1 as integer = 23.2584557
+    dim integer_number2 as integer = 3.141592
+    dim integer_number3 as integer = 42.0
+
+    res = funct(integer_number1, integer_number2, integer_number3)
+
+end scope

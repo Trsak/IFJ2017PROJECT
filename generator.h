@@ -25,6 +25,9 @@ int currentLabel;
 /** Name of current frame */
 char *frame;
 
+/** Current function */
+BinaryTreePtr currentFunction;
+
 /**
  * @return void
  *
@@ -102,9 +105,19 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
  * @param operand1Type First datatype
  * @param operand2Type Second datatype
  *
- * Generates expressions
+ * Generates data conversions
  */
 void generateDataConversion(char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type);
+
+/**
+ * @return void
+ * @param arg Argument
+ * @param argType Argument datatype
+ * @param destType Needed datatype
+ *
+ * Generates argument implicit conversions
+ */
+void generateArgumentsConversion(char *arg, datatype argType, datatype destType);
 
 /**
  * @return void
