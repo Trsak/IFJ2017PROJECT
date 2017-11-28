@@ -110,7 +110,7 @@ token getNextToken() {
                 } else if (isdigit(c)) { // It's a number
                     strAddChar(&T.value, c);
                     state = 5;
-                } else if (c == 33) { // It's a string
+                } else if (c == '!') { // It's a string
                     c = getchar();
                     if (c == 34) { // ASCII 34 == "
                         state = 6;
@@ -245,11 +245,17 @@ token getNextToken() {
                 } else if (c == '&') {
                     c = getchar();
                     if (c == 'B' || c == 'b') {
+                        strAddChar(&T.value, '0');
                         state = 7;
                     } else if (c == 'O' || c == 'o') {
+                        strAddChar(&T.value, '0');
                         state = 8;
                     } else if (c == 'H' || c == 'h') {
+                        strAddChar(&T.value, '0');
                         state = 9;
+                    } else {
+                        printErrAndExit(ERROR_SCANNER, "on line: %d - Character %c was given but B, O or H was expected", T.line, c);
+                        return T;
                     }
                 } else {
                     printErrAndExit(ERROR_SCANNER, "on line: %d - Unknown character was given: %c", T.line, c);
@@ -361,11 +367,6 @@ token getNextToken() {
                                         T.line, c);
                         return T;
                     }
-                } else if (isalpha(c) || c == '_') {
-                    printErrAndExit(ERROR_SCANNER,
-                                    "on line: %d - Wrong number format. %c char was given but a number is required",
-                                    T.line, c);
-                    return T;
                 } else {
                     ungetc(c, stdin);
                     if (decimal || decimal_e) {

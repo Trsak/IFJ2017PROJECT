@@ -50,7 +50,7 @@ do
             gencode=`./ifj2017 < $tests_dir/$test_id.ifj > temp.code 2>&1`
             exitcode="$?"
             if [ "$exitcode" -ne "$exitcode_expected" ]; then
-                printf "$red- ERROR [$test_id]: Expected exitcode: $exitcode_expected, obtained: $exitcode.$reset\n"
+                printf "$red- ERROR [$test_id]:\nExpected exitcode: $exitcode_expected\nObtained: $exitcode.$reset\n"
                 errors_total=$(( errors_total+1 ))
             elif [ "$exitcode" -eq "0" ]; then
                 if [ "$next" -eq 3 ]; then
@@ -63,7 +63,7 @@ do
                 stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
-                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout.$reset\n"
+                    printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout$reset\n"
                     errors_total=$(( errors_total+1 ))
                 fi
             fi

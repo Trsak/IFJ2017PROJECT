@@ -169,21 +169,25 @@ void builtinFunctionsInit() {
     builtinFunctions[0].argsNum = 1;
     builtinFunctions[0].name = "length";
     builtinFunctions[0].types[0] = exp_string;
+    builtinFunctions[0].returnType = exp_integer;
 
     builtinFunctions[1].argsNum = 3;
     builtinFunctions[1].name = "substr";
     builtinFunctions[1].types[0] = exp_string;
     builtinFunctions[1].types[1] = exp_integer;
     builtinFunctions[1].types[2] = exp_decimal;
+    builtinFunctions[1].returnType = exp_string;
 
     builtinFunctions[2].argsNum = 2;
     builtinFunctions[2].name = "asc";
     builtinFunctions[2].types[0] = exp_string;
     builtinFunctions[2].types[1] = exp_integer;
+    builtinFunctions[2].returnType = exp_integer;
 
     builtinFunctions[3].argsNum = 1;
     builtinFunctions[3].name = "chr";
     builtinFunctions[3].types[0] = exp_integer;
+    builtinFunctions[3].returnType = exp_string;
 }
 
 /**
@@ -338,7 +342,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(node, &params, &typeOfParams, &paramNumber);
 
         if(paramNumber != node->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
         }
     }
     else {
@@ -446,6 +450,8 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
             printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
         }
 
+        currentArgumentNum = -1;
+
         PreviousToken = Token;
         return;
     }
@@ -460,13 +466,13 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
 	if(node != NULL) {
 		if(currentArgumentNum >= node->data.paramNumber) {
-			printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+			printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
 		}
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
 		}
         else if(type != node->data.typeOfParams[currentArgumentNum]) {
-			printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
 		}
 
 		/** Add argument to function statement on top of stack */
@@ -594,6 +600,8 @@ void statement() {
 					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
 				}
 				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                if(node1 == NULL)
+                    printf("sta\n");
 				node = btGetVariable(node1, name);
 				if(node == NULL || !node->data.declared) {
 					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
@@ -643,13 +651,15 @@ void statement() {
 
                 //Create new node - declaration of variable
                 BinaryTreePtr params = NULL;
-                createNode(&node1, name, type, true, false, false, &params, NULL, 0); // Add new arguments
-				node = btGetVariable(node1, name);
+
+                createNode(&btGetVariable(symtable, functionName)->data.treeOfFunction, name, type, true, false, false, &params, NULL, 0); // Add new arguments
+                node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
+                node = btGetVariable(node1, name);
             }
             else {
                 node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Function '%s' already declared!", name);
+					printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
 				}
                 if (node && node->data.declared) {
                     printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
@@ -912,18 +922,12 @@ void statement() {
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
             if(!stackEmpty(&stmtStack)) {
                 stackTop(&stmtStack, &item);
-                if(item.stmt->tag_stmt == function_definition_stmt) {
-                    // TODO: what datatypes can return?
-                    int i = stmtStack.top;
-                    while(item.stmt->tag_stmt != function_definition_stmt) {
-                        i = i - 1;
-                        item = stmtStack.item[i];
-                    }
-                    addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
+                int i = stmtStack.top;
+                while(item.stmt->tag_stmt != function_definition_stmt) {
+                    i = i - 1;
+                    item = stmtStack.item[i];
                 }
-                else {
-                    printf("Never should come here!\n");
-                }
+                addStmtToArray(&item.stmt->op.function_definition_stmt.block, returnStmt);
             }
             else {
                 addStmtToArray(&globalStmtArray, returnStmt);
@@ -1220,11 +1224,28 @@ void assignment(bool isDeclaration, char *name) {
                 else if(strcmp(funcName.str, "asc") == 0) {
                     en = Asc;
                 }
-                else
+                else {
                     en = Chr;
+                }
+                if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+                    if(builtinFunctions[en].returnType == (datatype)exp_string) {
+                        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
+                    }
+                }
+                else if(node->data.type == (datatype)exp_string && builtinFunctions[en].returnType != (datatype)exp_string) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
+                }
                 varAssignFunction = make_varAssignBuiltinFunctionStmt(node, en, NULL);
             }
             else {
+                if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
+                    if(ptr->data.type == (datatype)exp_string) {
+                        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(ptr->data.type), getTypeString(node->data.type));
+                    }
+                }
+                else if(node->data.type == (datatype)exp_string && ptr->data.type != (datatype)exp_string) {
+                    printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(ptr->data.type), getTypeString(node->data.type));
+                }
                 varAssignFunction = make_varAssignFunctionStmt(node, ptr, NULL);
             }
             // TODO: check args (number, datatypes, ...)
@@ -1239,14 +1260,14 @@ void assignment(bool isDeclaration, char *name) {
             if(builtIn) {
                 stackTop(&stmtStack, &item);
                 builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
-                if(paramNumber != fc.argsNum) {
+                if(paramNumber != fc.argsNum && fc.argsNum != 0) {
                     printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
                 }
             }
             else {
                 stackTop(&stmtStack, &item);
                 BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
-                if(paramNumber != fc->data.paramNumber) {
+                if(paramNumber != fc->data.paramNumber && fc->data.paramNumber != 0) {
                     printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
                 }
             }
@@ -1409,7 +1430,11 @@ void params(bool builtIn, int *paramNumber) {
     else {
         stackTop(&stmtStack, &item);
         BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
-        if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
+        if(expressionTree == NULL && fc->data.paramNumber == 0) {
+            item.stmt->op.var_assign_builtin_function_stmt.args = NULL;
+            paramsNext(builtIn, paramNumber);
+        }
+        else if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
             printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
         }
         else if(currentArgumentNum >= fc->data.paramNumber) {
@@ -1429,8 +1454,9 @@ void params(bool builtIn, int *paramNumber) {
     stackTop(&stmtStack, &item);
 
     if(item.stmt->tag_stmt == var_assign_function_stmt) {
-        addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
-        //printf("%d\n", item.stmt->op.var_assign_function_stmt.args->argument->op.numberExp);
+        if (expressionTree != NULL) {
+            addArgumentToArray(&item.stmt->op.var_assign_function_stmt.args, expressionTree);
+        }
     }
     else {
         addArgumentToArray(&item.stmt->op.var_assign_builtin_function_stmt.args, expressionTree);

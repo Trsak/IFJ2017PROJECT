@@ -71,7 +71,7 @@ void generateCode(stmtArray block) {
                 break;
             case while_stmt:
                 generateWhile(block.array[i].op.while_stmt.condition,
-                               block.array[i].op.while_stmt.block);
+                              block.array[i].op.while_stmt.block);
                 break;
             case return_stmt:
                 generateReturn(block.array[i].op.return_stmt.ret);
@@ -186,10 +186,11 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
         printf("DEFVAR TF@%%arg%d\n", arg);
         args = args->next;
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-        printf("CALL %%FL%s\n", function->data.name);
-        printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
         ++arg;
     }
+
+    printf("CALL %%FL%s\n", function->data.name);
+    printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
 }
 
 /**
@@ -383,10 +384,9 @@ void varDeclare(BinaryTreePtr var) {
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     switch (expression->tag_exp) {
         case integerExp:
-            if(var->data.type == TYPE_DECIMAL) {
+            if (var->data.type == TYPE_DECIMAL) {
                 printf("MOVE %s@%s float@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
-            }
-            else {
+            } else {
                 printf("MOVE %s@%s int@%d\n", getVarFrame(), var->data.name, expression->op.numberExp);
             }
             break;
@@ -432,274 +432,43 @@ void generateExp(ast_exp *expression) {
             switch (left->tag_exp) {
                 case integerExp:
                     printf("MOVE %s@%s %s\n", frame, reg, generateIntegerSymbol(left->op.numberExp));
-                    if (expression->datatype == exp_decimal) {
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
-
-                        if (expression->op.binaryExp.right->tag_exp == integerExp) {
-                            printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
-                        }
-                    }
-
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    }
-
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 case doubleExp:
                     printf("MOVE %s@%s %s\n", frame, reg, generateFloatSymbol(left->op.decimalExp));
-
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    }
-
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 case variableExp:
                     printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), left->op.variableExp->data.name);
-                    if (expression->datatype == exp_decimal) {
-                        if (left->op.variableExp->data.type == TYPE_NUMBER) {
-                            printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
-                        }
-
-                        if (expression->op.binaryExp.right->tag_exp == integerExp || (expression->op.binaryExp.right->tag_exp == variableExp && expression->op.binaryExp.right->op.variableExp->data.type == TYPE_NUMBER)) {
-                            printf("INT2FLOAT %s@%s %s@%s\n", frame, getNextRegister(reg), frame, getNextRegister(reg));
-                        }
-                    }
-
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        if (left->op.variableExp->data.type == TYPE_STRING) {
-                            printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                        } else {
-                            printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                        }
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    }
-
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, left->op.variableExp->data.type);
                     break;
-                case bracketExp:
+                case bracketExp: {
+                    while (left->op.bracketExp.expression->tag_exp == bracketExp) {
+                        left = left->op.bracketExp.expression;
+                    }
+
+                    int first = currentRegister;
                     generateExp(left->op.bracketExp.expression);
+                    int second = currentRegister;
+
                     printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
-                    printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
-                           getNextRegister(getNextRegister(reg)));
 
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg), frame, reg);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg), frame, reg);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+                    if (left->op.bracketExp.expression->tag_exp == binaryExp) {
+                        printf("MOVE %s@%s %s@%%R%d\n", frame, getNextRegister(reg), frame, first);
+                    } else if (left->op.bracketExp.expression->tag_exp == variableExp ||
+                               left->op.bracketExp.expression->tag_exp == integerExp ||
+                               left->op.bracketExp.expression->tag_exp == doubleExp) {
+                        printf("MOVE %s@%s %s@%%R%d\n", frame, getNextRegister(reg), frame, second - 1);
+                    } else {
+                        printf("MOVE %s@%s %s@%s\n", frame, getNextRegister(reg), frame,
+                               getNextRegister(getNextRegister(reg)));
                     }
 
+                    generateOperation(reg, getNextRegister(reg), reg, expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
+                }
                 case stringExp:
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("CONCAT %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    }
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 case binaryExp: {
                     int first = currentRegister;
@@ -707,106 +476,8 @@ void generateExp(ast_exp *expression) {
                     int second = currentRegister;
                     generateExp(left->op.binaryExp.right);
 
-                    if (strcmp(left->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%%R%d %s@%%R%d\n", frame, reg, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%%R%d %s@%%R%d\n", frame, reg, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%%R%d %s@%%R%d\n", frame, reg, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%%R%d %s@%%R%d\n", frame, reg, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "\\") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("INT2FLOAT %s@%s %s@%%R%d\n", frame, hReg1, frame, first);
-                        printf("INT2FLOAT %s@%s %s@%%R%d\n", frame, hReg2, frame, second);
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-                        printf("FLOAT2INT %s@%%R%d %s@%s\n", frame, first, frame, hReg1);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%%R%d %s@%%R%d \n", currentLabel, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%%R%d %s@%%R%d \n", currentLabel, frame, first, frame, second);
-                    } else if (strcmp(left->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg1, frame, first, frame, second);
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg1, frame, first, frame, second);
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(left->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg1, frame, first, frame, second);
-                        printf("EQ %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg2, frame, first, frame, second);
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(left->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg1, frame, first, frame, second);
-                        printf("EQ %s@%s %s@%%R%d %s@%%R%d\n", frame, hReg2, frame, first, frame, second);
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    }
-
-                    if (strcmp(expression->op.binaryExp.oper.str, "+") == 0) {
-                        printf("ADD %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "-") == 0) {
-                        printf("SUB %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "*") == 0) {
-                        printf("MUL %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "/") == 0) {
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, reg, frame, reg, frame, getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, reg);
-                        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, getNextRegister(reg));
-                        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-                        printf("FLOAT2INT %s@%s %s@%s\n", frame, reg, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<>") == 0) {
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "=") == 0) {
-                        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, reg, frame,
-                               getNextRegister(reg));
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, "<=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    } else if (strcmp(expression->op.binaryExp.oper.str, ">=") == 0) {
-                        char *hReg1 = getHelpRegister();
-                        char *hReg2 = getHelpRegister();
-                        printf("DEFVAR %s@%s\n", frame, hReg1);
-                        printf("DEFVAR %s@%s\n", frame, hReg2);
-                        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, reg, frame, getNextRegister(reg));
-                        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, reg, frame, getNextRegister(reg));
-                        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
-                    }
-
+                    generateOperation(reg, getRegisterByID(first), getRegisterByID(second), left->op.binaryExp.oper.str, left->datatype, expression->datatype);
+                    generateOperation(reg, reg, getNextRegister(reg), expression->op.binaryExp.oper.str, left->datatype, expression->datatype);
                     break;
                 }
                 default:
@@ -828,11 +499,96 @@ void generateExp(ast_exp *expression) {
             printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
             break;
         case bracketExp:
+            while (expression->op.bracketExp.expression->tag_exp == bracketExp) {
+                expression = expression->op.bracketExp.expression;
+            }
             generateExp(expression->op.bracketExp.expression);
             printf("MOVE %s@%s %s@%s\n", frame, reg, frame, getNextRegister(reg));
             break;
         default:
             break;
+    }
+}
+
+void generateOperation(char *destination, char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type) {
+    generateDataConversion(operand1, operand2, operatorStr, operand1Type, operand2Type);
+
+    if (strcmp(operatorStr, "+") == 0) {
+        if (operand2Type == TYPE_STRING) {
+            printf("CONCAT %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
+        } else {
+            printf("ADD %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
+        }
+    } else if (strcmp(operatorStr, "-") == 0) {
+        printf("SUB %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
+    } else if (strcmp(operatorStr, "*") == 0) {
+        printf("MUL %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
+    } else if (strcmp(operatorStr, "/") == 0) {
+        printf("DIV %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
+    } else if (strcmp(operatorStr, "\\") == 0) {
+        char *hReg1 = getHelpRegister();
+        char *hReg2 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("DEFVAR %s@%s\n", frame, hReg2);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, operand1);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, operand2);
+        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
+        printf("FLOAT2INT %s@%s %s@%s\n", frame, operand1, frame, hReg1);
+    } else if (strcmp(operatorStr, "<>") == 0) {
+        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
+               operand2);
+    } else if (strcmp(operatorStr, "=") == 0) {
+        printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
+               operand2);
+    } else if (strcmp(operatorStr, ">") == 0) {
+        char *hReg1 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+    } else if (strcmp(operatorStr, "<") == 0) {
+        char *hReg1 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+    } else if (strcmp(operatorStr, "<=") == 0) {
+        char *hReg1 = getHelpRegister();
+        char *hReg2 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("DEFVAR %s@%s\n", frame, hReg2);
+        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
+        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+    } else if (strcmp(operatorStr, ">=") == 0) {
+        char *hReg1 = getHelpRegister();
+        char *hReg2 = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("DEFVAR %s@%s\n", frame, hReg2);
+        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
+        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+    }
+}
+
+void generateDataConversion(char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type) {
+    if (strcmp(operatorStr, "+") == 0 || strcmp(operatorStr, "-") == 0 || strcmp(operatorStr, "*") == 0 || strcmp(operatorStr, "<") == 0 || strcmp(operatorStr, "<=") == 0 ||
+        strcmp(operatorStr, ">") == 0 || strcmp(operatorStr, ">=") == 0 || strcmp(operatorStr, "=") == 0 || strcmp(operatorStr, "<>") == 0) {
+
+        if (operand1Type == TYPE_NUMBER && operand2Type == TYPE_DECIMAL) {
+            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
+        }
+
+        if (operand1Type == TYPE_DECIMAL && operand2Type == TYPE_NUMBER) {
+            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
+        }
+    }
+    else if (strcmp(operatorStr, "/") == 0) {
+        if (operand1Type == TYPE_NUMBER) {
+            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
+        }
+
+        if (operand2Type == TYPE_NUMBER) {
+            printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
+        }
     }
 }
 
@@ -879,11 +635,20 @@ char *generateFloatSymbol(double value) {
 }
 
 /**
- * @copydoc v
+ * @copydoc getRegister
  */
 char *getRegister() {
     char *reg = (char *) gcmalloc(30 * sizeof(char));
     sprintf(reg, "%%R%d", currentRegister++);
+    return reg;
+}
+
+/**
+ * @copydoc getRegister
+ */
+char *getRegisterByID(int id) {
+    char *reg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(reg, "%%R%d", id);
     return reg;
 }
 
