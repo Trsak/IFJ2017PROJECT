@@ -23,9 +23,9 @@ void saveFunctionName(string name) {
 /**
  * @copydoc idToken
  */
-void IdToken(int lexem) {
-    if (lexem != ID) {
-        printErrAndExit(ERROR_SYNTAX, "'Identifier' was excepted");
+void IdToken(token Token) {
+    if (Token.lexem != ID) {
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'Identifier' was excepted", Token.line);
     }
 }
 
@@ -289,18 +289,18 @@ void functionHeader(bool isDeclared, bool isDefined) {
         Token = getNextToken();
 
         if (Token.lexem != FUNCTION) {
-            printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: 'Function' was expected", Token.line);
         }
     }
 
     Token = getNextToken();
 
-    IdToken(Token.lexem);
+    IdToken(Token);
 
     if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
         strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
 
-        printErrAndExit(ERROR_SYNTAX, "Redefined built in function");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: Redefined built in function", Token.line);
     }
 
     char *name = Token.value.str;
@@ -311,13 +311,13 @@ void functionHeader(bool isDeclared, bool isDefined) {
 	stackItem item;
     if(node != NULL) {
         if(node->data.declared && isDeclared) {
-            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Function '%s' already declared!", Token.line, name);
         }
         else if(node->data.defined && isDefined) {
-            printErrAndExit(ERROR_PROG_SEM, "Function '%s' already defined!", name);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Function '%s' already defined!", Token.line, name);
         }
         else if(node->data.defined && isDeclared) {
-            printErrAndExit(ERROR_PROG_SEM, "Can't declare already defined function '%s'!", name);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't declare already defined function '%s'!", Token.line, name);
         }
 
 		/** Add function statement to stack */
@@ -328,7 +328,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
     Token = getNextToken();
 
     if (Token.lexem != BRACKET_LEFT) {
-        printErrAndExit(ERROR_SYNTAX, "'(' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: '(' was expected", Token.line);
     }
 
     /** Semantics: check for valid function parameters */
@@ -344,7 +344,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(node, &params, &typeOfParams, &paramNumber);
 
         if(paramNumber != node->data.paramNumber) {
-            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d arguments and less were given!", node->data.name, node->data.paramNumber);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Function '%s' expected %d arguments and less were given!", Token.line, node->data.name, node->data.paramNumber);
         }
     }
     else {
@@ -355,7 +355,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
-        printErrAndExit(ERROR_SYNTAX, "')' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: ')' was expected", Token.line);
     }
 
     datatype type;
@@ -363,12 +363,12 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     Token = getNextToken();
 
-    eol(Token.lexem);
+    eol(Token);
 
     node = btGetVariable(symtable, name);
     if(node != NULL) {
         if(type != node->data.type) {
-            printErrAndExit(ERROR_PROG_SEM, "Declaration of function '%s' has different datatype than it's definition!", node->data.name);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Declaration of function '%s' has different datatype than it's definition!", Token.line, node->data.name);
         }
     }
 
@@ -396,7 +396,7 @@ void asDataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != AS) {
-        printErrAndExit(ERROR_SYNTAX, "'As' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'As' was expected", Token.line);
     }
 
     dataType(type);
@@ -429,20 +429,20 @@ void functionEnd() {
     if (PreviousToken.lexem != END) {
         Token = getNextToken();
 
-        end(Token.lexem);
+        end(Token);
     }
 
     Token = getNextToken();
 
     if (Token.lexem != FUNCTION) {
-        printErrAndExit(ERROR_SYNTAX, "'Function' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'Function' was expected", Token.line);
     }
 
     Token = getNextToken();
 
     gcfree(functionName);
 
-    eol(Token.lexem);
+    eol(Token);
 }
 
 
@@ -456,7 +456,7 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
     if (Token.lexem != ID) {
         if (PreviousToken.lexem == COMMA) {
-            printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected'");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: 'Identifier' was expected'", Token.line);
         }
 
         currentArgumentNum = -1;
@@ -475,13 +475,13 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
 	if(node != NULL) {
 		if(currentArgumentNum >= node->data.paramNumber) {
-            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: Function '%s' expected %d parameters and more were given!", Token.line, node->data.name, node->data.paramNumber);
         }/*
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
 			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
 		}*/
         else if(type != node->data.typeOfParams[currentArgumentNum]) {
-            printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+            printErrAndExit(ERROR_PROG_SEM, "On line %d: In function '%s' %d. parameter has bad datatype!", Token.line, node->data.name, currentArgumentNum+1);
 		}
 
         createParamsNode(params, name, node->data.typeOfParams[currentArgumentNum]);
@@ -548,7 +548,7 @@ void dataType(datatype *type) {
     token Token = getNextToken();
 
     if (Token.lexem != INTEGER && Token.lexem != DOUBLE && Token.lexem != STRING) {
-        printErrAndExit(ERROR_SYNTAX, "Data type was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: Data type was expected", Token.line);
     }
 
     datatype convType = TYPE_NUMBER;
@@ -594,23 +594,23 @@ void statement() {
 				BinaryTreePtr node1;
 				node1 = btGetVariable(symtable, name);
 				if(node1 && node1->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
+					printErrAndExit(ERROR_OTHER_SEM, "On line %d: Can't do assignment to function '%s'!", Token.line, name);
 				}
 				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 if(node1 == NULL)
                     printf("sta\n");
 				node = btGetVariable(node1, name);
 				if(node == NULL || !node->data.declared) {
-					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Undeclared variable '%s'!", Token.line, name);
 				}
 			}
 			else {
 				node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Can't do assignment to function '%s'!", name);
+					printErrAndExit(ERROR_OTHER_SEM, "On line %d: Can't do assignment to function '%s'!", Token.line, name);
 				}
 				if(node == NULL || !node->data.declared) {
-					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Undeclared variable '%s'!", Token.line, name);
 				}
 			}
             
@@ -623,11 +623,11 @@ void statement() {
         case DIM:
             Token = getNextToken();
 
-            IdToken(Token.lexem);
+            IdToken(Token);
 
             if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
             strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
-                printErrAndExit(ERROR_SYNTAX, "'Identifier' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: 'Identifier' was expected", Token.line);
             }
 
             name = Token.value.str;
@@ -642,10 +642,10 @@ void statement() {
                 node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 node = btGetVariable(node1, name);
                 if(strcmp(name, functionName) == 0) {
-                    printErrAndExit(ERROR_PROG_SEM, "Can't declare variable, already exists function '%s'!", name);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't declare variable, already exists function '%s'!", Token.line, name);
                 }
                 if (node && node->data.declared) {
-                    printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Variable '%s' already declared!", Token.line, name);
                 }
 
                 //Create new node - declaration of variable
@@ -658,10 +658,10 @@ void statement() {
             else {
                 node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_PROG_SEM, "Function '%s' already declared!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Function '%s' already declared!", Token.line, name);
 				}
                 if (node && node->data.declared) {
-                    printErrAndExit(ERROR_PROG_SEM, "Variable '%s' already declared!", name);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Variable '%s' already declared!", Token.line, name);
                 }
 
                 //Create new node - declaration of variable
@@ -679,7 +679,7 @@ void statement() {
 					addStmtToArray(&item.stmt->op.function_definition_stmt.block, var_declStmt);
 				}
 				else {
-					printErrAndExit(ERROR_SYNTAX, "Can't declare variable '%s' here!", node->data.name);
+					printErrAndExit(ERROR_SYNTAX, "On line %d: Can't declare variable '%s' here!", Token.line, node->data.name);
 				}
 			}
 			else {
@@ -702,7 +702,7 @@ void statement() {
 
         case INPUT:
             Token = getNextToken();
-            IdToken(Token.lexem);
+            IdToken(Token);
 
 			name = Token.value.str;
 
@@ -711,21 +711,21 @@ void statement() {
 				BinaryTreePtr node1;
 				node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_PROG_SEM, "Can't assign to function '%s'!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't assign to function '%s'!", Token.line, name);
 				}
 				node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
 				node = btGetVariable(node1, name);
 				if (!node) {
-					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't assign into undeclared variable '%s'!", Token.line, name);
 				}
 			}
 			else {
 				node = btGetVariable(symtable, name);
 				if(node && node->data.isFunction) {
-					printErrAndExit(ERROR_OTHER_SEM, "Can't assign to function '%s'!", name);
+					printErrAndExit(ERROR_OTHER_SEM, "On line %d: Can't assign to function '%s'!", Token.line, name);
 				}
 				if (!node) {
-					printErrAndExit(ERROR_PROG_SEM, "Can't assign into undeclared variable '%s'!", name);
+					printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't assign into undeclared variable '%s'!", Token.line, name);
 				}
 			}
 
@@ -773,7 +773,7 @@ void statement() {
 			}
 
             if (Token.lexem != SEMICOLON) {
-                printErrAndExit(ERROR_SYNTAX, "';' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: ';' was expected", Token.line);
             }
 
             printNext();
@@ -784,7 +784,7 @@ void statement() {
             Token = getNextToken();
 
             if (Token.lexem != WHILE) {
-                printErrAndExit(ERROR_SYNTAX, "'While' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: 'While' was expected", Token.line);
             }
 
             parseExpression(&Token, &expressionTree);
@@ -796,7 +796,7 @@ void statement() {
 
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, whileStmt);
 
-            eol(Token.lexem);
+            eol(Token);
 
             //Reset prev. token
             PreviousToken.lexem = -1;
@@ -809,7 +809,7 @@ void statement() {
             if (Token.lexem != LOOP) {
                 Token = getNextToken();
                 if (Token.lexem != LOOP) {
-                    printErrAndExit(ERROR_SYNTAX, "'Loop' was expected");
+                    printErrAndExit(ERROR_SYNTAX, "On line %d: 'Loop' was expected", Token.line);
                 }
             }
 
@@ -845,7 +845,7 @@ void statement() {
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
 
             if (Token.lexem != THEN) {
-                printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: 'Then' was expected", Token.line);
             }
 
             //Reset prev. token
@@ -853,7 +853,7 @@ void statement() {
 
             Token = getNextToken();
 
-            eol(Token.lexem);
+            eol(Token);
 
             statement();
 
@@ -889,20 +889,20 @@ void statement() {
             if (Token.lexem != END) {
                 Token = getNextToken();
 
-                end(Token.lexem);
+                end(Token);
             }
 
             Token = getNextToken();
 
             if (Token.lexem != IF) {
-                printErrAndExit(ERROR_SYNTAX, "'If' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: 'If' was expected", Token.line);
             }
 
             break;
 
         case RETURN:
             if (!inFunction) {
-                printErrAndExit(ERROR_SYNTAX, "'Return' statement not in function!");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: 'Return' statement not in function!", Token.line);
             }
 
             parseExpression(&Token, &expressionTree);
@@ -911,11 +911,11 @@ void statement() {
             node = btGetVariable(symtable, functionName);
             if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
                 if(expressionTree->datatype == exp_string) {
-                    printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+                    printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function should return '%s', but return '%s'!", Token.line, getTypeString(node->data.type), getTypeString(expressionTree->datatype));
                 }
             }
             else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
-                printErrAndExit(ERROR_TYPE_SEM, "Function should return '%s', but return '%s'!", getTypeString(node->data.type), getTypeString(expressionTree->datatype));
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function should return '%s', but return '%s'!", Token.line, getTypeString(node->data.type), getTypeString(expressionTree->datatype));
             }
 
             ast_stmt* returnStmt = make_returnStmt(expressionTree);
@@ -943,12 +943,12 @@ void statement() {
 
     if (Token.lexem != EOL_ENUM) {
         if(isExpression) {
-            printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: 'End-Of-Line' was expected", Token.line);
         }
 
         Token = getNextToken();
 
-        eol(Token.lexem);
+        eol(Token);
 
     } else {
         //Resetting token
@@ -996,7 +996,7 @@ void printNext() {
 	}
 
     if (Token.lexem != SEMICOLON) {
-        printErrAndExit(ERROR_SYNTAX, "';' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: ';' was expected", Token.line);
     }
 
     printNext();
@@ -1023,7 +1023,7 @@ void ifNext(int* pushCounter) {
         PreviousToken.lexem = -1;
         Token = getNextToken();
 
-        eol(Token.lexem);
+        eol(Token);
 
         stmtArray ifBlock;
         stmtArrayInit(&ifBlock);
@@ -1071,14 +1071,14 @@ void elseIf(int* pushCounter) {
     stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, ifStmt);
 
     if (Token.lexem != THEN) {
-        printErrAndExit(ERROR_SYNTAX, "'Then' was expected");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'Then' was expected", Token.line);
     }
 
     PreviousToken.lexem = -1;
 
     Token = getNextToken();
 
-    eol(Token.lexem);
+    eol(Token);
 
     statement();
 
@@ -1095,9 +1095,9 @@ void elseIf(int* pushCounter) {
 /**
  * @copydoc end
  */
-void end(int lexem) {
-    if (lexem != END) {
-        printErrAndExit(ERROR_SYNTAX, "'End' was expected");
+void end(token Token) {
+    if (Token.lexem != END) {
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'End' was expected", Token.line);
     }
 }
 
@@ -1105,9 +1105,9 @@ void end(int lexem) {
 /**
  * @copydoc eol
  */
-void eol(int lexem) {
-    if (lexem != EOL_ENUM) {
-        printErrAndExit(ERROR_SYNTAX, "'End-Of-Line' was expected");
+void eol(token Token) {
+    if (Token.lexem != EOL_ENUM) {
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'End-Of-Line' was expected", Token.line);
     }
 }
 
@@ -1121,7 +1121,7 @@ void assignment(bool isDeclaration, char *name) {
 
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
         if(!isDeclaration) {
-            printErrAndExit(ERROR_SYNTAX, "'Identifier' cannot stand alone");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: 'Identifier' cannot stand alone", Token.line);
         }
 
         PreviousToken = Token;
@@ -1129,7 +1129,7 @@ void assignment(bool isDeclaration, char *name) {
     }
 
     if (unaryOperation(Token) && isDeclaration) {
-        printErrAndExit(ERROR_SYNTAX, "Cannot do unary operation in declaration statement");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot do unary operation in declaration statement", Token.line);
     }
 
 
@@ -1137,7 +1137,7 @@ void assignment(bool isDeclaration, char *name) {
 
     if (Token.lexem == EOL_ENUM) {
         //TODO - is this syntax or semantics??
-        printErrAndExit(ERROR_SYNTAX, "Assignment withnout expression");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: Assignment withnout expression", Token.line);
     }
 
     if(Token.lexem == ID) {
@@ -1156,7 +1156,7 @@ void assignment(bool isDeclaration, char *name) {
                 ptr = btGetVariable(ptr, Token.value.str);
 
                 if (ptr == NULL) {
-                    printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Undefined %s", Token.line, Token.value.str);
                 }
 
             } else {
@@ -1169,7 +1169,7 @@ void assignment(bool isDeclaration, char *name) {
                     funcName = Token.value;
 
                 } else {
-                    printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Undefined %s", Token.line, Token.value.str);
                 }
             }
 
@@ -1183,7 +1183,7 @@ void assignment(bool isDeclaration, char *name) {
         if (function) {
 			if(!builtIn) {
                 if(!ptr->data.declared && !ptr->data.defined) {
-                    printErrAndExit(ERROR_PROG_SEM, "Try to call undeclared function '%s'!", ptr->data.name);
+                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Try to call undeclared function '%s'!", Token.line, ptr->data.name);
                 }
 			}
 
@@ -1191,7 +1191,7 @@ void assignment(bool isDeclaration, char *name) {
 
             if (Token.lexem != BRACKET_LEFT) {
                 //TODO - is this syntax or semantics??
-                printErrAndExit(ERROR_SYNTAX, "Try to call function without params. '(' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: Try to call function without params. '(' was expected", Token.line);
             }
 
             ast_stmt* varAssignFunction;
@@ -1221,22 +1221,22 @@ void assignment(bool isDeclaration, char *name) {
                 }
                 if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
                     if(builtinFunctions[en].returnType == (datatype)exp_string) {
-                        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
+                        printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
                     }
                 }
                 else if(node->data.type == (datatype)exp_string && builtinFunctions[en].returnType != (datatype)exp_string) {
-                    printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
+                    printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(builtinFunctions[en].returnType), getTypeString(node->data.type));
                 }
                 varAssignFunction = make_varAssignBuiltinFunctionStmt(node, en, NULL);
             }
             else {
                 if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
                     if(ptr->data.type == (datatype)exp_string) {
-                        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(ptr->data.type), getTypeString(node->data.type));
+                        printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(ptr->data.type), getTypeString(node->data.type));
                     }
                 }
                 else if(node->data.type == (datatype)exp_string && ptr->data.type != (datatype)exp_string) {
-                    printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(ptr->data.type), getTypeString(node->data.type));
+                    printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(ptr->data.type), getTypeString(node->data.type));
                 }
                 varAssignFunction = make_varAssignFunctionStmt(node, ptr, NULL);
             }
@@ -1253,14 +1253,14 @@ void assignment(bool isDeclaration, char *name) {
                 stackTop(&stmtStack, &item);
                 builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
                 if(paramNumber != fc.argsNum && fc.argsNum != 0) {
-                    printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
+                    printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and less were given!", Token.line, fc.name, fc.argsNum);
                 }
             }
             else {
                 stackTop(&stmtStack, &item);
                 BinaryTreePtr fc = item.stmt->op.var_assign_function_stmt.function;
                 if(paramNumber != fc->data.paramNumber && fc->data.paramNumber != 0) {
-                    printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
+                    printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and less were given!", Token.line, fc->data.name, fc->data.paramNumber);
                 }
             }
 
@@ -1288,7 +1288,7 @@ void assignment(bool isDeclaration, char *name) {
 
             if (Token.lexem != BRACKET_RIGHT) {
                 //TODO - is this syntax or semantics??
-                printErrAndExit(ERROR_SYNTAX, "Try to call function. ')' was expected");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: Try to call function. ')' was expected", Token.line);
             }
 
             return;
@@ -1310,11 +1310,11 @@ void assignment(bool isDeclaration, char *name) {
 
 	if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
         if(expressionTree->datatype == exp_string) {
-            printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(expressionTree->datatype), getTypeString(node->data.type));
         }
 	}
     else if(node->data.type == (datatype)exp_string && expressionTree->datatype != exp_string) {
-        printErrAndExit(ERROR_TYPE_SEM, "Can't assign '%s' to '%s'!", getTypeString(expressionTree->datatype), getTypeString(node->data.type));
+        printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(expressionTree->datatype), getTypeString(node->data.type));
     }
 
 	node->data.defined = true;
@@ -1405,18 +1405,18 @@ void params(bool builtIn, int *paramNumber) {
         stackTop(&stmtStack, &item);
         builtinFunction fc = builtinFunctions[item.stmt->op.var_assign_builtin_function_stmt.function];
         if(expressionTree == NULL && currentArgumentNum != fc.argsNum) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc.name, fc.argsNum);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and less were given!", PreviousToken.line, fc.name, fc.argsNum);
         }
         else if(currentArgumentNum >= fc.argsNum) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", fc.name, fc.argsNum);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and more were given!", PreviousToken.line, fc.name, fc.argsNum);
         }
         else if(fc.types[currentArgumentNum] == (datatype)exp_integer || fc.types[currentArgumentNum] == (datatype)exp_decimal) {
             if(expressionTree->datatype == exp_string) {
-                printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc.name, currentArgumentNum + 1);
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: In function '%s' %d. parameter has bad datatype!", PreviousToken.line, fc.name, currentArgumentNum + 1);
             }
         }
         else if(fc.types[currentArgumentNum] == (datatype)exp_string && expressionTree->datatype != exp_string) {
-            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc.name, currentArgumentNum + 1);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: In function '%s' %d. parameter has bad datatype!", PreviousToken.line, fc.name, currentArgumentNum + 1);
         }
     }
     else {
@@ -1427,18 +1427,18 @@ void params(bool builtIn, int *paramNumber) {
             paramsNext(builtIn, paramNumber);
         }
         else if(expressionTree == NULL && currentArgumentNum != fc->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and less were given!", fc->data.name, fc->data.paramNumber);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and less were given!", PreviousToken.line, fc->data.name, fc->data.paramNumber);
         }
         else if(currentArgumentNum >= fc->data.paramNumber) {
-            printErrAndExit(ERROR_TYPE_SEM, "Function '%s' expected %d parameters and more were given!", fc->data.name, fc->data.paramNumber);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: Function '%s' expected %d parameters and more were given!", PreviousToken.line, fc->data.name, fc->data.paramNumber);
         }
         else if(fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_integer || fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_decimal) {
             if(expressionTree->datatype == exp_string) {
-                printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc->data.name, currentArgumentNum + 1);
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: In function '%s' %d. parameter has bad datatype!", PreviousToken.line, fc->data.name, currentArgumentNum + 1);
             }
         }
         else if(fc->data.typeOfParams[currentArgumentNum] == (datatype)exp_string && expressionTree->datatype != exp_string) {
-            printErrAndExit(ERROR_TYPE_SEM, "In function '%s' %d. parameter has bad datatype!", fc->data.name, currentArgumentNum + 1);
+            printErrAndExit(ERROR_TYPE_SEM, "On line %d: In function '%s' %d. parameter has bad datatype!", PreviousToken.line, fc->data.name, currentArgumentNum + 1);
         }
     }
 
@@ -1478,7 +1478,7 @@ void mainBody() {
     mainBodyIt();
 
     token Token = getNextToken();
-    eol(Token.lexem);
+    eol(Token);
 
 	addStmtToArray(&globalStmtArray, make_scopeStmt());
 
@@ -1486,7 +1486,7 @@ void mainBody() {
 
     Token = PreviousToken;
 
-    end(Token.lexem);
+    end(Token);
 
     mainBodyIt();
 
@@ -1497,7 +1497,7 @@ void mainBody() {
     }
 
     if (Token.lexem != EOF) {
-        printErrAndExit(ERROR_SYNTAX, "'Scope' block should be last");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: 'Scope' block should be last", Token.line);
     }
 }
 
@@ -1512,7 +1512,7 @@ void mainBodyIt() {
         Token = getNextToken();
 
         if (Token.lexem != SCOPE) {
-            printErrAndExit(ERROR_SYNTAX, "'Scope' was expected");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: 'Scope' was expected", Token.line);
         }
 
     } else {
@@ -1522,5 +1522,5 @@ void mainBodyIt() {
 
     //Token = getNextToken();
 
-    //eol(Token.lexem);
+    //eol(Token);
 }
