@@ -86,9 +86,9 @@ void saveFunctionName(string name);
  * Checks if given lexem is equal to 'ID'.
  * If not, calls printErrAndExit() function.
  *
- * @param lexem
+ * @param Token
  */
-void IdToken(int lexem);
+void IdToken(token Token);
 
 
 /**
@@ -251,9 +251,9 @@ void printNext();
  * Checks if given lexem is equal to 'END'.
  * If not, calls printErrAndExit() function.
  *
- * @param lexem
+ * @param Token
  */
-void end(int lexem);
+void end(token Token);
 
 
 /**
@@ -262,7 +262,7 @@ void end(int lexem);
  *
  * @param lexem
  */
-void eol(int lexem);
+void eol(token Token);
 
 
 /**
