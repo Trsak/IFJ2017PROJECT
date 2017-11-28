@@ -25,6 +25,9 @@ int currentLabel;
 /** Name of current frame */
 char *frame;
 
+/** Current function */
+BinaryTreePtr currentFunction;
+
 /**
  * @return void
  *

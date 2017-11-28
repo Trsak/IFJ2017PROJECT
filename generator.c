@@ -19,6 +19,7 @@ void startGenerating() {
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
+    currentFunction = NULL;
     inScope = false;
 
     frame = (char *) gcmalloc(3 * sizeof(char));
@@ -147,13 +148,15 @@ void generateBuiltInFunctions() {
 
     printf("STRLEN %s@%%retval %s@%%BAs\n", getVarFrame(), getVarFrame());
     char *hReg1 = getHelpRegister();
+    char *hReg2 = getHelpRegister();
     printf("DEFVAR %s@%s\n", frame, hReg1);
+    printf("DEFVAR %s@%s\n", frame, hReg2);
     printf("GT %s@%s %s@%%BAi %s@%%retval\n", frame, hReg1, getVarFrame(), getVarFrame());
+    printf("LT %s@%s %s@%%BAi int@1\n", frame, hReg2, getVarFrame());
 
     char *ascLabel = getNewLabel();
-    printf("JUMPIFNEQ %s %s@%s bool@true\n", ascLabel, frame, hReg1);
-    printf("MOVE %s@%%retval int@0\n", getVarFrame());
-    printf("JUMP %sE\n", ascLabel);
+    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg1);
+    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg2);
 
     printf("LABEL %s\n", ascLabel);
     printf("SUB %s@%%BAi %s@%%BAi int@1\n", getVarFrame(), getVarFrame());
@@ -163,6 +166,11 @@ void generateBuiltInFunctions() {
 
     printf("POPFRAME\n");
     printf("RETURN\n");
+
+    printf("LABEL %sF\n", ascLabel);
+    printf("MOVE %s@%%retval int@0\n", getVarFrame());
+    printf("JUMP %sE\n", ascLabel);
+
     strcpy(frame, "LF");
 }
 
@@ -210,6 +218,7 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
  * @copydoc generateFunction
  */
 void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block) {
+    currentFunction = function;
     printf("LABEL %%FL%s\n", function->data.name);
     printf("PUSHFRAME\n");
     strcpy(frame, "LF");
@@ -249,6 +258,11 @@ void generateReturn(ast_exp *expression) {
     int reg = currentRegister;
     generateExp(expression);
     printf("MOVE LF@%%retval %s@%%R%d\n", frame, reg);
+
+    char *argS = (char *) gcmalloc(20 * sizeof(char));
+    sprintf(argS, "LF@%%retval");
+    generateArgumentsConversion(argS, expression->datatype, currentFunction->data.type);
+
     printf("POPFRAME\n");
     printf("RETURN\n");
 }
@@ -265,11 +279,11 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     while (args != NULL) {
         int reg = currentRegister;
         generateExp(args->argument);
-        printf("DEFVAR TF@%%arg%d\n", arg);
-        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-
         sprintf(argS, "%s@%%R%d", frame, reg);
         generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[0]);
+
+        printf("DEFVAR TF@%%arg%d\n", arg);
+        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
 
         args = args->next;
         ++arg;
