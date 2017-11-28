@@ -339,6 +339,8 @@ void functionHeader(bool isDeclared, bool isDefined) {
     if(node != NULL) {
         params = node->data.treeOfFunction;
         typeOfParams = node->data.typeOfParams;
+        //printf("def\n");
+        //printf("%s\n", node->data.name);
         declareParams(node, &params, &typeOfParams, &paramNumber);
 
         if(paramNumber != node->data.paramNumber) {
@@ -346,6 +348,7 @@ void functionHeader(bool isDeclared, bool isDefined) {
         }
     }
     else {
+        //printf("decl\n");
         declareParams(NULL, &params, &typeOfParams, &paramNumber);
     }
 
@@ -362,6 +365,12 @@ void functionHeader(bool isDeclared, bool isDefined) {
 
     eol(Token.lexem);
 
+    node = btGetVariable(symtable, name);
+    if(node != NULL) {
+        if(type != node->data.type) {
+            printErrAndExit(ERROR_PROG_SEM, "Declaration of function '%s' has different datatype than it's definition!", node->data.name);
+        }
+    }
 
     //Creates new node of function in symtable
     createNode(&symtable, name, type, isDeclared, isDefined, true, &params, typeOfParams, paramNumber);
@@ -466,34 +475,22 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
 
 	if(node != NULL) {
 		if(currentArgumentNum >= node->data.paramNumber) {
-			printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
-		}
+            printErrAndExit(ERROR_PROG_SEM, "Function '%s' expected %d parameters and more were given!", node->data.name, node->data.paramNumber);
+        }/*
         else if(!btGetVariable(node->data.treeOfFunction, name)) {
 			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has unexpected identifier '%s'!", node->data.name, currentArgumentNum+1, name);
-		}
-        else if(type != node->data.typeOfParams[currentArgumentNum]) {
-			printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
-		}
-
-		/** Add argument to function statement on top of stack */
-		stackTop(&stmtStack, &item);
-		addArgumentToArray(&item.stmt->op.function_definition_stmt.args, make_variableExp(btGetVariable(node->data.treeOfFunction, name)));
-
-		/*
-		stackItem it;
-		stackTop(&stmtStack, &it);
-		printf("function: %s\n", it.stmt->op.function_definition_stmt.function->data.name);
-		if(item.stmt->op.function_definition_stmt.args == NULL) {
-			printf("nefunguje\n");
-		}
-		else {
-			functionArgs *arg = item.stmt->op.function_definition_stmt.args;
-			while (arg != NULL) {
-				printf("--arg: %s\n", arg->argument->op.variableExp->data.name);
-				arg = arg->next;
-			}
 		}*/
-	}
+        else if(type != node->data.typeOfParams[currentArgumentNum]) {
+            printErrAndExit(ERROR_PROG_SEM, "In function '%s' %d. parameter has bad datatype!", node->data.name, currentArgumentNum+1);
+		}
+
+        createParamsNode(params, name, node->data.typeOfParams[currentArgumentNum]);
+
+        /** Add argument to function statement on top of stack */
+        //printf("tady\n");
+        stackTop(&stmtStack, &item);
+        addArgumentToArray(&item.stmt->op.function_definition_stmt.args, make_variableExp(btGetVariable(*params, name)));
+    }
     else {
         if(*typeOfParams == NULL) {
             *typeOfParams = gcmalloc(sizeof(datatype));
