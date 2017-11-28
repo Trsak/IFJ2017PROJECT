@@ -69,7 +69,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 run_tests:
 	@$(BLUE)
 	@echo "[ Preparing tests ]"
-	@sh ./test/tests_runner.sh
+	@sh ./tests/tests_runner.sh
 	@$(RESET)
 
 .PHONY: clean_tests

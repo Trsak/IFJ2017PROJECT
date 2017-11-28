@@ -12,8 +12,8 @@ white=`tput setaf 7`
 underline=`tput sgr 0 1`
 reset=`tput sgr0`
 
-tests=`find ./test/tests/* -maxdepth 1 -type d`
-tests_number=`find ./test/tests/* -maxdepth 1 -type d | wc -l`
+tests=`find ./tests/tests/* -maxdepth 1 -type d`
+tests_number=`find ./tests/tests/* -maxdepth 1 -type d | wc -l`
 n=1
 
 tests_total=0
@@ -27,7 +27,7 @@ do
         dir="$n"
     fi
 
-    tests_dir=`find ./test/ -type d -name "$dir-*"`
+    tests_dir=`find ./tests/ -type d -name "$dir-*"`
 
     info=`cat $tests_dir/tests.info`
     printf "${cyan}---------------------------------$reset\n"
@@ -54,13 +54,13 @@ do
                 errors_total=$(( errors_total+1 ))
             elif [ "$exitcode" -eq "0" ]; then
                 if [ "$next" -eq 3 ]; then
-                    chmod +x ./test/ic17int
-                    stdout_expected=`cat ./test/ifj17.bas $tests_dir/$test_id.ifj > tmp.bas; fbc -w 1000 tmp.bas; ./tmp < $tests_dir/$test_id.stdin`
+                    chmod +x ./tests/ic17int
+                    stdout_expected=`cat ./tests/ifj17.bas $tests_dir/$test_id.ifj > tmp.bas; fbc -w 1000 tmp.bas; ./tmp < $tests_dir/$test_id.stdin`
                 else
                     stdout_expected=`cat $tests_dir/$test_id.stdout`
                 fi
 
-                stdout=`./test/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
+                stdout=`./tests/ic17int temp.code < $tests_dir/$test_id.stdin 2>&1`
 
                 if [ "$stdout" != "$stdout_expected" ]; then
                     printf "$red- ERROR [$test_id]:\n-- Expected stdout:\n$reset$stdout_expected $red\n-- Obtained: $reset\n$stdout$reset\n"
