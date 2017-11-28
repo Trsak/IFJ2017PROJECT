@@ -244,7 +244,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 	precedStack symbol = getPositionInTable(Token.lexem);
     if (isOperator(symbol) && (symbol != PREC_MINUS && symbol != PREC_PLUS)) {
-        printErrAndExit(ERROR_SYNTAX, "Expression cannot start with operator except + or -", Token.value.str);
+        printErrAndExit(ERROR_SYNTAX, "Expression cannot start with operator except + or -");
     }
 
 
