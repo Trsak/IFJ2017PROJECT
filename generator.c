@@ -280,7 +280,8 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
         int reg = currentRegister;
         generateExp(args->argument);
         sprintf(argS, "%s@%%R%d", frame, reg);
-        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[0]);
+
+        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[arg]);
 
         printf("DEFVAR TF@%%arg%d\n", arg);
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
