@@ -260,13 +260,18 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     printf("CREATEFRAME\n");
 
     int arg = 0;
+    char *argS = (char *) gcmalloc(20 * sizeof(char));
 
     while (args != NULL) {
         int reg = currentRegister;
         generateExp(args->argument);
         printf("DEFVAR TF@%%arg%d\n", arg);
-        args = args->next;
         printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
+
+        sprintf(argS, "%s@%%R%d", frame, reg);
+        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[0]);
+
+        args = args->next;
         ++arg;
     }
 
@@ -288,6 +293,11 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
         case Chr: {
             int reg = currentRegister;
             generateExp(args->argument);
+
+            char *arg = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(arg, "%s@%%R%d", frame, reg);
+            generateArgumentsConversion(arg, args->argument->datatype, TYPE_NUMBER);
+
             printf("INT2CHAR %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
             break;
         }
@@ -302,6 +312,10 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
             printf("DEFVAR %s@%%BAi\n", frame);
             printf("MOVE %s@%%BAs %s@%%R%d\n", frame, frame, s);
             printf("MOVE %s@%%BAi %s@%%R%d\n", frame, frame, i);
+
+            char *argI = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(argI, "%s@%%BAi", frame);
+            generateArgumentsConversion(argI, args->next->argument->datatype, TYPE_NUMBER);
 
             printf("CALL %%BLA\n");
             printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
@@ -322,6 +336,14 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
             printf("MOVE %s@%%BAs %s@%%R%d\n", frame, frame, s);
             printf("MOVE %s@%%BAi %s@%%R%d\n", frame, frame, i);
             printf("MOVE %s@%%BAn %s@%%R%d\n", frame, frame, n);
+
+            char *argI = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(argI, "%s@%%BAi", frame);
+            generateArgumentsConversion(argI, args->next->argument->datatype, TYPE_NUMBER);
+
+            char *argN = (char *) gcmalloc(20 * sizeof(char));
+            sprintf(argN, "%s@%%BAn", frame);
+            generateArgumentsConversion(argN, args->next->next->argument->datatype, TYPE_NUMBER);
 
             printf("CALL %%BLS\n");
             printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
@@ -641,6 +663,18 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr, d
         printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %s\n", conversionLabel);
+    }
+}
+
+/**
+ * @copydoc generateArgumentsConversion
+ */
+void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
+    if (argType == TYPE_DECIMAL && destType == TYPE_NUMBER) {
+        printf("FLOAT2R2EINT %s %s\n", arg, arg);
+    }
+    else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
+        printf("INT2FLOAT %s %s\n", arg, arg);
     }
 }
 
