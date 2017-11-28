@@ -148,13 +148,15 @@ void generateBuiltInFunctions() {
 
     printf("STRLEN %s@%%retval %s@%%BAs\n", getVarFrame(), getVarFrame());
     char *hReg1 = getHelpRegister();
+    char *hReg2 = getHelpRegister();
     printf("DEFVAR %s@%s\n", frame, hReg1);
+    printf("DEFVAR %s@%s\n", frame, hReg2);
     printf("GT %s@%s %s@%%BAi %s@%%retval\n", frame, hReg1, getVarFrame(), getVarFrame());
+    printf("LT %s@%s %s@%%BAi int@1\n", frame, hReg2, getVarFrame());
 
     char *ascLabel = getNewLabel();
-    printf("JUMPIFNEQ %s %s@%s bool@true\n", ascLabel, frame, hReg1);
-    printf("MOVE %s@%%retval int@0\n", getVarFrame());
-    printf("JUMP %sE\n", ascLabel);
+    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg1);
+    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg2);
 
     printf("LABEL %s\n", ascLabel);
     printf("SUB %s@%%BAi %s@%%BAi int@1\n", getVarFrame(), getVarFrame());
@@ -164,6 +166,11 @@ void generateBuiltInFunctions() {
 
     printf("POPFRAME\n");
     printf("RETURN\n");
+
+    printf("LABEL %sF\n", ascLabel);
+    printf("MOVE %s@%%retval int@0\n", getVarFrame());
+    printf("JUMP %sE\n", ascLabel);
+
     strcpy(frame, "LF");
 }
 
