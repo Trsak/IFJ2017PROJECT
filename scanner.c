@@ -425,7 +425,7 @@ token getNextToken() {
 
                             char third = getchar();
                             if (third >= '0' && third <= '9') {
-                                if ((next == '2' && second == '5' && third > '5') || (next == '0' && second == '0' && third == '1')) {
+                                if ((next == '2' && second == '5' && third > '5') || (next == '0' && second == '0' && third == '0')) {
                                     printErrAndExit(ERROR_SCANNER, "on line: %d - Given escape character is out of range",
                                                     T.line);
                                 }
