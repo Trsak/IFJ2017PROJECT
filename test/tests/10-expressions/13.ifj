@@ -1,0 +1,16 @@
+'Check if after relational operators can be + or -
+
+scope
+
+    dim a as integer = 5
+
+    if a < -50 then
+        print !"No";      'Shouldn't happen
+    elseif a > -600 then
+        print !"Yes";
+    elseif a > +2 then
+        print !"Oh yes";
+    end if
+
+
+end scope

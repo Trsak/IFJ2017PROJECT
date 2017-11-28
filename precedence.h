@@ -31,5 +31,22 @@ int getPositionInTable(int lexem);
  */
 void parseExpression(token *PreviousToken, ast_exp** expressionTree);
 
+
+/**
+ * Returns true if given symbol is relational operator, otherwise false
+ * @param symbol
+ * @return
+ */
+bool isRelationalOperator(precedStack symbol);
+
+
+/**
+ * Returns true if given symbol is operator, otherwise false
+ * @param symbol
+ * @return
+ */
+bool isOperator(precedStack symbol);
+
+
 #endif
 

@@ -90,6 +90,18 @@ bool isOperator(precedStack symbol) {
 }
 
 
+/**
+ * @copydoc isRelationalOperator
+ */
+bool isRelationalOperator(precedStack symbol) {
+	if (symbol == PREC_GREATER || symbol == PREC_GREATER_EQUAL || symbol == PREC_LESS ||
+		symbol == PREC_LESS_EQUAL || symbol == PREC_NOT_EQUAL || symbol == PREC_ASSIGNMENT)
+		return true;
+
+	return false;
+}
+
+
 char *getOperator(precedStack symbol) {
 	switch (symbol) {
 		case PREC_DIVISION:
@@ -231,8 +243,8 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
 	precedStack symbol = getPositionInTable(Token.lexem);
-    if (isOperator(getPositionInTable(Token.lexem)) && (symbol != PREC_MINUS && symbol != PREC_PLUS)) {
-        printErrAndExit(ERROR_OTHER_SEM, "After '=' cannot follow any operation symbol");
+    if (isOperator(symbol) && (symbol != PREC_MINUS && symbol != PREC_PLUS)) {
+        printErrAndExit(ERROR_SYNTAX, "Expression cannot start with operator except + or -");
     }
 
 
@@ -252,7 +264,10 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         //if more operators are next to each other, then error
         stackTop(&stack, &item);
         if (isOperator(item.symbol) && isOperator(PrecTabCol)) {
-            printErrAndExit(ERROR_SYNTAX, "Wrong expression");
+
+			if (!isRelationalOperator(item.symbol) && PrecTabCol != PREC_PLUS && PrecTabCol != PREC_MINUS) {
+				printErrAndExit(ERROR_SYNTAX, "Wrong expression");
+			}
         }
 
 
@@ -298,12 +313,12 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
 					if ((PrecTabCol == PREC_MINUS || PrecTabCol == PREC_PLUS) &&
-							(item.symbol == PREC_BRACKET_LEFT || item.symbol == PREC_DOLLAR)) {
+							(item.symbol == PREC_BRACKET_LEFT || item.symbol == PREC_DOLLAR || isRelationalOperator(item.symbol))) {
 
 						token ZeroToken;
 
 						if (tokenInit(&ZeroToken) == ERROR_INTERNAL) {
-							printErrAndExit(ERROR_INTERNAL, "There is a memory error while allocating token structure.");
+							printErrAndExit(ERROR_INTERNAL, "There was a memory error while allocating token structure.");
 						}
 
 						ZeroToken.lexem = INTEGER;
@@ -339,10 +354,11 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 //TODO - for example C(integer)  = A (string) + B (integer)
 
                 stackTop(&stack, &item);
-/*
-				if(isOperator(item.symbol)) {
-					printf("%s\n", getOperator(item.symbol));
-				}*/
+
+				if(isOperator(item.symbol) && PrecTabCol == PREC_DOLLAR) {
+					printErrAndExit(ERROR_SYNTAX, "Expression ended with operator");
+				}
+
 
 				string oper;
 
