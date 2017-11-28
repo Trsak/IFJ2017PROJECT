@@ -613,7 +613,9 @@ void statement() {
 					printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", name);
 				}
 			}
-
+            
+            //resetting Prev. token
+            PreviousToken.lexem = -1;
             assignment(false, name);
 
             break;
@@ -1180,8 +1182,8 @@ void assignment(bool isDeclaration, char *name) {
         //if this one is a function, then brackets are expected
         if (function) {
 			if(!builtIn) {
-                if(!ptr->data.defined) {
-                    printErrAndExit(ERROR_PROG_SEM, "Try to call undefined function '%s'!", ptr->data.name);
+                if(!ptr->data.declared && !ptr->data.defined) {
+                    printErrAndExit(ERROR_PROG_SEM, "Try to call undeclared function '%s'!", ptr->data.name);
                 }
 			}
 
