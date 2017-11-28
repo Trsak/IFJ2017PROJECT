@@ -77,6 +77,30 @@ void generateExp(ast_exp *expression);
 
 /**
  * @return void
+ * @param operand1 First operand
+ * @param operand2 Second operand
+ * @param operatorStr Operator string
+ * @param operand1Type First datatype
+ * @param operand2Type Second datatype
+ *
+ * Generates expressions
+ */
+void generateOperation(char *destination, char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type);
+
+/**
+ * @return void
+ * @param operatorStr Operator string
+ * @param operand1 First operand
+ * @param operand2 Second operand
+ * @param operand1Type First datatype
+ * @param operand2Type Second datatype
+ *
+ * Generates expressions
+ */
+void generateDataConversion(char *operand1, char *operand2, char *operatorStr, datatype operand1Type, datatype operand2Type);
+
+/**
+ * @return void
  * @param function Function to generate
  * @param args Function arguments
  * @param block Block of code inside functions
@@ -170,6 +194,14 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
  * Creates new register
  */
 char *getRegister();
+
+/**
+ * @return void
+ * @param id Register ID
+ *
+ * Returns register with given ID
+ */
+char *getRegisterByID(int id);
 
 /**
  * @return void
