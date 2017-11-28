@@ -360,6 +360,16 @@ token getNextToken() {
                     strAddChar(&T.value, c);
                     c = getchar();
                     if (isdigit(c) || c == '+' || c == '-') {
+                        if (c == '+' || c == '-') {
+                            char next = getchar();
+                            if (!isdigit(next)) {
+                                printErrAndExit(ERROR_SCANNER,
+                                                "on line: %d - Wrong exponent sequence was given.",
+                                                T.line);
+                            }
+                            ungetc(next, stdin);
+                        }
+
                         strAddChar(&T.value, c);
                     } else {
                         printErrAndExit(ERROR_SCANNER,
