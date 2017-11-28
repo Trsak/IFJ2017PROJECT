@@ -1149,23 +1149,16 @@ void assignment(bool isDeclaration, char *name) {
         BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str); //Find this identifier in symtable
 
 
-        //if(inFunction) {
-        //    ptr = btGetVariable(symtable, functionName)->data.treeOfFunction;
-        //    ptr = btGetVariable(ptr, Token.value.str);
-        //}
-        //else {
-        //    ptr = btGetVariable(symtable, Token.value.str);
-        //}
-
-        //BinaryTreePtr ptr = btGetVariable(symtable, Token.value.str);
-
-
         if(ptr == NULL) {
             //check if called function isn't built in function
 
             if (inFunction) {
                 ptr = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 ptr = btGetVariable(ptr, Token.value.str);
+
+                if (ptr == NULL) {
+                    printErrAndExit(ERROR_PROG_SEM, "Undefined %s", Token.value.str);
+                }
 
             } else {
 
