@@ -1,0 +1,10 @@
+'implicit conversions in functions calling
+
+scope
+    dim res as double
+
+    res = asc(!"Hello World", 3)
+
+    print res;
+
+end scope

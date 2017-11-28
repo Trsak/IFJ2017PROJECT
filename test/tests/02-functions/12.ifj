@@ -1,0 +1,18 @@
+'implicit conversions in functions calling
+
+declare function funct(a as integer, b as integer, c as integer) as double
+
+function funct(a as integer, b as integer, c as integer) as double
+    return a * b / c
+end function
+
+scope
+    dim res as integer
+    dim double_number1 as double = 23.2584557
+    dim double_number2 as double = 3.141592
+    dim double_number3 as double = 42.0
+
+    res = funct(double_number1, double_number2, double_number3)
+
+    print res;
+end scope
