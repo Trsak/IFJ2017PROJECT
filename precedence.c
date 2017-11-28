@@ -131,23 +131,23 @@ char *getOperator(precedStack symbol) {
 	}
 }
 
-datatype getDatatype(datatype left, datatype right, string oper) {
+datatype getDatatype(datatype left, datatype right, string oper, token Token) {
 	if(left == (datatype)exp_string) {
 		if(!strcmp(oper.str, "-") || !strcmp(oper.str, "*") || !strcmp(oper.str, "/") || !strcmp(oper.str, "\\")) {
-			printErrAndExit(ERROR_TYPE_SEM, "Can't do operation '%s' with string literal!", oper.str);
+			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't do operation '%s' with string literal!", Token.line, oper.str);
 		}
 		if(right != (datatype)exp_string) {
-			printErrAndExit(ERROR_TYPE_SEM, "Expression must be string!");
+			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Expression must be string!", Token.line);
 		}
 		return exp_string;
 	}
 	else if(left == (datatype)exp_integer) {
 		if(right == (datatype)exp_string) {
-			printErrAndExit(ERROR_TYPE_SEM, "Integer and string can't be in one expression!", oper.str);
+			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Integer and string can't be in one expression!", Token.line, oper.str);
 		}
 		if(!strcmp(oper.str, "\\")) {
 			if(right != (datatype)exp_integer) {
-				printErrAndExit(ERROR_TYPE_SEM, "In integer division both operands must be integers!");
+				printErrAndExit(ERROR_TYPE_SEM, "On line %d: In integer division both operands must be integers!", Token.line);
 			}
 			return exp_integer;
 		}
@@ -160,10 +160,10 @@ datatype getDatatype(datatype left, datatype right, string oper) {
 	}
 	else if(left == (datatype)exp_decimal) {
 		if(!strcmp(oper.str, "\\")) {
-			printErrAndExit(ERROR_TYPE_SEM, "In integer division both operands must be integers!");
+			printErrAndExit(ERROR_TYPE_SEM, "On line %d: In integer division both operands must be integers!", Token.line);
 		}
 		if(right == (datatype)exp_string) {
-			printErrAndExit(ERROR_TYPE_SEM, "Double and string can't be in one expression!", oper.str);
+			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Double and string can't be in one expression!", Token.line, oper.str);
 		}
 		return exp_decimal;
 	}
@@ -180,42 +180,42 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         Token = getNextToken();
 
         if (Token.lexem == BRACKET_RIGHT) {
-            printErrAndExit(ERROR_SYNTAX, "Expression was expected after ','");
+            printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected after ','", Token.line);
         }
 
     } else if ((*PreviousToken).lexem == PRINT || (*PreviousToken).lexem == SEMICOLON) {
 		Token = getNextToken();
 
 		if (Token.lexem == SEMICOLON || Token.lexem == EOL_ENUM) {
-			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'print' statement");
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected in 'print' statement", Token.line);
 		}
 
 	} else if ((*PreviousToken).lexem == WHILE) {
 		Token = getNextToken();
 
 		if (Token.lexem == EOL_ENUM) {
-			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'while' statement");
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected in 'while' statement", Token.line);
 		}
 
 	} else if ((*PreviousToken).lexem == IF) {
 		Token = getNextToken();
 
 		if (Token.lexem == THEN) {
-			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'if' statement");
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected in 'if' statement", Token.line);
 		}
 
 	} else if ((*PreviousToken).lexem == ELSEIF) {
 		Token = getNextToken();
 
 		if (Token.lexem == THEN) {
-			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'elseif' statement");
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected in 'elseif' statement", Token.line);
 		}
 
 	} else if ((*PreviousToken).lexem == RETURN) {
 		Token = getNextToken();
 
 		if (Token.lexem == EOL_ENUM) {
-			printErrAndExit(ERROR_SYNTAX, "Expression was expected in 'return' statement");
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Expression was expected in 'return' statement", Token.line);
 		}
 
 	} else if (Token.lexem == -1) {
@@ -244,7 +244,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 	precedStack symbol = getPositionInTable(Token.lexem);
     if (isOperator(symbol) && (symbol != PREC_MINUS && symbol != PREC_PLUS)) {
-        printErrAndExit(ERROR_SYNTAX, "Expression cannot start with operator except + or -");
+        printErrAndExit(ERROR_SYNTAX, "On line %d: Expression cannot start with operator except + or -", Token.line);
     }
 
 
@@ -266,7 +266,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         if (isOperator(item.symbol) && isOperator(PrecTabCol)) {
 
 			if (!isRelationalOperator(item.symbol) && PrecTabCol != PREC_PLUS && PrecTabCol != PREC_MINUS) {
-				printErrAndExit(ERROR_SYNTAX, "Wrong expression");
+				printErrAndExit(ERROR_SYNTAX, "On line %d: Wrong expression", Token.line);
 			}
         }
 
@@ -278,7 +278,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 				stackTop(&stack, &item);
 
 				if (item.symbol == PREC_BRACKET_LEFT) {
-					printErrAndExit(ERROR_SYNTAX, "Expression in brackets cannot be empty");
+					printErrAndExit(ERROR_SYNTAX, "On line %d: Expression in brackets cannot be empty", Token.line);
 				}
 
                 stackPush(&stack, NULL, NULL, NULL, PREC_BRACKET_RIGHT, NULL);
@@ -308,7 +308,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
                     if (item.symbol == PREC_BRACKET_LEFT && isOperator(PrecTabCol) &&
 							(PrecTabCol != PREC_MINUS && PrecTabCol != PREC_PLUS)) {
-                        printErrAndExit(ERROR_SYNTAX, "Cannot put operator after '('");
+                        printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot put operator after '('", Token.line);
                     }
 
 
@@ -318,7 +318,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 						token ZeroToken;
 
 						if (tokenInit(&ZeroToken) == ERROR_INTERNAL) {
-							printErrAndExit(ERROR_INTERNAL, "There was a memory error while allocating token structure.");
+							printErrAndExit(ERROR_INTERNAL, "On line %d: There was a memory error while allocating token structure.", Token.line);
 						}
 
 						ZeroToken.lexem = INTEGER;
@@ -356,7 +356,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                 stackTop(&stack, &item);
 
 				if(isOperator(item.symbol) && PrecTabCol == PREC_DOLLAR) {
-					printErrAndExit(ERROR_SYNTAX, "Expression ended with operator");
+					printErrAndExit(ERROR_SYNTAX, "On line %d: Expression ended with operator", Token.line);
 				}
 
 
@@ -379,7 +379,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 						exp = make_variableExp(node);
 					}
 					else {
-						printErrAndExit(ERROR_PROG_SEM, "Undeclared variable '%s'!", item.Token.value.str);
+						printErrAndExit(ERROR_PROG_SEM, "On line %d: Undeclared variable '%s'!", Token.line, item.Token.value.str);
 					}
 				}
 				else if(item.symbol == PREC_E) {
@@ -414,7 +414,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 						if(exp->tag_exp == binaryExp) {
 							//printf("add left operand\n\n");
 							exp->op.binaryExp.left = item.Exp;
-							exp->datatype = getDatatype(exp->op.binaryExp.left->datatype, exp->op.binaryExp.right->datatype, exp->op.binaryExp.oper);
+							exp->datatype = getDatatype(exp->op.binaryExp.left->datatype, exp->op.binaryExp.right->datatype, exp->op.binaryExp.oper, Token);
 						}
 						else if(exp->tag_exp == bracketExp) {
 							exp->op.bracketExp.expression = item.Exp;
@@ -491,7 +491,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                     return ;
                 }
 
-                printErrAndExit(ERROR_SYNTAX, "Bad expression.");
+                printErrAndExit(ERROR_SYNTAX, "On line %d: Bad expression.", Token.line);
                 return ;
 
             case '-':
@@ -503,11 +503,11 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
             case 'S':
-                printErrAndExit(ERROR_TYPE_SEM, "Cannot do this operation with string");
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Cannot do this operation with string", Token.line);
                 return ;
 
             case 'I':
-                printErrAndExit(ERROR_TYPE_SEM, "Cannot do operation '\\' with this data type");
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Cannot do operation '\\' with this data type", Token.line);
                 return ;
         }
 
