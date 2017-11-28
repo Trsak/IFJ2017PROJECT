@@ -90,6 +90,18 @@ bool isOperator(precedStack symbol) {
 }
 
 
+/**
+ * @copydoc isRelationalOperator
+ */
+bool isRelationalOperator(precedStack symbol) {
+	if (symbol == PREC_GREATER || symbol == PREC_GREATER_EQUAL || symbol == PREC_LESS ||
+		symbol == PREC_LESS_EQUAL || symbol == PREC_NOT_EQUAL || symbol == PREC_ASSIGNMENT)
+		return true;
+
+	return false;
+}
+
+
 char *getOperator(precedStack symbol) {
 	switch (symbol) {
 		case PREC_DIVISION:
@@ -252,7 +264,10 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         //if more operators are next to each other, then error
         stackTop(&stack, &item);
         if (isOperator(item.symbol) && isOperator(PrecTabCol)) {
-            printErrAndExit(ERROR_SYNTAX, "Wrong expression");
+
+			if (!isRelationalOperator(item.symbol) && PrecTabCol != PREC_PLUS && PrecTabCol != PREC_MINUS) {
+				printErrAndExit(ERROR_SYNTAX, "Wrong expression");
+			}
         }
 
 
@@ -298,12 +313,12 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
 					if ((PrecTabCol == PREC_MINUS || PrecTabCol == PREC_PLUS) &&
-							(item.symbol == PREC_BRACKET_LEFT || item.symbol == PREC_DOLLAR)) {
+							(item.symbol == PREC_BRACKET_LEFT || item.symbol == PREC_DOLLAR || isRelationalOperator(item.symbol))) {
 
 						token ZeroToken;
 
 						if (tokenInit(&ZeroToken) == ERROR_INTERNAL) {
-							printErrAndExit(ERROR_INTERNAL, "There is a memory error while allocating token structure.");
+							printErrAndExit(ERROR_INTERNAL, "There was a memory error while allocating token structure.");
 						}
 
 						ZeroToken.lexem = INTEGER;
