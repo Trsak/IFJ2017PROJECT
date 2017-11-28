@@ -1,7 +1,7 @@
-' function params with declaration
-declare function bar(h as string, t as integer) as string
+' Function with different IDs of parameters
+declare function funct(a as string, b as integer) as double
 
-function bar(b as string, c as integer) as string
+function bar(var1 as string, var2 as integer) as double
 end function 
 
 scope

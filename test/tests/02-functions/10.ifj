@@ -1,0 +1,9 @@
+' Bad return type of function
+
+declare function funct() as double
+
+function funct() as integer 
+end function
+
+scope
+end scope
