@@ -407,6 +407,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                     stackTop(&stack, &item);
 					if(isOperator(item.symbol)) {
 						//printf("add operator\n");
+                        if(isRelationalOperator(item.symbol)) {
+                            isRelativeOper = true;
+                        }
 						exp->op.binaryExp.oper.str = getOperator(item.symbol);
 						//printf("operator: %s\n", getOperator(item.symbol));
 					}
