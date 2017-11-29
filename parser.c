@@ -38,6 +38,7 @@ void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, 
     if(node != NULL) {
         node->data.declared = node->data.declared || declared;
         node->data.defined = node->data.defined || defined;
+        node->data.treeOfFunction = *params;
     }
     else {
         Values val = initValues(name);
@@ -352,6 +353,10 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(NULL, &params, &typeOfParams, &paramNumber);
     }
 
+    if(isDeclared) {
+        params = NULL;
+    }
+
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
@@ -466,6 +471,18 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
     }
 
     char *name = Token.value.str;
+
+    BinaryTreePtr ptr = btGetVariable(symtable, name);
+
+    if(strcmp(name, functionName) == 0) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' has same name as function!", Token.line, name);
+    }
+    else if(ptr && ptr->data.isFunction) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' has same name as function!", Token.line, name);
+    }
+    else if(*params != NULL && btGetVariable(*params, name)) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' already declared in function '%s'!", Token.line, name, functionName);
+    }
 
 
     datatype type;
