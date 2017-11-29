@@ -665,7 +665,7 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
         printf("LABEL %sS\n", conversionLabel);
 
         printf("DIV %s@%s %s@%s %s@%s\n", frame, operand1, frame, operand1, frame, operand2);
-        printf("FLOAT2R2EINT %s@%s %s@%s\n", frame, destination, frame, operand1);
+        printf("FLOAT2INT %s@%s %s@%s\n", frame, destination, frame, operand1);
     } else if (strcmp(operatorStr, "<>") == 0) {
         printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
                operand2);
