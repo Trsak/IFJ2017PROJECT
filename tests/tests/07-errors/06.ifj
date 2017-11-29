@@ -3,7 +3,7 @@ SCOPE
     Dim b as integer = 10
 
 
-    Do WHIlE 5
+    Do WHIlE 5 > 0
         if a <> 1 then
             print !"Nope"; !"Another print";
 

@@ -1,0 +1,4 @@
+scope
+	if !"" then
+	end if
+end scope

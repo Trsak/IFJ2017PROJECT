@@ -195,6 +195,7 @@ void builtinFunctionsInit() {
  * @copydoc program
  */
 void program() {
+    isRelativeOper = false;
 	stackInit(&stmtStack);
 
 	stmtArrayInit(&globalStmtArray);
@@ -806,6 +807,11 @@ void statement() {
 
             parseExpression(&Token, &expressionTree);
 
+            if(!isRelativeOper) {
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Must contain relative operator.", Token.line);
+            }
+            isRelativeOper = false;
+
             stmtArray whileStmtBlock;
             stmtArrayInit(&whileStmtBlock);
 
@@ -853,6 +859,11 @@ void statement() {
 
         case IF:
             parseExpression(&Token, &expressionTree);
+
+            if(!isRelativeOper) {
+                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Must contain relative operator.", Token.line);
+            }
+            isRelativeOper = false;
 
             stmtArray ifBlock;
             stmtArrayInit(&ifBlock);
@@ -1090,6 +1101,11 @@ void elseIf(int* pushCounter) {
     token Token = PreviousToken;
 
     parseExpression(&Token, &expressionTree);
+
+    if(!isRelativeOper) {
+        printErrAndExit(ERROR_TYPE_SEM, "On line %d: Must contain relative operator.", Token.line);
+    }
+    isRelativeOper = false;
 
     stmtArray ifBlock;
     stmtArrayInit(&ifBlock);

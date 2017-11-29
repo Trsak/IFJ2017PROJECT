@@ -1,0 +1,5 @@
+scope
+	if 1 > 0 then
+	elseif 5
+	end if
+end scope
