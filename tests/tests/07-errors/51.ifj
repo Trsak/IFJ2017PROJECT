@@ -1,0 +1,5 @@
+scope
+	dim a as integer
+	if a then
+	end if
+end scope

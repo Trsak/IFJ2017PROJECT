@@ -1,0 +1,10 @@
+function foo(a as double) as integer
+    print a;
+end function
+
+scope
+    dim b as integer
+
+    b = foo   (2.9)
+
+end scope

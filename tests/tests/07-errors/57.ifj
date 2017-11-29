@@ -1,0 +1,4 @@
+scope
+	do while 5 + 4
+	loop
+end scope

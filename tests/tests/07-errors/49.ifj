@@ -1,0 +1,8 @@
+declare function funct(arg1 as integer, arg2 as integer) as integer
+
+function funct(a as integer, a as integer) as integer
+end function
+    
+scope
+
+end scope

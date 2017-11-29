@@ -1,7 +1,7 @@
 ' Function with different IDs of parameters
 declare function funct(a as string, b as integer) as double
 
-function bar(var1 as string, var2 as integer) as double
+function funct(var1 as string, var2 as integer) as double
 end function 
 
 scope

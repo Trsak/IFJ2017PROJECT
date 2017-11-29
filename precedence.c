@@ -12,7 +12,7 @@
 const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>><><<<S>",    //rules for  '*'   0
         ">>>>>>>>>>><><<<S>",    //ruses for  '/'   1
-        "<<>>>>>>>>><><<IS>",    //rules for  '\'   2
+        "<<>>>>>>>>><><<<S>",    //rules for  '\'   2
         "<<<>>>>>>>><><<<<>",    //rules for  '+'   3
         "<<<>>>>>>>><><<<S>",    //rules for  '-'   4
         "<<<<<>>>>>><><<<<>",    //rules for  '='   5
@@ -25,7 +25,7 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         ">>>>>>>>>>>B>BBBB>",    //rules for  ')'   12
         ">>>>>>>>>>>B>BBBB>",    //rules for  'id'  13
         ">>>>>>>>>>>B>BBBB>",    //rules for  'int' 14
-        ">>I>>>>>>>>B>BBBB>",    //rules for  'dbl' 15
+        ">>>>>>>>>>>B>BBBB>",    //rules for  'dbl' 15
         "SSS>S>>>>>>B>BBBB>",    //rules for  'str' 16
         "<<<<<<<<<<<<-<<<<B"     //rules for  '$'   17
 };
@@ -146,9 +146,6 @@ datatype getDatatype(datatype left, datatype right, string oper, token Token) {
 			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Integer and string can't be in one expression!", Token.line, oper.str);
 		}
 		if(!strcmp(oper.str, "\\")) {
-			if(right != (datatype)exp_integer) {
-				printErrAndExit(ERROR_TYPE_SEM, "On line %d: In integer division both operands must be integers!", Token.line);
-			}
 			return exp_integer;
 		}
 		else if(!strcmp(oper.str, "/")) {
@@ -159,9 +156,6 @@ datatype getDatatype(datatype left, datatype right, string oper, token Token) {
 		}
 	}
 	else if(left == (datatype)exp_decimal) {
-		if(!strcmp(oper.str, "\\")) {
-			printErrAndExit(ERROR_TYPE_SEM, "On line %d: In integer division both operands must be integers!", Token.line);
-		}
 		if(right == (datatype)exp_string) {
 			printErrAndExit(ERROR_TYPE_SEM, "On line %d: Double and string can't be in one expression!", Token.line, oper.str);
 		}
@@ -364,6 +358,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 				if(item.symbol == PREC_ID) {
 					if(inFunction) {
+                        if(strcmp(item.Token.value.str, functionName) == 0) {
+                            printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't use function '%s' as variable!", Token.line, item.Token.value.str);
+                        }
 						node = btGetVariable(symtable, functionName)->data.treeOfFunction;
 						//BinaryTreePtr nodeTmp = btGetVariable(node, item.Token.value.str);
 						node = btGetVariable(node, item.Token.value.str);
@@ -373,6 +370,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 					else {
 						node = symtable;
 						node = btGetVariable(node, item.Token.value.str);
+                        if(node && node->data.isFunction) {
+                            printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't use function '%s' as variable!", Token.line, item.Token.value.str);
+                        }
 					}
 
 					if(node != NULL) {
@@ -407,6 +407,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
                     stackTop(&stack, &item);
 					if(isOperator(item.symbol)) {
 						//printf("add operator\n");
+                        if(isRelationalOperator(item.symbol)) {
+                            isRelativeOper = true;
+                        }
 						exp->op.binaryExp.oper.str = getOperator(item.symbol);
 						//printf("operator: %s\n", getOperator(item.symbol));
 					}

@@ -642,14 +642,30 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
     } else if (strcmp(operatorStr, "/") == 0) {
         printf("DIV %s@%s %s@%s %s@%s\n", frame, destination, frame, operand1, frame, operand2);
     } else if (strcmp(operatorStr, "\\") == 0) {
+        char *arg = (char *) gcmalloc(20 * sizeof(char));
+
+        sprintf(arg, "%s@%s", frame, operand1);
+        generateArgumentsConversion(arg, TYPE_DECIMAL, TYPE_NUMBER);
+
+        sprintf(arg, "%s@%s", frame, operand2);
+        generateArgumentsConversion(arg, TYPE_DECIMAL, TYPE_NUMBER);
+
         char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
+        char *conversionLabel = getHelpRegister();
+
         printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("INT2FLOAT %s@%s %s@%s\n", frame, hReg2, frame, operand2);
-        printf("DIV %s@%s %s@%s %s@%s\n", frame, hReg1, frame, hReg1, frame, hReg2);
-        printf("FLOAT2INT %s@%s %s@%s\n", frame, operand1, frame, hReg1);
+        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
+        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
+        printf("LABEL %s\n", conversionLabel);
+
+        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
+        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
+        printf("LABEL %sS\n", conversionLabel);
+
+        printf("DIV %s@%s %s@%s %s@%s\n", frame, operand1, frame, operand1, frame, operand2);
+        printf("FLOAT2INT %s@%s %s@%s\n", frame, destination, frame, operand1);
     } else if (strcmp(operatorStr, "<>") == 0) {
         printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
                operand2);
@@ -718,9 +734,9 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
 
         conversionLabel = getHelpRegister();
         printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
-        printf("LABEL %s\n", conversionLabel);
+        printf("LABEL %sS\n", conversionLabel);
     }
 }
 
@@ -729,9 +745,21 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
     if (argType == TYPE_DECIMAL && destType == TYPE_NUMBER) {
+        char *hReg1 = getHelpRegister();
+        char *conversionLabel = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
+        printf("JUMPIFNEQ %s %s@%s string@float\n", conversionLabel, frame, hReg1);
         printf("FLOAT2R2EINT %s %s\n", arg, arg);
+        printf("LABEL %s\n", conversionLabel);
     } else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
+        char *hReg1 = getHelpRegister();
+        char *conversionLabel = getHelpRegister();
+        printf("DEFVAR %s@%s\n", frame, hReg1);
+        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
+        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
         printf("INT2FLOAT %s %s\n", arg, arg);
+        printf("LABEL %s\n", conversionLabel);
     }
 }
 
