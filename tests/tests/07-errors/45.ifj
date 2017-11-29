@@ -1,0 +1,13 @@
+declare function nope(a as string, b as integer) as double
+declare function funct() as integer
+
+function hi(arg1 as integer) as double
+	return 10
+end function
+
+function funct() as integer
+end function
+
+scope
+        print 10000\(3/4)\4\(5/6);
+end scope

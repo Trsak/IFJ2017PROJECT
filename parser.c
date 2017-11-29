@@ -38,6 +38,7 @@ void createNode(BinaryTreePtr *table, char *name, datatype type, bool declared, 
     if(node != NULL) {
         node->data.declared = node->data.declared || declared;
         node->data.defined = node->data.defined || defined;
+        node->data.treeOfFunction = *params;
     }
     else {
         Values val = initValues(name);
@@ -92,6 +93,10 @@ void printAST(stmtArray globalStmtArray) {
 			showAruments(globalStmtArray.array[i].op.function_definition_stmt.args);
 			printAST(globalStmtArray.array[i].op.function_definition_stmt.block);
 		}
+        else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
+            printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
+            showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
+        }
         else if(globalStmtArray.array[i].tag_stmt == var_assign_function_stmt) {
             printf("%s=", globalStmtArray.array[i].op.var_assign_function_stmt.left->data.name);
             printf("%s()\n", globalStmtArray.array[i].op.var_assign_function_stmt.function->data.name);
@@ -110,10 +115,6 @@ void printAST(stmtArray globalStmtArray) {
         else if(globalStmtArray.array[i].tag_stmt == optimalization_stmt) {
             printf("optimalization: %d\n", globalStmtArray.array[i].op.optimalization_stmt.nothing);
         }
-		else if(globalStmtArray.array[i].tag_stmt == function_decl_stmt) {
-			printf("function: %s\n", globalStmtArray.array[i].op.function_decl_stmt.function->data.name);
-			showAruments(globalStmtArray.array[i].op.function_decl_stmt.args);
-		}
 		else if(globalStmtArray.array[i].tag_stmt == var_assign_stmt) {
 			printf("%s=", globalStmtArray.array[i].op.var_assign_stmt.left->data.name);
 			ast_exp* exp = globalStmtArray.array[i].op.var_assign_stmt.expression;
@@ -352,6 +353,10 @@ void functionHeader(bool isDeclared, bool isDefined) {
         declareParams(NULL, &params, &typeOfParams, &paramNumber);
     }
 
+    if(isDeclared) {
+        params = NULL;
+    }
+
     Token = PreviousToken;
 
     if (Token.lexem != BRACKET_RIGHT) {
@@ -466,6 +471,18 @@ void declareParams(BinaryTreePtr node, BinaryTreePtr *params, datatype **typeOfP
     }
 
     char *name = Token.value.str;
+
+    BinaryTreePtr ptr = btGetVariable(symtable, name);
+
+    if(strcmp(name, functionName) == 0) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' has same name as function!", Token.line, name);
+    }
+    else if(ptr && ptr->data.isFunction) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' has same name as function!", Token.line, name);
+    }
+    else if(*params != NULL && btGetVariable(*params, name)) {
+        printErrAndExit(ERROR_PROG_SEM, "On line %d: Parameter '%s' already declared in function '%s'!", Token.line, name, functionName);
+    }
 
 
     datatype type;
@@ -1498,6 +1515,23 @@ void mainBody() {
     eol(Token);
 
 	addStmtToArray(&globalStmtArray, make_scopeStmt());
+
+    int i = 1;
+    ast_stmt stmt = globalStmtArray.array[i];
+    while(stmt.tag_stmt != scope_stmt) {
+        if(stmt.tag_stmt == function_definition_stmt) {
+            if(!stmt.op.function_definition_stmt.function->data.defined && stmt.op.function_definition_stmt.function->data.declared) {
+                printErrAndExit(ERROR_PROG_SEM, "Function '%s' declared, but undefined!", stmt.op.function_definition_stmt.function->data.name);
+            }
+        }
+        else if(stmt.tag_stmt == function_decl_stmt) {
+            if(!stmt.op.function_definition_stmt.function->data.defined && stmt.op.function_definition_stmt.function->data.declared) {
+                printErrAndExit(ERROR_PROG_SEM, "Function '%s' declared, but undefined!", stmt.op.function_definition_stmt.function->data.name);
+            }
+        }
+        i++;
+        stmt = globalStmtArray.array[i];
+    }
 
     statement();
 

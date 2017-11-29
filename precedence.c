@@ -358,6 +358,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 				if(item.symbol == PREC_ID) {
 					if(inFunction) {
+                        if(strcmp(item.Token.value.str, functionName) == 0) {
+                            printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't use function '%s' as variable!", Token.line, item.Token.value.str);
+                        }
 						node = btGetVariable(symtable, functionName)->data.treeOfFunction;
 						//BinaryTreePtr nodeTmp = btGetVariable(node, item.Token.value.str);
 						node = btGetVariable(node, item.Token.value.str);
@@ -367,6 +370,9 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 					else {
 						node = symtable;
 						node = btGetVariable(node, item.Token.value.str);
+                        if(node && node->data.isFunction) {
+                            printErrAndExit(ERROR_PROG_SEM, "On line %d: Can't use function '%s' as variable!", Token.line, item.Token.value.str);
+                        }
 					}
 
 					if(node != NULL) {

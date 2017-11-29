@@ -1,0 +1,7 @@
+declare function funct(arg1 as integer, arg2 as string) as double
+
+function funct(a as integer, funct as string) as double
+end function
+
+scope
+end scope
