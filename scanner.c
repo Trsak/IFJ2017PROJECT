@@ -481,14 +481,9 @@ token getNextToken() {
                 break;
 
             case 7: // Binary number
-                if (isdigit(c)) {
-                    if (c == '0' || c == '1') {
-                        strAddChar(&T.value, c);
-                        break;
-                    }
-                    printErrAndExit(ERROR_SCANNER,
-                                    "on line: %d - Binary number input contains number bigger than 1",
-                                    T.line);
+                if (c == '0' || c == '1') {
+                    strAddChar(&T.value, c);
+                    break;
                 } else {
                     ungetc(c, stdin);
                     int val = strtol(T.value.str, 0, 2);
@@ -498,12 +493,7 @@ token getNextToken() {
                 }
 
             case 8: // Octal number
-                if (isdigit(c)) {
-                    if (c == '8' || c == '9') {
-                        printErrAndExit(ERROR_SCANNER,
-                                        "on line: %d - Octal number input contains number bigger than 7",
-                                        T.line);
-                    }
+                if (isdigit(c) && c != '8' && c != '9') {
                     strAddChar(&T.value, c);
                     break;
                 } else {
@@ -515,15 +505,10 @@ token getNextToken() {
                 }
 
             case 9: // Hex number
-                if (isalnum(c) || c == '_') {
-                    if (isdigit(c) || c == 'a' || c == 'A' || c == 'b' || c == 'B' || c == 'c' || c == 'C' ||
+                if (isdigit(c) || c == 'a' || c == 'A' || c == 'b' || c == 'B' || c == 'c' || c == 'C' ||
                         c == 'd' || c == 'D' || c == 'e' || c == 'E' || c == 'f' || c == 'F') {
                         strAddChar(&T.value, c);
                         break;
-                    }
-                    printErrAndExit(ERROR_SCANNER,
-                                    "on line: %d - Hexa number input contains letter bigger than F",
-                                    T.line);
                 } else {
                     ungetc(c, stdin);
                     int val = strtol(T.value.str, 0, 16);
