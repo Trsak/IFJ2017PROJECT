@@ -1,6 +1,6 @@
 SCOPE
 
-/'Test should cause error code 1 because using extension BASE incorrectly - &O can't contain number bigger than 7'
+/'Test should cause error code 2 because using extension BASE incorrectly - &O can't contain number bigger than 7'/
 
 dim a as integer
 
