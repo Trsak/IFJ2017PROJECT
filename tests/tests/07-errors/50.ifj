@@ -1,0 +1,7 @@
+function funct() as integer
+	return 10
+end function
+    
+scope
+	print 4 + 5 - funct;
+end scope
