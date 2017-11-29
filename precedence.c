@@ -259,11 +259,31 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         stackTop(&stack, &item);
         if (isOperator(item.symbol) && isOperator(PrecTabCol)) {
 
-			if (!isRelationalOperator(item.symbol) && PrecTabCol != PREC_PLUS && PrecTabCol != PREC_MINUS) {
-				printErrAndExit(ERROR_SYNTAX, "On line %d: Wrong expression", Token.line);
+			if (!isRelationalOperator(item.symbol) /*&& item.symbol != PREC_MINUS && item.symbol != PREC_PLUS*/
+                && PrecTabCol != PREC_MINUS && PrecTabCol != PREC_PLUS) {
+				printErrAndExit(ERROR_SYNTAX, "On line %d: More operations next to each other", Token.line);
 			}
         }
 
+
+        if ((item.symbol == PREC_MINUS || item.symbol == PREC_PLUS) &&
+            (PrecTabCol == PREC_MINUS || PrecTabCol == PREC_PLUS)) {
+
+            //change operation to plus
+            if ((item.symbol == PREC_MINUS && PrecTabCol == PREC_MINUS)) {
+
+                stackPop(&stack);
+                stackPush(&stack, NULL, NULL, NULL, PREC_PLUS, NULL);
+
+            } else if (item.symbol == PREC_PLUS && PrecTabCol == PREC_MINUS) {
+
+                stackPop(&stack);
+                stackPush(&stack, NULL, NULL, NULL, PREC_MINUS, NULL);
+            }
+
+            Token = getNextToken();
+            continue;
+        }
 
         switch (operation) {
             case '=':
