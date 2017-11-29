@@ -1,0 +1,9 @@
+scope
+
+    dim a as integer = 10
+    dim b as integer = 5
+    dim c as integer = 0
+
+    c = a +-= b
+
+end scope
