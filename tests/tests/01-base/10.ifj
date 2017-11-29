@@ -1,0 +1,55 @@
+scope
+
+    dim a as integer = 10
+    dim b as integer = 5
+    dim c as integer = 0
+    dim d as integer = 0
+    dim e as integer = 0
+    dim f as integer = 0
+    dim g as integer = 0
+    dim h as integer = 0
+    dim i as integer = 0
+    dim j as integer = 0
+    dim k as integer = 0
+    dim l as integer = 0
+    dim m as integer = 0
+    dim n as integer = 0
+    dim o as integer = 0
+    dim p as integer = 0
+
+    c = a ++ b
+    d = a -- b
+    e = a +- b
+    f = a +--++-+-+-+-+--++--+--++--+- b
+    g = a + /'comment'/ + b
+    h = a + /'comment'/ - b
+    i = a + /'comment'/ + /'comment'/ - /'comment'/ + /'comment'/ - b
+    j = a + /'comment'/ + /'comment'/ - /'comment'/ + /'comment'/ - +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------------------------------------------------------------++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------------------------------------------------- b
+    k = a ++ --  b
+    l = a ++ - ++  b
+    m = a + ----++-- -- + - + -+  - + - +- ++ b
+    n = a-b
+    o = a+b
+    p = a---b
+
+    print c;
+    print d;
+    print e;
+    print f;
+    print g;
+    print h;
+    print i;
+    print j;
+    print k;
+    print l;
+    print m;
+    print n;
+    print o;
+    print p;
+
+end scope
+
+
+
+
+
