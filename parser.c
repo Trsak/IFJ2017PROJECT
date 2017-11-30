@@ -1207,7 +1207,15 @@ void assignment(bool isDeclaration, char *name) {
         if(ptr == NULL) {
             //check if called function isn't built in function
 
-            if (inFunction) {
+            if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
+                strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
+
+                function = true;
+                builtIn = true;
+                funcName = Token.value;
+
+            }
+            else if (inFunction) {
                 ptr = btGetVariable(symtable, functionName)->data.treeOfFunction;
                 ptr = btGetVariable(ptr, Token.value.str);
 
@@ -1215,20 +1223,10 @@ void assignment(bool isDeclaration, char *name) {
                     printErrAndExit(ERROR_PROG_SEM, "On line %d: Undefined %s", Token.line, Token.value.str);
                 }
 
-            } else {
-
-                if (strcmp(Token.value.str, "length") == 0 || strcmp(Token.value.str, "substr") == 0 ||
-                        strcmp(Token.value.str, "asc") == 0 || strcmp(Token.value.str, "chr") == 0) {
-
-                    function = true;
-                    builtIn = true;
-                    funcName = Token.value;
-
-                } else {
-                    printErrAndExit(ERROR_PROG_SEM, "On line %d: Undefined %s", Token.line, Token.value.str);
-                }
             }
-
+            else {
+                printErrAndExit(ERROR_PROG_SEM, "On line %d: Undefined %s", Token.line, Token.value.str);
+            }
         } else {
             if(ptr->data.isFunction) {
                 function = true;
