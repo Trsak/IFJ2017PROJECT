@@ -251,6 +251,34 @@ void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray bloc
 }
 
 /**
+ * @copydoc generateWhile
+ */
+void generateWhile(ast_exp *condition, stmtArray block) {
+    switch (condition->tag_exp) {
+        case binaryExp: {
+            char *whileLabel = getNewLabel();
+
+            printf("LABEL %%WL%d\n", currentLabel);
+            strcpy(frame, "TF");
+            printf("CREATEFRAME\n");
+
+            generateExp(condition);
+            generateCode(block);
+            printf("JUMP %s\n", whileLabel);
+            printf("LABEL %sN\n", whileLabel);
+            strcpy(frame, getVarFrame());
+
+            break;
+        }
+        case bracketExp:
+            generateWhile(condition->op.bracketExp.expression, block);
+            break;
+        default:
+            break;
+    }
+}
+
+/**
  * @copydoc generateReturn
  */
 void generateReturn(ast_exp *expression) {
@@ -368,33 +396,6 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
             printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
             break;
         }
-    }
-}
-
-/**
- * @copydoc generateWhile
- */
-void generateWhile(ast_exp *condition, stmtArray block) {
-    switch (condition->tag_exp) {
-        case binaryExp: {
-            char *whileLabel = getNewLabel();
-
-            printf("LABEL %%WL%d\n", currentLabel);
-            strcpy(frame, "TF");
-            printf("CREATEFRAME\n");
-
-            generateExp(condition);
-            generateCode(block);
-            printf("JUMP %s\n", whileLabel);
-            printf("LABEL %sN\n", whileLabel);
-
-            break;
-        }
-        case bracketExp:
-            generateWhile(condition->op.bracketExp.expression, block);
-            break;
-        default:
-            break;
     }
 }
 
