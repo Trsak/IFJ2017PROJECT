@@ -1,0 +1,4 @@
+scope
+	dim a as integer = 5
+	a + = !"20"
+end scope

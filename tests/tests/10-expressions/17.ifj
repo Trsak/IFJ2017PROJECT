@@ -1,0 +1,10 @@
+scope
+	dim a as integer = 2
+	dim b as double = 15.548
+
+	a += 4 + b
+	print a;
+
+	a \= b \ 4 + a - 5 * b
+	print a;
+end scope
