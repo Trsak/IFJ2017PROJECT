@@ -18,5 +18,5 @@ scope
     dim e as string = foo3(2.6)
     dim f as integer = foo1(a)
 
-    print a;b;c;d;e;;
+    print a;b;c;d;e;f;
 end scope
