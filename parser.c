@@ -1480,6 +1480,7 @@ void params(bool builtIn, int *paramNumber) {
     currentArgumentNum++;
 
 	ast_exp* expressionTree;
+    PreviousToken.lexem = -1;
 	parseExpression(&PreviousToken, &expressionTree);
 
     if(builtIn) {
