@@ -1,0 +1,5 @@
+FUNCTION Foo( ) AS INTEGER
+RETURN !"chyba"
+END FUNCTION
+scope
+end scope

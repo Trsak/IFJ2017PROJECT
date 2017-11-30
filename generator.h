@@ -22,6 +22,9 @@ int currentHelpRegister;
 /** ID of current label */
 int currentLabel;
 
+/** For whiles inside whiles */
+int whileCount;
+
 /** Name of current frame */
 char *frame;
 

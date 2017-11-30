@@ -1,0 +1,10 @@
+function strLen(s as string) as integer
+    dim b as integer = length(s)
+    return b
+end function
+
+scope
+    dim a as integer
+    a = strLen(!"test")
+    print a;
+end scope
