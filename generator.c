@@ -18,6 +18,7 @@ void startGenerating() {
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
+    whileCount = 0;
     currentFunction = NULL;
     inScope = false;
 
@@ -257,6 +258,7 @@ void generateWhile(ast_exp *condition, stmtArray block) {
     switch (condition->tag_exp) {
         case binaryExp: {
             char *whileLabel = getNewLabel();
+            ++whileCount;
 
             printf("LABEL %%WL%d\n", currentLabel);
             strcpy(frame, "TF");
@@ -266,7 +268,14 @@ void generateWhile(ast_exp *condition, stmtArray block) {
             generateCode(block);
             printf("JUMP %s\n", whileLabel);
             printf("LABEL %sN\n", whileLabel);
-            strcpy(frame, getVarFrame());
+            --whileCount;
+
+            if (whileCount == 0) {
+                strcpy(frame, getVarFrame());
+            }
+            else {
+                strcpy(frame, "TF");
+            }
 
             break;
         }
