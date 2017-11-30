@@ -1,0 +1,4 @@
+scope
+dim a as integer = 66465bc
+print a;
+end scope

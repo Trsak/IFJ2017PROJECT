@@ -1,0 +1,6 @@
+
+scope
+dim _ as integer = 6.5
+dim __ as double = 5
+print _;__;
+end scope

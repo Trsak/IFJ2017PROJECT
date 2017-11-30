@@ -1,0 +1,3 @@
+scope
+    dim b as string = !"\000"
+end scope
