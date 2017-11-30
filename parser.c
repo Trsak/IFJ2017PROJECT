@@ -1168,6 +1168,8 @@ void eol(token Token) {
 void assignment(bool isDeclaration, char *name) {
     token Token = getNextToken();
 
+    lexems unaryLexem = EOL_ENUM;
+
 
     if (Token.lexem != ASSIGNMENT && !unaryOperation(Token)) {
         if(!isDeclaration) {
@@ -1180,6 +1182,10 @@ void assignment(bool isDeclaration, char *name) {
 
     if (unaryOperation(Token) && isDeclaration) {
         printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot do unary operation in declaration statement", Token.line);
+    }
+
+    if(unaryOperation(Token)) {
+        unaryLexem = Token.lexem;
     }
 
 
@@ -1367,9 +1373,34 @@ void assignment(bool isDeclaration, char *name) {
         printErrAndExit(ERROR_TYPE_SEM, "On line %d: Can't assign '%s' to '%s'!", Token.line, getTypeString(expressionTree->datatype), getTypeString(node->data.type));
     }
 
-	node->data.defined = true;
+    node->data.defined = true;
 
-	ast_stmt* assign_stmt = make_varAssignStmt(node, expressionTree);
+    if(unaryLexem != EOL_ENUM) {
+        string oper;
+        switch (unaryLexem) {
+            case PLUS_ASSIGNMENT:
+                oper.str = "+";
+                break;
+            case MINUS_ASSIGNMENT:
+                oper.str = "-";
+                break;
+            case MULTIPLY_ASSIGNMENT:
+                oper.str = "*";
+                break;
+            case DIVISION_ASSIGNMENT:
+                oper.str = "/";
+                break;
+            case BACKSLASH_ASSIGNMENT:
+                oper.str = "\\";
+                break;
+            default:
+                break;
+        }
+        datatype dType = getDatatype(node->data.type, expressionTree->datatype, oper, Token);
+        expressionTree = make_binaryExp(oper, make_variableExp(node), expressionTree, dType);
+    }
+
+    ast_stmt* assign_stmt = make_varAssignStmt(node, expressionTree);
 
 	stackItem item;
 	if(!stackEmpty(&stmtStack)) {

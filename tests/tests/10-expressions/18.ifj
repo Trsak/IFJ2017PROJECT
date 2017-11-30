@@ -1,0 +1,5 @@
+scope
+	dim a as string = !"number: "
+	a += !"666"
+	print a;
+end scope

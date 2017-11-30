@@ -25,6 +25,16 @@
  */
 int getPositionInTable(int lexem);
 
+/**
+ *
+ * @param left
+ * @param right
+ * @param oper
+ * @param Token
+ * @return
+ */
+datatype getDatatype(datatype left, datatype right, string oper, token Token);
+
 
 /**
  * Parses expression by precedence table
