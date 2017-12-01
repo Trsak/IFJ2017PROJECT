@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file error_codes.h
  * @author Petr Sopf (xsopfp00)
  * @author Tomas Odehnal (xodehn08)

@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file scanner.h
  * @author Jan Bartosek (xbarto92)
  * @brief Defines the values for every posible lexem that can come from stdin.

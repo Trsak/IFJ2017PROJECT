@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file error_codes.c
  * @author Tomas Odehnal (xodehn08)
  */

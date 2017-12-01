@@ -1,5 +1,6 @@
 /**
- * @file main.c
+ * @project IFJ17
+ * @file strings.h
  * @author Jan Bartosek (xbarto92)
  * @brief Defines struct string and operations with it.
  */

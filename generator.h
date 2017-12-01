@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file generator.h
  * @author Petr Sopf (xsopfp00)
  * @brief Generating IFJCode2017 from AST

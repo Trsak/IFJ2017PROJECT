@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file ast.h
  * @author Tomas Odehnal (xodehn08)
  * @brief Implementation of Abstract Syntax Tree (AST)

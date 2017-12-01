@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file garbage_collector.h
  * @author Tomas Odehnal (xodehn08)
  * @brief Automatic memory management.
