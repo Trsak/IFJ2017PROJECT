@@ -31,6 +31,7 @@ crashlytics-build.properties
 fabric.properties
 
 # Project generated files
+auxil/
 ./ifj2017
 ./xbartl06.zip
 ./*.o
