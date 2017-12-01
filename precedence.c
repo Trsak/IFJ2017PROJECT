@@ -398,6 +398,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 					}
 
 					if(node != NULL) {
+                        node->data.isUsed = true;
 						exp = make_variableExp(node);
 					}
 					else {
