@@ -38,6 +38,7 @@ Stack stmtStack;
 token PreviousToken;        // global variable where is stored last token for check
 BinaryTreePtr symtable;     // global variable - symtable (all identifiers with theirs specifications)
 bool isRelativeOper;
+BinaryTreePtr helpAssignVar;
 
 
 
