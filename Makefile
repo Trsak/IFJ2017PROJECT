@@ -79,8 +79,11 @@ run_tests:
 doc:
 	@$(BLUE)
 	@echo "[ Creating documentation ]"
+	@$(YELLOW)
+	@echo " -> Creating dokumentace.pdf"
 	@$(RESET)
-	@$(MAKE) -C doc
+	@$(MAKE) -C doc > NUL
+	@$(rm) NUL
 	@$(GREEN)
 	@echo " -> dokumentace.pdf created"
 	@$(RESET)
