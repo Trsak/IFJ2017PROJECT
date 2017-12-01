@@ -30,7 +30,7 @@ rm       = rm -rf
 all: $(TARGET) clean
 
 .PHONY: pack
-pack: test
+pack: test doc
 pack:
 	@$(BLUE)
 	@echo "[ Packing project ]"
@@ -46,6 +46,7 @@ pack:
 	sh is_it_ok.sh $(LEADER).zip $(TMPDIR)
 	@$(YELLOW)
 	@echo " -> Removing temp files"
+	@$(RESET)
 	@$(rm) $(TMPDIR)
 	@$(BLUE)
 	@echo "[ All done, check for errors and warnings! ]"
@@ -57,6 +58,7 @@ test: $(TARGET) run_tests remove
 $(TARGET): $(OBJECTS)
 	@$(BLUE)
 	@echo "[ Building project ]"
+	@$(RESET)
 	@$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	@$(GREEN)
 	@echo " -> Binary file \"$(TARGET)\" created"
@@ -69,18 +71,26 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 run_tests:
 	@$(BLUE)
 	@echo "[ Preparing tests ]"
+	@$(RESET)
 	@sh ./tests/tests_runner.sh
 	@$(RESET)
 
-.PHONY: clean_tests
-clean_tests:
-	@echo -e "\033[0;33m [Cleaning after unit tests...] \033[0m"
-	@$(rm) $(TRG_TEST)
+.PHONY: doc
+doc:
+	@$(BLUE)
+	@echo "[ Creating documentation ]"
+	@$(RESET)
+	@pdflatex -file-line-error -interaction=nonstopmode -synctex=1 -output-format=pdf ./doc/dokumentace.tex
+	@rm dokumentace.aux dokumentace.log dokumentace.synctex.gz
+	@$(GREEN)
+	@echo " -> dokumentace.pdf created"
+	@$(RESET)
 
 .PHONY: clean
 clean:
 	@$(BLUE)
 	@echo "[ Cleaning object files ]"
+	@$(RESET)
 	@$(rm) $(OBJECTS)
 	@$(GREEN)
 	@echo " -> Object files cleaned"
@@ -93,10 +103,15 @@ remove:
 	@echo "[ Removing all generated files ]"
 	@$(YELLOW)
 	@echo " -> Removing binary file"
+	@$(RESET)
 	@$(rm) $(TARGET)
+	@$(YELLOW)
 	@echo " -> Removing .zip file"
+	@$(RESET)
 	@$(rm) $(LEADER).zip
+	@$(YELLOW)
 	@echo " -> Removing temp dir and files"
+	@$(RESET)
 	@$(rm) $(TMPDIR)
 	@$(rm) ./tmp
 	@$(rm) ./tmp.bas
