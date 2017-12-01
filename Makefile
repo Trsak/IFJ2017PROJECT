@@ -37,7 +37,8 @@ pack:
 	@$(YELLOW)
 	@echo " -> Creating .zip file"
 	@$(RESET)
-	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni Makefile dokumentace.pdf
+	@zip $(LEADER).zip $(SOURCES) $(INCLUDES) rozsireni rozdeleni Makefile dokumentace.pdf > NUL
+	@$(rm) NUL
 	@$(GREEN)
 	@echo " -> Zip archive created"
 	@$(YELLOW)
@@ -115,6 +116,7 @@ remove:
 	@echo " -> Removing temp dir and files"
 	@$(RESET)
 	@$(rm) $(TMPDIR)
+	@$(rm) NUL
 	@$(rm) ./tmp
 	@$(rm) ./tmp.bas
 	@$(rm) ./temp.code
