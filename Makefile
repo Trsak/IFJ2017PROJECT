@@ -80,8 +80,7 @@ doc:
 	@$(BLUE)
 	@echo "[ Creating documentation ]"
 	@$(RESET)
-	@pdflatex -file-line-error -interaction=nonstopmode -synctex=1 -output-format=pdf ./doc/dokumentace.tex
-	@rm dokumentace.aux dokumentace.log dokumentace.synctex.gz
+	@$(MAKE) -C doc
 	@$(GREEN)
 	@echo " -> dokumentace.pdf created"
 	@$(RESET)
