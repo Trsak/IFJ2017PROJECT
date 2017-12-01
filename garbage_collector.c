@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file garbage_collector.c
  * @author Tomas Odehnal (xodehn08)
  */

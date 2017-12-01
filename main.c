@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file main.c
  * @author Jan Bartosek (xbarto92)
  * @author Petr Sopf (xsopfp00)

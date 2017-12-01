@@ -1,5 +1,6 @@
 /**
- * @file main.c
+ * @project IFJ17
+ * @file strings.c
  * @author Jan Bartosek (xbarto92)
  * @brief Operations with string structure.
  */

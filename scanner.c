@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file scanner.c
  * @author Jan Bartosek (xbarto92)
  * @author Petr Šopf (xsopfp00)

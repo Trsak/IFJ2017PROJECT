@@ -1,6 +1,8 @@
 /**
+ * @project IFJ17
  * @file precedence.c
  * @author Roman Bartl (xbartl06)
+ * @author Tomas Odehnal (xodehn08)
  * @brief Precedence table for syntax analysis of expressions
  */
 

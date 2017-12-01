@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file symtable.h
  * @author Jan Bartosek (xbarto92)
  * @author Tomas Odehnal (xodehn08)

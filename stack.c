@@ -1,4 +1,5 @@
 /**
+ * @project IFJ17
  * @file stack.c
  * @author Jan Bartosek (xbarto92)
  * @author Roman Bartl (xbartl06)
