@@ -47,6 +47,8 @@ void startGenerating();
  */
 void generateCode(stmtArray block);
 
+void generateVarAssign(BinaryTreePtr var, ast_exp *expression);
+
 /**
  * @return void
  *
@@ -222,7 +224,7 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
 void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
 
 /**
- * @return New register
+ * @return void
  *
  * Creates new register
  */

@@ -10,18 +10,12 @@
 #include "generator.h"
 #include "symtable.h"
 #include "parser.h"
-#include "optimalization.h"
 
 /**
  * @copydoc startGenerating
  */
 void startGenerating() {
     printf(".IFJcode17\n");
-
-    if (globalStmtArray.length == 0) {
-        return;
-    }
-
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
@@ -187,6 +181,7 @@ void generateBuiltInFunctions() {
 void getInput(BinaryTreePtr var) {
     printf("WRITE string@?\\032\n");
     if (var->data.isUsed) {
+
         switch (var->data.type) {
             case TYPE_NUMBER:
                 printf("READ %s@%s int\n", getVarFrame(), var->data.name);
@@ -487,65 +482,66 @@ void varDeclare(BinaryTreePtr var) {
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     if (var->data.isUsed) {
-        char *varSymbol = getVarSymbol(var);
-
         switch (expression->tag_exp) {
             case integerExp: {
-                printf("MOVE %s@%s %s@%d\n", getVarFrame(), var->data.name, varSymbol, expression->op.numberExp);
+                char *reg = getRegister();
+                printf("DEFVAR %s@%s\n", frame, reg);
+                printf("MOVE %s@%s int@%d\n", frame, reg, expression->op.numberExp);
+
+                char *implicit = (char *) gcmalloc(20 * sizeof(char));
+                sprintf(implicit, "%s@%s", frame, reg);
+                generateArgumentsConversion(implicit, TYPE_NUMBER, var->data.type);
+
+                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
                 break;
             }
             case doubleExp: {
-                if (var->data.type == TYPE_NUMBER) {
-                    printf("MOVE %s@%s %s@%d\n", getVarFrame(), var->data.name, varSymbol, floatToInt(expression->op.decimalExp));
-                } else {
-                    printf("MOVE %s@%s %s@%g\n", getVarFrame(), var->data.name, varSymbol, expression->op.decimalExp);
-                }
+                char *reg = getRegister();
+                printf("DEFVAR %s@%s\n", frame, reg);
+                printf("MOVE %s@%s float@%g\n", frame, reg, expression->op.decimalExp);
 
+                char *implicit = (char *) gcmalloc(20 * sizeof(char));
+                sprintf(implicit, "%s@%s", frame, reg);
+                generateArgumentsConversion(implicit, TYPE_DECIMAL, var->data.type);
+
+                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
                 break;
             }
             case stringExp:
-                printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, varSymbol, expression->op.stringExp.str);
+                printf("MOVE %s@%s string@%s\n", getVarFrame(), var->data.name, expression->op.stringExp.str);
                 break;
             case variableExp: {
-                if ((expression->op.variableExp->data.type == TYPE_DECIMAL && var->data.type == TYPE_NUMBER) ||
-                    (expression->op.variableExp->data.type == TYPE_NUMBER && var->data.type == TYPE_DECIMAL)) {
-                    char *hReg = getHelpRegister();
-                    printf("DEFVAR %s@%s\n", frame, hReg);
-                    generateImplicitConversion(getWholeRegisterName(hReg, frame), getWholeRegisterName(expression->op.variableExp->data.name, getVarFrame()), expression->op.variableExp->data.type, var->data.type);
-                    printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, frame, hReg);
-                } else {
-                    printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, getVarFrame(), expression->op.variableExp->data.name);
-                }
+                char *reg = getRegister();
+                printf("DEFVAR %s@%s\n", frame, reg);
+                printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
+
+                char *implicit = (char *) gcmalloc(20 * sizeof(char));
+                sprintf(implicit, "%s@%s", frame, reg);
+                generateArgumentsConversion(implicit, expression->op.variableExp->data.type, var->data.type);
+
+                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
                 break;
             }
             case binaryExp: {
-                int regN = currentRegister;
+                int nextReg = currentRegister;
                 generateExp(expression);
-                char *reg = getWholeRegisterName(getRegisterByID(regN), frame);
 
-                if ((expression->datatype == 2 && var->data.type == TYPE_NUMBER) ||
-                    (expression->datatype == 1 && var->data.type == TYPE_DECIMAL)) {
-                    generateImplicitConversion(reg, reg, expression->datatype, var->data.type);
-                }
+                char *implicit = (char *) gcmalloc(20 * sizeof(char));
+                sprintf(implicit, "%s@%%R%d", frame, nextReg);
+                generateArgumentsConversion(implicit, expression->datatype, var->data.type);
 
-                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, reg);
+                printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
                 break;
             }
             case bracketExp: {
-                while (expression->op.bracketExp.expression->tag_exp == bracketExp) {
-                    expression = expression->op.bracketExp.expression;
-                }
-
-                int regN = currentRegister;
+                int nextReg = currentRegister;
                 generateExp(expression->op.bracketExp.expression);
-                char *reg = getWholeRegisterName(getRegisterByID(regN), frame);
 
-                if ((expression->datatype == 2 && var->data.type == TYPE_NUMBER) ||
-                    (expression->datatype == 1 && var->data.type == TYPE_DECIMAL)) {
-                    generateImplicitConversion(reg, reg, expression->datatype, var->data.type);
-                }
+                char *implicit = (char *) gcmalloc(20 * sizeof(char));
+                sprintf(implicit, "%s@%%R%d", frame, nextReg);
+                generateArgumentsConversion(implicit, expression->datatype, var->data.type);
 
-                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, reg);
+                printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
                 break;
             }
             default:
@@ -765,21 +761,6 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
 }
 
 /**
- * @copydoc generateImplicitConversion
- */
-bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType) {
-    if (type == TYPE_DECIMAL && destType == TYPE_NUMBER) {
-        printf("FLOAT2R2EINT %s %s\n", reg, value);
-    } else if (type == TYPE_NUMBER && destType == TYPE_DECIMAL) {
-        printf("INT2FLOAT %s %s\n", reg, value);
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-/**
  * @copydoc generateArgumentsConversion
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
@@ -913,33 +894,3 @@ char *getVarFrame() {
 
     return frameTP;
 }
-
-/**
- * @copydoc getVarSymbol
- */
-char *getVarSymbol(BinaryTreePtr var) {
-    char *varSymbol = (char *) gcmalloc(10 * sizeof(char));
-
-    switch (var->data.type) {
-        case TYPE_NUMBER:
-            strcpy(varSymbol, "int");
-            break;
-        case TYPE_DECIMAL:
-            strcpy(varSymbol, "float");
-            break;
-        case TYPE_STRING:
-            strcpy(varSymbol, "string");
-            break;
-    }
-    return varSymbol;
-}
-
-/**
- * @copydoc getWholeRegisterName
- */
-char *getWholeRegisterName(const char *reg, char *location) {
-    char *fullReg = (char *) gcmalloc(30 * sizeof(char));
-    sprintf(fullReg, "%s@%s", location, reg);
-    return fullReg;
-}
-
