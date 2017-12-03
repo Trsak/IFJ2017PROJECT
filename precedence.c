@@ -231,6 +231,7 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
     char operation;
     unsigned int PrecTabRow = 0;
     unsigned int PrecTabCol = 0;
+	bool relationalOperatorInExp = false;
 
     operation = '0';
 
@@ -286,6 +287,15 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
             Token = getNextToken();
             continue;
         }
+
+		if (isRelationalOperator(PrecTabCol)) {
+			relationalOperatorInExp = true;
+		}
+
+		if (isRelationalOperator(item.symbol) && relationalOperatorInExp){
+			printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot place more relational operators in one expression", Token.line);
+		}
+
 
         switch (operation) {
             case '=':
@@ -537,10 +547,6 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
             case 'S':
                 printErrAndExit(ERROR_TYPE_SEM, "On line %d: Cannot do this operation with string", Token.line);
-                return ;
-
-            case 'I':
-                printErrAndExit(ERROR_TYPE_SEM, "On line %d: Cannot do operation '\\' with this data type", Token.line);
                 return ;
         }
 
