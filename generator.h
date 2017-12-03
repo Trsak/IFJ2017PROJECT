@@ -47,6 +47,8 @@ void startGenerating();
  */
 void generateCode(stmtArray block);
 
+void generateVarAssign(BinaryTreePtr var, ast_exp *expression);
+
 /**
  * @return void
  *
@@ -110,6 +112,17 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
  * Generates data conversions
  */
 void generateDataConversion(char *operand1, char *operand2, char *operatorStr);
+
+/**
+ * @return true if conversion is needed
+ * @param reg Register
+ * @param value Value
+ * @param type Current datatype
+ * @param destType Needed datatype
+ *
+ * Checks if conversion is needed, returns true and generates it when its needed
+ */
+bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType);
 
 /**
  * @return void
@@ -253,5 +266,22 @@ char *getNewLabel();
  * Gets frame for varibale
  */
 char *getVarFrame();
+
+/**
+ * @return symbol
+ * @param var variable
+ *
+ * Returns symbol for variable
+ */
+char *getVarSymbol(BinaryTreePtr var);
+
+/**
+ * @return Whole register name
+ * @param reg Register name
+ * @param location Register location
+ *
+ * Gets whole register name
+ */
+char *getWholeRegisterName(const char *reg, char *location);
 
 #endif //IFJ2017PROJECT_GENERATOR_H

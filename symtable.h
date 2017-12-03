@@ -27,6 +27,7 @@ typedef struct Values {
 	bool hasReturn;
 	bool isFunction;
 	int paramNumber;
+	bool isUsed;
 	datatype *typeOfParams;
 	struct BinaryTree *treeOfFunction;	/** NULL if isFunction == False, else pointer to subtree of symtable (tree) **/
 } Values;

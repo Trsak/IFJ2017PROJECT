@@ -194,6 +194,7 @@ void builtinFunctionsInit() {
  */
 void program() {
     isRelativeOper = false;
+    helpAssignVar = NULL;
 	stackInit(&stmtStack);
 
 	stmtArrayInit(&globalStmtArray);
@@ -1347,18 +1348,19 @@ void assignment(bool isDeclaration, char *name) {
         }
     }
 
+    BinaryTreePtr node;
+    if(inFunction) {
+        node = btGetVariable(symtable, functionName)->data.treeOfFunction;
+        node = btGetVariable(node, name);
+    }
+    else {
+        node = btGetVariable(symtable, name);
+    }
 
-	ast_exp* expressionTree;
-	parseExpression(&Token, &expressionTree);
-
-	BinaryTreePtr node;
-	if(inFunction) {
-		node = btGetVariable(symtable, functionName)->data.treeOfFunction;
-		node = btGetVariable(node, name);
-	}
-	else {
-		node = btGetVariable(symtable, name);
-	}
+    helpAssignVar = node;
+    ast_exp* expressionTree;
+    parseExpression(&Token, &expressionTree);
+    helpAssignVar = NULL;
 
 	if(node->data.type == (datatype)exp_integer || node->data.type == (datatype)exp_decimal) {
         if(expressionTree->datatype == exp_string) {

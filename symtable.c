@@ -23,6 +23,7 @@ Values initValues(const char *name) {
 	data.defined = false;
 	data.hasReturn = false;
 	data.isFunction = false;
+	data.isUsed = false;
 	btInit(&data.treeOfFunction);
 	return data;
 }
