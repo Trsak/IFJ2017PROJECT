@@ -258,6 +258,15 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         //printf("operace: %c\n", operation);
 
 
+		if (isRelationalOperator(PrecTabCol)) {
+			if (isRelationalOperator(item.symbol) && relationalOperatorInExp){
+				printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot place more relational operators in one expression", Token.line);
+			}
+
+			relationalOperatorInExp = true;
+		}
+
+
         //if more operators are next to each other, then error
         stackTop(&stack, &item);
         if (isOperator(item.symbol) && isOperator(PrecTabCol)) {
@@ -287,14 +296,6 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
             Token = getNextToken();
             continue;
         }
-
-		if (isRelationalOperator(PrecTabCol)) {
-			relationalOperatorInExp = true;
-		}
-
-		if (isRelationalOperator(item.symbol) && relationalOperatorInExp){
-			printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot place more relational operators in one expression", Token.line);
-		}
 
 
         switch (operation) {
