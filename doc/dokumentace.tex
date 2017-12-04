@@ -9,6 +9,9 @@
 \usepackage{hyperref}
 \usepackage{multirow}
 \usepackage{pdflscape}
+\usepackage{url}
+\DeclareUrlCommand\urlmoje{\urlstyle{tt}}
+\bibliographystyle{czplain}
 
 \begin{document}
 
@@ -101,13 +104,25 @@ Implementoval xbarto92
 \section{Parser - Sémantika}
     Implementoval xodehn08
 
-    \subsection{Postup implementace}
-    \noindent Hinzufügen den Text hier!
-
     \subsection{Funkce}
-    \noindent Hinzufügen den Text hier!
-    \newpage
+    Sémantická analýza ověřuje sémantickou správnost zpracovávaného zdrojového kódu. V našem projektu je výstupem sémantické analýzy (tedy i parseru) Abstraktní syntaktický strom (AST), který je vstupem do generátoru cílového kódu. 
 
+    \subsection{Postup Implementace}
+    Během syntaktické analýzy (práce parseru), který simuluje konstrukci derivačního stromu, probíhala i částečná sémantická analýza a zbytek u generování kódu. V parseru šli řešit sémantické akce typu: nedeklarované / nedefinované funkce a proměnné, špatný počet a datové typy parametrů funkcí, neslučitelné datové typy ve výrazech, atd. Těchto sémantických kontrol (akcí) lze dosáhnout použitím tabulky symbolů. V generátoru kódu se provádí např. implicitní konverze ve výrazech nebo kontrola dělení nulou.
+    
+    Implementace probíhala tak, že jakmile byl parser z větší části implementovaný, začal se do něj dopisovat kód pro provádění sémantických akcí.
+    
+    \subsection{Tabulka symbolů}
+    Náš tým měl první variantu projektu. Tabulka symbolů se tedy implementovala jako binární vyhledávací strom. Do této tabulky symbolů si ukládáme vše, co potřebujeme např. jestli je uzel stromu proměnná nebo funkce, dále definice / deklarace proměnných a funkcí. U funkcí si dále ukládáme počet a datové typy parametrů a návratové hodnoty. U každé funkce si vytváříme "menší" tabulku symbolů, do které se ukládají lokální proměnné (i parametry dané funkce).
+    
+    Do tabulky symbolů si neukládáme vestavěné funkce, které jsou implementované v generátoru kódu. Informace o nich jsou uloženy v samostatném poli, které se využije při kontrole volání funkce.
+    
+    \subsection{Abstraktní syntaktický strom}
+    Součástí sémantiky je i vytvoření abstraktního syntaktického stromu (dále jen AST). Stejně jako sémantické akce i naplňování AST probíhá zároveň s prací parseru.
+    
+    AST je reprezentováno jako globální pole, které se postupně naplňuje uzly AST reprezentující příkazy. Příkazy a výrazy jsou reprezentovány dvěma strukturami. Přesný typ výrazu / příkazu je určen "tagem" a "op". "Op" je prvek typu union, který obsahuje struktury reprezentující konkrétní příkaz / výraz. Pro určení, se kterou strukturou z prvku "op" se pracuje, slouží prvek "tag", který je typu enum. Uzel AST pro výraz navíc obsahuje prvek "datatype" určující datový typ daného uzlu (výrazu). \cite{AST:AST_in_C}
+    
+	\newpage
 
 
 \section{Generátor}
@@ -118,5 +133,7 @@ Implementoval xbarto92
 
     \subsection{Funkce}
     \noindent Hinzufügen den Text hier!
+
     \newpage
+    \bibliography{dokumentace}
 \end{document}
