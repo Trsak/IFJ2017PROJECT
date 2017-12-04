@@ -56,7 +56,7 @@
 \section{Scanner}
 Implementoval xbarto92
 
-	\subsection{Postup Implementace}
+	\subsection{Postup implementace}
 	Při prvním návrhu lexikální analýzy jsem se inspiroval ukázkovým příkladem, kde byl scanner řešený s využitím přepínače switch umístěného v nekonečné smyčce. První verze scanneru spatřila světlo světa již 7. října, ovšem její funkčnost byla naprosto nevyhovující, a tak jsem scanner postupně opravoval a rozšiřoval.
 	
 	Původní verze scanneru vracela pouze integer hodnotu, která reprezentovala přečtený lexém a nedokázala rozlišovat klíčová slova od identifikátorů. Tento problém jsem vyřešil vytvořením pole, jehož hodnoty odpovídají všem rezervovaným klíčovým slovům a v případě zjištění identifikátoru, pak jeho porovnáním.
@@ -81,11 +81,19 @@ Implementoval xbarto92
 \section{Parser - Syntax}
     Implementoval xbartl06
 
-    \subsection{Implementace}
-    \noindent Hinzufügen den Text hier!
+    \subsection{Postup implementace}
+    Před samotnou implementací syntaktické anaylýzy bylo zapotřebí sestavit LL-gramatiku určující pravidla jazyka IFJ17 (viz kapitola \ref{LL_Gramatika}) a precedenční tabulku pro zpracovávání výrazů (viz kapitola \ref{LL_Tabulka}).
+
+    
+
+
+    \subsubsection{LL-gramatika} \label{LL_Gramatika}
+
+    \subsubsection{LL-tabulka} \label{LL_Tabulka}
 
     \subsection{Funkce}
-    \noindent Hinzufügen den Text hier!
+
+
     \newpage
 
 
@@ -93,7 +101,7 @@ Implementoval xbarto92
 \section{Parser - Sémantika}
     Implementoval xodehn08
 
-    \subsection{Postup Implementace}
+    \subsection{Postup implementace}
     \noindent Hinzufügen den Text hier!
 
     \subsection{Funkce}
@@ -105,7 +113,7 @@ Implementoval xbarto92
 \section{Generátor}
     Implementoval xsopfp00
 
-    \subsection{Postup Implementace}
+    \subsection{Postup implementace}
     \noindent Hinzufügen den Text hier!
 
     \subsection{Funkce}
