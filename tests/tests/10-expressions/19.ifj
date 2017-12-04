@@ -1,0 +1,7 @@
+scope
+
+	if (5 + 9) * 23 < (59 + 42) -++-++ 5 then
+	    print !"Some text";
+	end if
+
+end scope
