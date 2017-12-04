@@ -9,6 +9,9 @@
 \usepackage{hyperref}
 \usepackage{multirow}
 \usepackage{pdflscape}
+\usepackage{url}
+\DeclareUrlCommand\urlmoje{\urlstyle{tt}}
+\bibliographystyle{czplain}
 
 \begin{document}
 
@@ -109,7 +112,8 @@ Implementoval xbarto92
     \subsection{Abstraktní syntaktický strom}
     Součástí sémantiky je i vytvoření abstraktního syntaktického stromu (dále jen AST). Stejně jako sémantické akce i naplňování AST probíhá zároveň s prací parseru.
     
-    AST je reprezentováno jako globální pole, které se postupně naplňuje uzly AST reprezentující příkazy. Příkazy a výrazy jsou reprezentovány dvěma strukturami. Přesný typ výrazu / příkazu je určen "tagem" a "op". "Op" je prvek typu union, který obsahuje struktury reprezentující konkrétní příkaz / výraz. Pro určení, se kterou strukturou z prvku "op" se pracuje, slouží prvek "tag", který je typu enum. Uzel AST pro výraz navíc obsahuje prvek "datatype" určující datový typ daného uzlu (výrazu).
+    AST je reprezentováno jako globální pole, které se postupně naplňuje uzly AST reprezentující příkazy. Příkazy a výrazy jsou reprezentovány dvěma strukturami. Přesný typ výrazu / příkazu je určen "tagem" a "op". "Op" je prvek typu union, který obsahuje struktury reprezentující konkrétní příkaz / výraz. Pro určení, se kterou strukturou z prvku "op" se pracuje, slouží prvek "tag", který je typu enum. Uzel AST pro výraz navíc obsahuje prvek "datatype" určující datový typ daného uzlu (výrazu). \cite{AST:AST_in_C}
+    
 	\newpage
 
 
@@ -121,5 +125,7 @@ Implementoval xbarto92
 
     \subsection{Funkce}
     \noindent Hinzufügen den Text hier!
+
     \newpage
+    \bibliography{dokumentace}
 \end{document}
