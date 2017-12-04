@@ -6,7 +6,7 @@ before_install:
   - sudo apt-get install gcc-multilib g++-multilib
   - sudo apt-get install lib32ncurses5-dev
   - sudo apt-get install libx11-dev:i386 libxext-dev:i386 libxrender-dev:i386 libxrandr-dev:i386 libxpm-dev:i386
-  - wget https://sourceforge.net/settings/mirror_choices?projectname=fbc&filename=Binaries%20-%20Linux/FreeBASIC-1.05.0-linux-x86_64.tar.gz
+  - wget https://sourceforge.net/projects/fbc/files/Binaries%20-%20Linux/FreeBASIC-1.05.0-linux-x86_64.tar.gz
   - tar -xvzf FreeBASIC-1.05.0-linux-x86_64.tar.gz
   - cd FreeBASIC-1.05.0-linux-x86_64 && sudo ./install.sh -i && cd ..
 before_script:
