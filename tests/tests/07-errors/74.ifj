@@ -1,0 +1,9 @@
+scope
+    dim a as integer = 5
+    dim b as integer = 6
+
+	if (3 + 6) / 85 +++--+ (a + 96 * 3 < b / 52) then
+
+	end if
+
+end scope
