@@ -380,9 +380,6 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
             case '>':
-                //TODO - semantics - before the rule is applied, it needs to be checked if the data types of two operands are compatible (string and int)
-                //TODO - for example C(integer)  = A (string) + B (integer)
-
                 stackTopTerminal(&stack, &item);
                 if (relationalOperatorInBrackets && ((isOperator(PrecTabCol) && !isRelationalOperator(PrecTabCol)) ||
                         (isOperator(item.symbol) && !isRelationalOperator(item.symbol)))) {
