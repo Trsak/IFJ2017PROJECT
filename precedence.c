@@ -17,12 +17,12 @@ const char precedenceTable[MAX_VALUE][MAX_VALUE] = {
         "<<>>>>>>>>><><<<S>",    //rules for  '\'   2
         "<<<>>>>>>>><><<<<>",    //rules for  '+'   3
         "<<<>>>>>>>><><<<S>",    //rules for  '-'   4
-        "<<<<<>>>>>><><<<<>",    //rules for  '='   5
-        "<<<<<>>>>>><><<<<>",    //rules for  '<>'  6
-        "<<<<<>>>>>><><<<<>",    //rules for  '<'   7
-        "<<<<<>>>>>><><<<<>",    //rules for  '<='  8
-        "<<<<<>>>>>><><<<<>",    //rules for  '=>'  9
-        "<<<<<>>>>>><><<<<>",    //rules for  '>'   10
+        "<<<<<RRRRRR<><<<<>",    //rules for  '='   5
+        "<<<<<RRRRRR<><<<<>",    //rules for  '<>'  6
+        "<<<<<RRRRRR<><<<<>",    //rules for  '<'   7
+        "<<<<<RRRRRR<><<<<>",    //rules for  '<='  8
+        "<<<<<RRRRRR<><<<<>",    //rules for  '=>'  9
+        "<<<<<RRRRRR<><<<<>",    //rules for  '>'   10
         "<<<<<<<<<<<<=<<<<B",    //rules for  '('   11
         ">>>>>>>>>>>B>BBBB>",    //rules for  ')'   12
         ">>>>>>>>>>>B>BBBB>",    //rules for  'id'  13
@@ -231,7 +231,8 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
     char operation;
     unsigned int PrecTabRow = 0;
     unsigned int PrecTabCol = 0;
-	bool relationalOperatorInExp = false;
+    bool relationalOperatorInBrackets = false;
+    bool bracketExpression = false;
 
     operation = '0';
 
@@ -244,7 +245,6 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         printErrAndExit(ERROR_SYNTAX, "On line %d: Expression cannot start with operator except + or -", Token.line);
     }
 
-
     while (42) {
 
         stackTopTerminal(&stack, &item);
@@ -256,6 +256,18 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
         //printf("stack: %d\n", PrecTabRow);
         //printf("znak: %d\n", PrecTabCol);
         //printf("operace: %c\n", operation);
+
+
+        if (PrecTabCol == PREC_BRACKET_LEFT) {
+            bracketExpression = true;
+
+        } else if (PrecTabCol == PREC_BRACKET_RIGHT) {
+            bracketExpression = false;
+        }
+
+        if (bracketExpression && isRelationalOperator(PrecTabCol)) {
+            relationalOperatorInBrackets = true;
+        }
 
 
         //if more operators are next to each other, then error
@@ -287,14 +299,6 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
             Token = getNextToken();
             continue;
         }
-
-		if (isRelationalOperator(PrecTabCol)) {
-			relationalOperatorInExp = true;
-		}
-
-		if (isRelationalOperator(item.symbol) && relationalOperatorInExp){
-			printErrAndExit(ERROR_SYNTAX, "On line %d: Cannot place more relational operators in one expression", Token.line);
-		}
 
 
         switch (operation) {
@@ -376,11 +380,13 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
 
 
             case '>':
-                //TODO - semantics - before the rule is applied, it needs to be checked if the data types of two operands are compatible (string and int)
-                //TODO - for example C(integer)  = A (string) + B (integer)
+                stackTopTerminal(&stack, &item);
+                if (relationalOperatorInBrackets && ((isOperator(PrecTabCol) && !isRelationalOperator(PrecTabCol)) ||
+                        (isOperator(item.symbol) && !isRelationalOperator(item.symbol)))) {
+                    printErrAndExit(ERROR_SYNTAX, "On line %d: Wrong expression", Token.line);
+                }
 
                 stackTop(&stack, &item);
-
 				if(isOperator(item.symbol) && PrecTabCol == PREC_DOLLAR) {
 					printErrAndExit(ERROR_SYNTAX, "On line %d: Expression ended with operator", Token.line);
 				}
@@ -548,6 +554,10 @@ void parseExpression(token *PreviousToken, ast_exp** expressionTree) {
             case 'S':
                 printErrAndExit(ERROR_TYPE_SEM, "On line %d: Cannot do this operation with string", Token.line);
                 return ;
+
+            case 'R':
+                printErrAndExit(ERROR_SYNTAX, "On line %d: Two or more relational operators in expression", Token.line);
+
         }
 
 

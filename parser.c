@@ -158,7 +158,6 @@ void printAST(stmtArray globalStmtArray) {
             //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.ifBlock);
             //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.ifBlock);
             //printAST(globalStmtArray.array[i].op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.elseStmt->op.if_stmt.ifBlock);
-            // TODO: print else if and else
         }
 		printf("\n");
 	}
@@ -652,8 +651,7 @@ void statement() {
             datatype type;
             asDataType(&type);
 
-			// TODO: check if id == built-in function
-            /** Semantics: Check if variable was already declared */
+			/** Semantics: Check if variable was already declared */
             if(inFunction) {
                 BinaryTreePtr node1;
                 node1 = btGetVariable(symtable, functionName)->data.treeOfFunction;
@@ -723,7 +721,6 @@ void statement() {
 
 			name = Token.value.str;
 
-			// TODO: check if id == built-in function
 			if(inFunction) {
 				BinaryTreePtr node1;
 				node = btGetVariable(symtable, name);
@@ -1191,7 +1188,6 @@ void assignment(bool isDeclaration, char *name) {
     Token = getNextToken();
 
     if (Token.lexem == EOL_ENUM) {
-        //TODO - is this syntax or semantics??
         printErrAndExit(ERROR_SYNTAX, "On line %d: Assignment withnout expression", Token.line);
     }
 
@@ -1243,7 +1239,6 @@ void assignment(bool isDeclaration, char *name) {
             Token = getNextToken();
 
             if (Token.lexem != BRACKET_LEFT) {
-                //TODO - is this syntax or semantics??
                 printErrAndExit(ERROR_SYNTAX, "On line %d: Try to call function without params. '(' was expected", Token.line);
             }
 
@@ -1293,8 +1288,6 @@ void assignment(bool isDeclaration, char *name) {
                 }
                 varAssignFunction = make_varAssignFunctionStmt(node, ptr, NULL);
             }
-            // TODO: check args (number, datatypes, ...)
-            // TODO: valid return datype of function in assign.
 
             stackPush(&stmtStack, NULL, NULL, NULL, PREC_E, varAssignFunction);
 
@@ -1340,7 +1333,6 @@ void assignment(bool isDeclaration, char *name) {
             Token = PreviousToken;
 
             if (Token.lexem != BRACKET_RIGHT) {
-                //TODO - is this syntax or semantics??
                 printErrAndExit(ERROR_SYNTAX, "On line %d: Try to call function. ')' was expected", Token.line);
             }
 
@@ -1420,39 +1412,6 @@ void assignment(bool isDeclaration, char *name) {
 
     isExpression = true;
     PreviousToken = Token;
-
-
-
-    /*
-    //TODO - store expression value into the symtable - expressions not done yet
-    //it's an idea - maybe should be placed right in expression function
-    node = btGetVariable(symtable, name);
-    datatype type = node->data.type;
-
-    char *value;
-
-    //find out what data type the variable is and then convert it to string
-    switch(type) {
-        case TYPE_NUMBER:
-            //value = gcmalloc(sizeof(int));
-            //TODO - convert to string
-
-            break;
-
-        case TYPE_DECIMAL:
-            //value = gcmalloc(sizeof(double));
-            //TODO - convert to string
-
-            break;
-
-        default:
-            value = "";
-            break;
-    }
-
-    if(node != NULL)
-        node->data.value.str = value;
-        */
 }
 
 
