@@ -1,4 +1,6 @@
-# IFJ2017
+IFJ2017
+======
+[![Build Status](https://travis-ci.com/Trsak/IFJ2017PROJECT.svg?token=AMLzSr3LiqYXys8wpmNk&branch=master)](https://travis-ci.com/Trsak/IFJ2017PROJECT)  
 
 Semester project of the IFJ (Formal Languages and Translators) of the second year 
 of the Master's program at VUT-FIT, Božetěchova 1/2, 612 00 Brno-Královo Pole.
