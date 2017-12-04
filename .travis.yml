@@ -9,6 +9,8 @@ before_install:
   - wget https://sourceforge.net/projects/fbc/files/Binaries%20-%20Linux/FreeBASIC-1.05.0-linux-x86_64.tar.gz
   - tar -xvzf FreeBASIC-1.05.0-linux-x86_64.tar.gz
   - cd FreeBASIC-1.05.0-linux-x86_64 && sudo ./install.sh -i && cd ..
+  - LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
+  - export LD_LIBRARY_PATH
 before_script:
   - chmod +x ./tests/ic17int
 script: make && sh ./tests/tests_runner.sh
