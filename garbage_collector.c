@@ -27,10 +27,6 @@ void *gcmalloc(unsigned size) {
 		gcGlobal.lastItem->next = NULL;
 	}
 
-	if (gcGlobal.lastItem->ptr == NULL) {
-        printErrAndExit(ERROR_INTERNAL, "Malloc failed.");
-	}
-
 	return gcGlobal.lastItem->ptr;
 }
 
