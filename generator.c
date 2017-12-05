@@ -15,18 +15,21 @@
  * @copydoc startGenerating
  */
 void startGenerating() {
-    printf(".IFJcode17\n");
+    //Set default values
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
     whileCount = 0;
-    currentFunction = NULL;
     inScope = false;
+    currentFunction = NULL;
+
+    //Start generation instructions
+    printf(".IFJcode17\n");
 
     frame = (char *) gcmalloc(3 * sizeof(char));
-    strcpy(frame, "LF");
+    strcpy(frame, "LF"); //In functions, we have to use LF
 
-    printf("JUMP $$main\n");
+    printf("JUMP $$main\n"); //Jump to main label
 
     generateBuiltInFunctions();
 
@@ -41,7 +44,7 @@ void generateCode(stmtArray block) {
         switch (block.array[i].tag_stmt) {
             case scope_stmt:
                 inScope = true;
-                strcpy(frame, "GF");
+                strcpy(frame, "GF"); //Use GF in main scope
                 printf("LABEL $$main\n");
                 break;
             case input_stmt:
@@ -83,7 +86,7 @@ void generateCode(stmtArray block) {
             case print_stmt:
                 printStatement(block.array[i].op.print_stmt.expression);
                 break;
-            default: //TODO remove
+            default:
                 break;
         }
     }
@@ -451,7 +454,7 @@ void printStatement(ast_exp *expression) {
             printf("WRITE %s@%s\n", frame, reg);
             break;
         }
-        default: //TODO remove
+        default:
             break;
     }
 }
@@ -873,7 +876,7 @@ char *getHelpRegister() {
 }
 
 /**
- * @copydoc v
+ * @copydoc getNewLabel
  */
 char *getNewLabel() {
     char *newLabel = (char *) gcmalloc(30 * sizeof(char));
