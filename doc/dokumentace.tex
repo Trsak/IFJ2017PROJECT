@@ -120,11 +120,30 @@ Implementoval xbarto92
 \section{Generátor}
     Implementoval xsopfp00
 
-    \subsection{Postup Implementace}
-    \noindent Hinzufügen den Text hier!
+    \subsection{Generování cílového jazyka IFJcode17}
+    Dojde-li program až ke generátoru, tak je vstupní program validní a dojde ke generování cílového jazyku IFJcode17. Generování probíhá vypisováním jednotlivých instrukcí jazyka IFJcode17 na standardní výstup. Na začátku generování je vždy vypsán úvodní řádek ".IFJcode17", který značí, že se jedná o jazyk IFJcode17 a následuje řádek obsahující instrukci se skokem na návěští hlavního bloku kódu (scope). Jelikož můžou následovat definice funkcí, tak je jako aktuální rámce nastaven lokální (LF).
 
-    \subsection{Funkce}
-    \noindent Hinzufügen den Text hier!
+    Poté začne generátor procházet AST, to je tvořeno polem ve kterém jsou seřazeny jednotlivé příkazy za sebou. Jakmile narazí generátor na prvek, který značí začátek hlavního bloku kódu tak pro něj vytvoří návěští a změní aktuální rámec na globální (GF). Generování jednotlivých prvků v AST je pak závislé na jejich typu (viz níže).
+
+    Kvůli implicitním konverzím dochází u všech výrazů ke kontrole datových typů a k případné datové konverzi. To vše probíhá generováním potřebných instrukcí jazyka IFJcode17.
+
+    \subsubsection{Generování funkcí}
+    Hned na začátku definice funkce se pro funkci vygeneruje unikátní návěští. Po vytvoření návěští následuje přesun dočasného rámce na zásobník a proběhne nastavení návratové hodnoty funkce na implicitní hodnotu dle návratového typu funkce. Následuje generování bloku kódu uvnitř funkce a samotná funkce je následně ukončena přesunem aktuálního rámce do dočasného.
+
+    \subsubsection{Generování vstupu od uživatele}
+    Pokud dojde na generování vstupu od uživatele (Input), pak je nejprve vypsána hodnota "? ". Následuje instrukce READ, která obstará vstupní honotu a umístí ji do požadovaného rámce.
+
+    \subsubsection{Generování podmínek}
+    Každá podmínka nese informace o daném výrazu, bloku kódu uvnitř podmínky a ukazatele na další podmínku. Jelikož jsme implementovali i rozšíření IFTHEN, tak může první podmínka odkazovat na další (If-Then nebo else), nebo se může jednat pouze o jednu podmínku.
+
+    Na začátku každé podmínky se nejprve vygenerují instrukce pro vyhodnocení daného výrazu. Je-li podmínka splněna, pak se vygeneruje daný blok kódu a na konci následuje skok na návěští, které je umístěno za všemi podmínkami. Pokud podmínka však splněna není, pak je proveden skok na následující podmínku (if-then nebo else).
+
+    \subsubsection{Generování cyklů}
+    Nejprve je vytvořeno unikátní návěští a následuje vytvoření nového dočasného rámce. Poté se vygeneruje výraz podmínky cyklu. Je-li podmínka splněna, dojde k vygenerování bloku kódu uvnitř cyklu a následuje skok na začátek cyklu. Pokud podmínka není splněna, pak následuje skok na konec cyklu.
+
+    \subsubsection{Generování výrazů}
+    Pro každou část výrazu se vytvoří nová proměnná, do které je umístěna hodnota daného výrazu. V průběhu toho dochází ke kontrole datových typů a k případným implicitním konverzím.
+    Jedná-li se o pravdivostní výraz, pak následuje vytvoření potřebných skoků. Pokud se o pravdivostní výraz nejedná, je výsledná hodnota celého výrazu uložena do potřebné proměnné.
 
     \newpage
     \bibliography{dokumentace}
