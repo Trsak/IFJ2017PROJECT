@@ -26,6 +26,12 @@ void startGenerating() {
     //Start generation instructions
     printf(".IFJcode17\n");
 
+    //Get help registers
+    hReg1 = getHelpRegister();
+    hReg2 = getHelpRegister();
+    printf("DEFVAR GF@%s\n", hReg1);
+    printf("DEFVAR GF@%s\n", hReg2);
+
     frame = (char *) gcmalloc(3 * sizeof(char));
     strcpy(frame, "LF"); //In functions, we have to use LF
 
@@ -151,16 +157,12 @@ void generateBuiltInFunctions() {
     printf("MOVE LF@%%retval int@0\n");
 
     printf("STRLEN %s@%%retval %s@%%BAs\n", getVarFrame(), getVarFrame());
-    char *hReg1 = getHelpRegister();
-    char *hReg2 = getHelpRegister();
-    printf("DEFVAR %s@%s\n", frame, hReg1);
-    printf("DEFVAR %s@%s\n", frame, hReg2);
-    printf("GT %s@%s %s@%%BAi %s@%%retval\n", frame, hReg1, getVarFrame(), getVarFrame());
-    printf("LT %s@%s %s@%%BAi int@1\n", frame, hReg2, getVarFrame());
+    printf("GT GF@%s %s@%%BAi %s@%%retval\n", hReg1, getVarFrame(), getVarFrame());
+    printf("LT GF@%s %s@%%BAi int@1\n", hReg2, getVarFrame());
 
     char *ascLabel = getNewLabel();
-    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg1);
-    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg2);
+    printf("JUMPIFEQ %sF GF@%s bool@true\n", ascLabel, hReg1);
+    printf("JUMPIFEQ %sF GF@%s bool@true\n", ascLabel, hReg2);
 
     printf("LABEL %s\n", ascLabel);
     printf("SUB %s@%%BAi %s@%%BAi int@1\n", getVarFrame(), getVarFrame());
@@ -673,17 +675,15 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
         sprintf(arg, "%s@%s", frame, operand2);
         generateArgumentsConversion(arg, TYPE_DECIMAL, TYPE_NUMBER);
 
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
 
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
         printf("LABEL %s\n", conversionLabel);
 
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand2);
+        printf("JUMPIFNEQ %sS GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %sS\n", conversionLabel);
 
@@ -696,31 +696,19 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
         printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
                operand2);
     } else if (strcmp(operatorStr, ">") == 0) {
-        char *hReg1 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+        printf("GT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN GF@%s bool@true \n", currentLabel, hReg1);
     } else if (strcmp(operatorStr, "<") == 0) {
-        char *hReg1 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+        printf("LT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN GF@%s bool@true \n", currentLabel, hReg1);
     } else if (strcmp(operatorStr, "<=") == 0) {
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
-        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+        printf("LT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("EQ GF@%s %s@%s %s@%s\n", hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN GF@%s GF@%s \n", currentLabel, hReg1, hReg2);
     } else if (strcmp(operatorStr, ">=") == 0) {
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
-        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+        printf("GT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("EQ GF@%s %s@%s %s@%s\n", hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN GF@%s GF@%s \n", currentLabel, hReg1, hReg2);
     }
 }
 
@@ -728,36 +716,29 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
     if (strcmp(operatorStr, "+") == 0 || strcmp(operatorStr, "-") == 0 || strcmp(operatorStr, "*") == 0 || strcmp(operatorStr, "<") == 0 || strcmp(operatorStr, "<=") == 0 ||
         strcmp(operatorStr, ">") == 0 || strcmp(operatorStr, ">=") == 0 || strcmp(operatorStr, "=") == 0 || strcmp(operatorStr, "<>") == 0) {
 
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg2, frame, operand2);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("TYPE GF@%s %s@%s\n", hReg2, frame, operand2);
 
         char *conversionLabel = getHelpRegister();
-        printf("JUMPIFEQ %s %s@%s %s@%s\n", conversionLabel, frame, hReg1, frame, hReg2);
-        printf("JUMPIFEQ %sN %s@%s string@float\n", conversionLabel, frame, hReg1);
+        printf("JUMPIFEQ %s GF@%s GF@%s\n", conversionLabel, hReg1, hReg2);
+        printf("JUMPIFEQ %sN GF@%s string@float\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
 
         printf("LABEL %sN\n", conversionLabel);
-        printf("JUMPIFEQ %s %s@%s string@float\n", conversionLabel, frame, hReg2);
+        printf("JUMPIFEQ %s GF@%s string@float\n", conversionLabel, hReg2);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %s\n", conversionLabel);
 
     } else if (strcmp(operatorStr, "/") == 0) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
         printf("LABEL %s\n", conversionLabel);
 
         conversionLabel = getHelpRegister();
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand2);
+        printf("JUMPIFNEQ %sS GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %sS\n", conversionLabel);
     }
@@ -768,19 +749,15 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
     if (argType == TYPE_DECIMAL && destType == TYPE_NUMBER) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
-        printf("JUMPIFNEQ %s %s@%s string@float\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s\n", hReg1, arg);
+        printf("JUMPIFNEQ %s GF@%s string@float\n", conversionLabel, hReg1);
         printf("FLOAT2R2EINT %s %s\n", arg, arg);
         printf("LABEL %s\n", conversionLabel);
     } else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s\n", hReg1, arg);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s %s\n", arg, arg);
         printf("LABEL %s\n", conversionLabel);
     }

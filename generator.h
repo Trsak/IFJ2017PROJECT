@@ -32,6 +32,12 @@ char *frame;
 /** Current function */
 BinaryTreePtr currentFunction;
 
+/** First help register */
+char *hReg1;
+
+/** second help register */
+char *hReg2;
+
 /**
  * @return void
  *
