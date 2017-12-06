@@ -62,7 +62,6 @@ void generateCode(stmtArray block) {
                 break;
             case function_definition_stmt:
                 generateFunction(block.array[i].op.function_definition_stmt.function,
-                                 block.array[i].op.function_definition_stmt.args,
                                  block.array[i].op.function_definition_stmt.block);
                 break;
             case var_assign_function_stmt:
@@ -225,20 +224,12 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
 /**
  * @copydoc generateFunction
  */
-void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block) {
+void generateFunction(BinaryTreePtr function, stmtArray block) {
     currentFunction = function;
     printf("LABEL %%FL%s\n", function->data.name);
     printf("PUSHFRAME\n");
     strcpy(frame, "LF");
     printf("DEFVAR LF@%%retval\n");
-
-    int arg = 0;
-    while (args != NULL) {
-        printf("DEFVAR LF@%s\n", args->argument->op.variableExp->data.name);
-        printf("MOVE LF@%s LF@%%arg%d\n", args->argument->op.variableExp->data.name, arg);
-        args = args->next;
-        ++arg;
-    }
 
     switch (function->data.type) {
         case TYPE_NUMBER:
@@ -319,6 +310,8 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     int arg = 0;
     char *argS = (char *) gcmalloc(20 * sizeof(char));
 
+    functionArgs *params = getFunctionParams(function->data.name);
+
     while (args != NULL) {
         int reg = currentRegister;
         generateExp(args->argument);
@@ -326,10 +319,12 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
 
         generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[arg]);
 
-        printf("DEFVAR TF@%%arg%d\n", arg);
-        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-
+        printf("DEFVAR TF@%s\n", params->argument->op.variableExp->data.name);
+        printf("MOVE TF@%s %s@%%R%d\n", params->argument->op.variableExp->data.name, frame, reg);
         args = args->next;
+        if (params != NULL) {
+            params = params->next;
+        }
         ++arg;
     }
 
@@ -873,4 +868,22 @@ char *getVarFrame() {
     }
 
     return frameTP;
+}
+
+/**
+ * @copydoc getFunctionParams
+ */
+functionArgs *getFunctionParams(const char *name) {
+    for (int i = 0; i < globalStmtArray.length; i++) {
+        if (globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
+            if (globalStmtArray.array[i].op.function_definition_stmt.function->data.name == name) {
+                return globalStmtArray.array[i].op.function_definition_stmt.args;
+            }
+        }
+        else if (globalStmtArray.array[i].tag_stmt == scope_stmt) {
+            break;
+        }
+    }
+
+    return NULL;
 }

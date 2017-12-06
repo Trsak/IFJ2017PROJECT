@@ -38,6 +38,9 @@ char *hReg1;
 /** second help register */
 char *hReg2;
 
+/** second help register */
+char *hReg2;
+
 /**
  * @return void
  *
@@ -130,12 +133,11 @@ void generateArgumentsConversion(char *arg, datatype argType, datatype destType)
 /**
  * @return void
  * @param function Function to generate
- * @param args Function arguments
  * @param block Block of code inside functions
  *
  * Generates functions
  */
-void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block);
+void generateFunction(BinaryTreePtr function, stmtArray block);
 
 /**
  * @return Generated symbol
@@ -267,5 +269,13 @@ char *getVarFrame();
  * Returns symbol for variable
  */
 char *getVarSymbol(BinaryTreePtr var);
+
+/**
+ * @return Function parameters
+ * @param name function name
+ *
+ * Returns all parameters of given function
+ */
+functionArgs *getFunctionParams(const char *name);
 
 #endif //IFJ2017PROJECT_GENERATOR_H
