@@ -32,6 +32,15 @@ char *frame;
 /** Current function */
 BinaryTreePtr currentFunction;
 
+/** First help register */
+char *hReg1;
+
+/** second help register */
+char *hReg2;
+
+/** second help register */
+char *hReg2;
+
 /**
  * @return void
  *
@@ -46,8 +55,6 @@ void startGenerating();
  * Generates block of code
  */
 void generateCode(stmtArray block);
-
-void generateVarAssign(BinaryTreePtr var, ast_exp *expression);
 
 /**
  * @return void
@@ -114,17 +121,6 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
 void generateDataConversion(char *operand1, char *operand2, char *operatorStr);
 
 /**
- * @return true if conversion is needed
- * @param reg Register
- * @param value Value
- * @param type Current datatype
- * @param destType Needed datatype
- *
- * Checks if conversion is needed, returns true and generates it when its needed
- */
-bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType);
-
-/**
  * @return void
  * @param arg Argument
  * @param argType Argument datatype
@@ -134,15 +130,18 @@ bool generateImplicitConversion(char *reg, char *value, datatype type, datatype 
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType);
 
+bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType);
+
+bool generateOperationImplicitConversion(char *reg, datatype type, datatype destType);
+
 /**
  * @return void
  * @param function Function to generate
- * @param args Function arguments
  * @param block Block of code inside functions
  *
  * Generates functions
  */
-void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block);
+void generateFunction(BinaryTreePtr function, stmtArray block);
 
 /**
  * @return Generated symbol
@@ -224,14 +223,14 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
 void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_function function);
 
 /**
- * @return void
+ * @return new register
  *
  * Creates new register
  */
 char *getRegister();
 
 /**
- * @return void
+ * @return Register
  * @param id Register ID
  *
  * Returns register with given ID
@@ -239,7 +238,7 @@ char *getRegister();
 char *getRegisterByID(int id);
 
 /**
- * @return void
+ * @return Next register
  * @param reg Register
  *
  * Gets next register
@@ -247,7 +246,7 @@ char *getRegisterByID(int id);
 char *getNextRegister(char *reg);
 
 /**
- * @return void
+ * @return new help register
  *
  * Creates new help register
  */
@@ -261,7 +260,7 @@ char *getHelpRegister();
 char *getNewLabel();
 
 /**
- * @return void
+ * @return Frame for variable
  *
  * Gets frame for varibale
  */
@@ -276,12 +275,15 @@ char *getVarFrame();
 char *getVarSymbol(BinaryTreePtr var);
 
 /**
- * @return Whole register name
- * @param reg Register name
- * @param location Register location
+ * @return Function parameters
+ * @param name function name
  *
- * Gets whole register name
+ * Returns all parameters of given function
  */
+functionArgs *getFunctionParams(const char *name);
+
+char *getVarSymbol(BinaryTreePtr var);
+
 char *getWholeRegisterName(const char *reg, char *location);
 
 #endif //IFJ2017PROJECT_GENERATOR_H

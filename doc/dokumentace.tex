@@ -174,12 +174,12 @@ Implementoval xbarto92
     \subsection{Postup Implementace}
     Během syntaktické analýzy (práce parseru), který simuluje konstrukci derivačního stromu, probíhala i částečná sémantická analýza a zbytek u generování kódu. V parseru šli řešit sémantické akce typu: nedeklarované / nedefinované funkce a proměnné, špatný počet a datové typy parametrů funkcí, neslučitelné datové typy ve výrazech, atd. Těchto sémantických kontrol (akcí) lze dosáhnout použitím tabulky symbolů. V generátoru kódu se provádí např. implicitní konverze ve výrazech nebo kontrola dělení nulou.
 
-    Implementace probíhala tak, že jakmile byl parser z větší části implementovaný, začal se do něj dopisovat kód pro provádění sémantických akcí.
+    Implementace probíhala tak, že jakmile byl parser z větší části implementovaný, začal jsem do něj dopisovat kód pro provádění sémantických akcí.
 
     \subsection{Tabulka symbolů}
-    Náš tým měl první variantu projektu. Tabulka symbolů se tedy implementovala jako binární vyhledávací strom. Do této tabulky symbolů si ukládáme vše, co potřebujeme např. jestli je uzel stromu proměnná nebo funkce, dále definice / deklarace proměnných a funkcí. U funkcí si dále ukládáme počet a datové typy parametrů a návratové hodnoty. U každé funkce si vytváříme \uv{menší} tabulku symbolů, do které se ukládají lokální proměnné (i parametry dané funkce).
+    Náš tým má první variantu projektu. Tabulka symbolů se tedy implementovala jako binární vyhledávací strom. Do této tabulky symbolů ukládám vše, co potřebujeme např. jestli je uzel stromu proměnná nebo funkce, dále definice / deklarace proměnných a funkcí. U funkcí dále ukládám počet a datové typy parametrů a návratové hodnoty. U každé funkce vytvářím \uv{menší} tabulku symbolů, do které se ukládají lokální proměnné (i parametry dané funkce).
 
-    Do tabulky symbolů si neukládáme vestavěné funkce, které jsou implementované v generátoru kódu. Informace o nich jsou uloženy v samostatném poli, které se využije při kontrole volání funkce.
+    Do tabulky symbolů neukládám vestavěné funkce, které jsou implementované v generátoru kódu. Informace o nich jsou uloženy v samostatném poli, které se využije při analýze volání funkce (počet a datové typy parametrů).
 
     \subsection{Abstraktní syntaktický strom}
     Součástí sémantiky je i vytvoření abstraktního syntaktického stromu (dále jen AST). Stejně jako sémantické akce i naplňování AST probíhá zároveň s prací parseru.

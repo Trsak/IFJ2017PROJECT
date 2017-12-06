@@ -10,23 +10,33 @@
 #include "generator.h"
 #include "symtable.h"
 #include "parser.h"
+#include "optimalization.h"
 
 /**
  * @copydoc startGenerating
  */
 void startGenerating() {
-    printf(".IFJcode17\n");
+    //Set default values
     currentRegister = 0;
     currentHelpRegister = 0;
     currentLabel = 0;
     whileCount = 0;
-    currentFunction = NULL;
     inScope = false;
+    currentFunction = NULL;
+
+    //Start generation instructions
+    printf(".IFJcode17\n");
+
+    //Get help registers
+    hReg1 = getHelpRegister();
+    hReg2 = getHelpRegister();
+    printf("DEFVAR GF@%s\n", hReg1);
+    printf("DEFVAR GF@%s\n", hReg2);
 
     frame = (char *) gcmalloc(3 * sizeof(char));
-    strcpy(frame, "LF");
+    strcpy(frame, "LF"); //In functions, we have to use LF
 
-    printf("JUMP $$main\n");
+    printf("JUMP $$main\n"); //Jump to main label
 
     generateBuiltInFunctions();
 
@@ -41,7 +51,7 @@ void generateCode(stmtArray block) {
         switch (block.array[i].tag_stmt) {
             case scope_stmt:
                 inScope = true;
-                strcpy(frame, "GF");
+                strcpy(frame, "GF"); //Use GF in main scope
                 printf("LABEL $$main\n");
                 break;
             case input_stmt:
@@ -53,7 +63,6 @@ void generateCode(stmtArray block) {
                 break;
             case function_definition_stmt:
                 generateFunction(block.array[i].op.function_definition_stmt.function,
-                                 block.array[i].op.function_definition_stmt.args,
                                  block.array[i].op.function_definition_stmt.block);
                 break;
             case var_assign_function_stmt:
@@ -83,7 +92,7 @@ void generateCode(stmtArray block) {
             case print_stmt:
                 printStatement(block.array[i].op.print_stmt.expression);
                 break;
-            default: //TODO remove
+            default:
                 break;
         }
     }
@@ -148,16 +157,12 @@ void generateBuiltInFunctions() {
     printf("MOVE LF@%%retval int@0\n");
 
     printf("STRLEN %s@%%retval %s@%%BAs\n", getVarFrame(), getVarFrame());
-    char *hReg1 = getHelpRegister();
-    char *hReg2 = getHelpRegister();
-    printf("DEFVAR %s@%s\n", frame, hReg1);
-    printf("DEFVAR %s@%s\n", frame, hReg2);
-    printf("GT %s@%s %s@%%BAi %s@%%retval\n", frame, hReg1, getVarFrame(), getVarFrame());
-    printf("LT %s@%s %s@%%BAi int@1\n", frame, hReg2, getVarFrame());
+    printf("GT GF@%s %s@%%BAi %s@%%retval\n", hReg1, getVarFrame(), getVarFrame());
+    printf("LT GF@%s %s@%%BAi int@1\n", hReg2, getVarFrame());
 
     char *ascLabel = getNewLabel();
-    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg1);
-    printf("JUMPIFEQ %sF %s@%s bool@true\n", ascLabel, frame, hReg2);
+    printf("JUMPIFEQ %sF GF@%s bool@true\n", ascLabel, hReg1);
+    printf("JUMPIFEQ %sF GF@%s bool@true\n", ascLabel, hReg2);
 
     printf("LABEL %s\n", ascLabel);
     printf("SUB %s@%%BAi %s@%%BAi int@1\n", getVarFrame(), getVarFrame());
@@ -220,20 +225,12 @@ void generateIf(ast_exp *condition, stmtArray ifBlock, struct Stmt *elseStmt) {
 /**
  * @copydoc generateFunction
  */
-void generateFunction(BinaryTreePtr function, functionArgs *args, stmtArray block) {
+void generateFunction(BinaryTreePtr function, stmtArray block) {
     currentFunction = function;
     printf("LABEL %%FL%s\n", function->data.name);
     printf("PUSHFRAME\n");
     strcpy(frame, "LF");
     printf("DEFVAR LF@%%retval\n");
-
-    int arg = 0;
-    while (args != NULL) {
-        printf("DEFVAR LF@%s\n", args->argument->op.variableExp->data.name);
-        printf("MOVE LF@%s LF@%%arg%d\n", args->argument->op.variableExp->data.name, arg);
-        args = args->next;
-        ++arg;
-    }
 
     switch (function->data.type) {
         case TYPE_NUMBER:
@@ -299,7 +296,8 @@ void generateReturn(ast_exp *expression) {
 
     char *argS = (char *) gcmalloc(20 * sizeof(char));
     sprintf(argS, "LF@%%retval");
-    generateArgumentsConversion(argS, expression->datatype, currentFunction->data.type);
+
+    generateImplicitConversion(argS, argS, expression->datatype, currentFunction->data.type);
 
     printf("POPFRAME\n");
     printf("RETURN\n");
@@ -314,17 +312,21 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     int arg = 0;
     char *argS = (char *) gcmalloc(20 * sizeof(char));
 
+    functionArgs *params = getFunctionParams(function->data.name);
+
     while (args != NULL) {
         int reg = currentRegister;
         generateExp(args->argument);
         sprintf(argS, "%s@%%R%d", frame, reg);
 
-        generateArgumentsConversion(argS, args->argument->datatype, function->data.typeOfParams[arg]);
+        generateImplicitConversion(argS, argS, args->argument->datatype, function->data.typeOfParams[arg]);
 
-        printf("DEFVAR TF@%%arg%d\n", arg);
-        printf("MOVE TF@%%arg%d %s@%%R%d\n", arg, frame, reg);
-
+        printf("DEFVAR TF@%s\n", params->argument->op.variableExp->data.name);
+        printf("MOVE TF@%s %s@%%R%d\n", params->argument->op.variableExp->data.name, frame, reg);
         args = args->next;
+        if (params != NULL) {
+            params = params->next;
+        }
         ++arg;
     }
 
@@ -333,7 +335,7 @@ void assignFunction(functionArgs *args, BinaryTreePtr function, BinaryTreePtr le
     if (left->data.isUsed) {
         char *implicit = (char *) gcmalloc(20 * sizeof(char));
         sprintf(implicit, "TF@%%retval");
-        generateArgumentsConversion(implicit, function->data.type, left->data.type);
+        generateImplicitConversion(implicit, implicit, function->data.type, left->data.type);
 
         printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
     }
@@ -357,7 +359,7 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
 
                 char *arg = (char *) gcmalloc(20 * sizeof(char));
                 sprintf(arg, "%s@%%R%d", frame, reg);
-                generateArgumentsConversion(arg, args->argument->datatype, TYPE_NUMBER);
+                generateImplicitConversion(arg, arg, args->argument->datatype, TYPE_NUMBER);
 
                 printf("INT2CHAR %s@%s %s@%%R%d\n", getVarFrame(), left->data.name, frame, reg);
                 break;
@@ -376,7 +378,7 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
 
                 char *argI = (char *) gcmalloc(20 * sizeof(char));
                 sprintf(argI, "%s@%%BAi", frame);
-                generateArgumentsConversion(argI, args->next->argument->datatype, TYPE_NUMBER);
+                generateImplicitConversion(argI, argI, args->next->argument->datatype, TYPE_NUMBER);
 
                 printf("CALL %%BLA\n");
                 printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
@@ -400,11 +402,11 @@ void getBuiltinFunction(BinaryTreePtr left, functionArgs *args, enum builtin_fun
 
                 char *argI = (char *) gcmalloc(20 * sizeof(char));
                 sprintf(argI, "%s@%%BAi", frame);
-                generateArgumentsConversion(argI, args->next->argument->datatype, TYPE_NUMBER);
+                generateImplicitConversion(argI, argI, args->next->argument->datatype, TYPE_NUMBER);
 
                 char *argN = (char *) gcmalloc(20 * sizeof(char));
                 sprintf(argN, "%s@%%BAn", frame);
-                generateArgumentsConversion(argN, args->next->next->argument->datatype, TYPE_NUMBER);
+                generateImplicitConversion(argN, argN, args->next->argument->datatype, TYPE_NUMBER);
 
                 printf("CALL %%BLS\n");
                 printf("MOVE %s@%s TF@%%retval\n", getVarFrame(), left->data.name);
@@ -451,7 +453,7 @@ void printStatement(ast_exp *expression) {
             printf("WRITE %s@%s\n", frame, reg);
             break;
         }
-        default: //TODO remove
+        default:
             break;
     }
 }
@@ -482,66 +484,66 @@ void varDeclare(BinaryTreePtr var) {
  */
 void varAssign(BinaryTreePtr var, ast_exp *expression) {
     if (var->data.isUsed) {
+        char *varSymbol = getVarSymbol(var);
+
         switch (expression->tag_exp) {
             case integerExp: {
-                char *reg = getRegister();
-                printf("DEFVAR %s@%s\n", frame, reg);
-                printf("MOVE %s@%s int@%d\n", frame, reg, expression->op.numberExp);
-
-                char *implicit = (char *) gcmalloc(20 * sizeof(char));
-                sprintf(implicit, "%s@%s", frame, reg);
-                generateArgumentsConversion(implicit, TYPE_NUMBER, var->data.type);
-
-                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
+                printf("MOVE %s@%s %s@%d\n", getVarFrame(), var->data.name, varSymbol, expression->op.numberExp);
                 break;
             }
             case doubleExp: {
-                char *reg = getRegister();
-                printf("DEFVAR %s@%s\n", frame, reg);
-                printf("MOVE %s@%s float@%g\n", frame, reg, expression->op.decimalExp);
+                if (var->data.type == TYPE_NUMBER) {
+                    printf("MOVE %s@%s %s@%d\n", getVarFrame(), var->data.name, varSymbol, floatToInt(expression->op.decimalExp));
+                } else {
+                    printf("MOVE %s@%s %s@%g\n", getVarFrame(), var->data.name, varSymbol, expression->op.decimalExp);
+                }
 
-                char *implicit = (char *) gcmalloc(20 * sizeof(char));
-                sprintf(implicit, "%s@%s", frame, reg);
-                generateArgumentsConversion(implicit, TYPE_DECIMAL, var->data.type);
-
-                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
                 break;
             }
             case stringExp:
-                printf("MOVE %s@%s string@%s\n", getVarFrame(), var->data.name, expression->op.stringExp.str);
+                printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, varSymbol, expression->op.stringExp.str);
                 break;
             case variableExp: {
-                char *reg = getRegister();
-                printf("DEFVAR %s@%s\n", frame, reg);
-                printf("MOVE %s@%s %s@%s\n", frame, reg, getVarFrame(), expression->op.variableExp->data.name);
-
-                char *implicit = (char *) gcmalloc(20 * sizeof(char));
-                sprintf(implicit, "%s@%s", frame, reg);
-                generateArgumentsConversion(implicit, expression->op.variableExp->data.type, var->data.type);
-
-                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, implicit);
+                if ((expression->op.variableExp->data.type == TYPE_DECIMAL && var->data.type == TYPE_NUMBER) ||
+                    (expression->op.variableExp->data.type == TYPE_NUMBER && var->data.type == TYPE_DECIMAL)) {
+                    char *hReg = getHelpRegister();
+                    printf("DEFVAR %s@%s\n", frame, hReg);
+                    generateImplicitConversion(getWholeRegisterName(hReg, frame), getWholeRegisterName(expression->op.variableExp->data.name, getVarFrame()), expression->op.variableExp->data.type,
+                                               var->data.type);
+                    printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, frame, hReg);
+                } else {
+                    printf("MOVE %s@%s %s@%s\n", getVarFrame(), var->data.name, getVarFrame(), expression->op.variableExp->data.name);
+                }
                 break;
             }
             case binaryExp: {
-                int nextReg = currentRegister;
+                int regN = currentRegister;
                 generateExp(expression);
+                char *reg = getWholeRegisterName(getRegisterByID(regN), frame);
 
-                char *implicit = (char *) gcmalloc(20 * sizeof(char));
-                sprintf(implicit, "%s@%%R%d", frame, nextReg);
-                generateArgumentsConversion(implicit, expression->datatype, var->data.type);
+                if ((expression->datatype == 2 && var->data.type == TYPE_NUMBER) ||
+                    (expression->datatype == 1 && var->data.type == TYPE_DECIMAL)) {
+                    generateImplicitConversion(reg, reg, expression->datatype, var->data.type);
+                }
 
-                printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
+                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, reg);
                 break;
             }
             case bracketExp: {
-                int nextReg = currentRegister;
+                while (expression->op.bracketExp.expression->tag_exp == bracketExp) {
+                    expression = expression->op.bracketExp.expression;
+                }
+
+                int regN = currentRegister;
                 generateExp(expression->op.bracketExp.expression);
+                char *reg = getWholeRegisterName(getRegisterByID(regN), frame);
 
-                char *implicit = (char *) gcmalloc(20 * sizeof(char));
-                sprintf(implicit, "%s@%%R%d", frame, nextReg);
-                generateArgumentsConversion(implicit, expression->datatype, var->data.type);
+                if ((expression->datatype == 2 && var->data.type == TYPE_NUMBER) ||
+                    (expression->datatype == 1 && var->data.type == TYPE_DECIMAL)) {
+                    generateImplicitConversion(reg, reg, expression->datatype, var->data.type);
+                }
 
-                printf("MOVE %s@%s %s@%%R%d\n", getVarFrame(), var->data.name, frame, nextReg);
+                printf("MOVE %s@%s %s\n", getVarFrame(), var->data.name, reg);
                 break;
             }
             default:
@@ -549,6 +551,7 @@ void varAssign(BinaryTreePtr var, ast_exp *expression) {
         }
     }
 }
+
 
 /**
  * @copydoc generateExp
@@ -561,6 +564,10 @@ void generateExp(ast_exp *expression) {
         case binaryExp: {
             ast_exp *left = expression->op.binaryExp.left;
             generateExp(expression->op.binaryExp.right);
+
+            if (strcmp(expression->op.binaryExp.oper.str, "\\") == 0) {
+                expression->datatype = TYPE_NUMBER;
+            }
 
             switch (left->tag_exp) {
                 case integerExp:
@@ -670,17 +677,15 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
         sprintf(arg, "%s@%s", frame, operand2);
         generateArgumentsConversion(arg, TYPE_DECIMAL, TYPE_NUMBER);
 
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
 
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
         printf("LABEL %s\n", conversionLabel);
 
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand2);
+        printf("JUMPIFNEQ %sS GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %sS\n", conversionLabel);
 
@@ -693,31 +698,19 @@ void generateOperation(char *destination, char *operand1, char *operand2, char *
         printf("JUMPIFNEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, operand1, frame,
                operand2);
     } else if (strcmp(operatorStr, ">") == 0) {
-        char *hReg1 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+        printf("GT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN GF@%s bool@true \n", currentLabel, hReg1);
     } else if (strcmp(operatorStr, "<") == 0) {
-        char *hReg1 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("JUMPIFNEQ %%WL%dN %s@%s bool@true \n", currentLabel, frame, hReg1);
+        printf("LT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("JUMPIFNEQ %%WL%dN GF@%s bool@true \n", currentLabel, hReg1);
     } else if (strcmp(operatorStr, "<=") == 0) {
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-        printf("LT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
-        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+        printf("LT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("EQ GF@%s %s@%s %s@%s\n", hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN GF@%s GF@%s \n", currentLabel, hReg1, hReg2);
     } else if (strcmp(operatorStr, ">=") == 0) {
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-        printf("GT %s@%s %s@%s %s@%s\n", frame, hReg1, frame, operand1, frame, operand2);
-        printf("EQ %s@%s %s@%s %s@%s\n", frame, hReg2, frame, operand1, frame, operand2);
-        printf("JUMPIFEQ %%WL%dN %s@%s %s@%s \n", currentLabel, frame, hReg1, frame, hReg2);
+        printf("GT GF@%s %s@%s %s@%s\n", hReg1, frame, operand1, frame, operand2);
+        printf("EQ GF@%s %s@%s %s@%s\n", hReg2, frame, operand1, frame, operand2);
+        printf("JUMPIFEQ %%WL%dN GF@%s GF@%s \n", currentLabel, hReg1, hReg2);
     }
 }
 
@@ -725,36 +718,29 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
     if (strcmp(operatorStr, "+") == 0 || strcmp(operatorStr, "-") == 0 || strcmp(operatorStr, "*") == 0 || strcmp(operatorStr, "<") == 0 || strcmp(operatorStr, "<=") == 0 ||
         strcmp(operatorStr, ">") == 0 || strcmp(operatorStr, ">=") == 0 || strcmp(operatorStr, "=") == 0 || strcmp(operatorStr, "<>") == 0) {
 
-        char *hReg1 = getHelpRegister();
-        char *hReg2 = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("DEFVAR %s@%s\n", frame, hReg2);
-
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg2, frame, operand2);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("TYPE GF@%s %s@%s\n", hReg2, frame, operand2);
 
         char *conversionLabel = getHelpRegister();
-        printf("JUMPIFEQ %s %s@%s %s@%s\n", conversionLabel, frame, hReg1, frame, hReg2);
-        printf("JUMPIFEQ %sN %s@%s string@float\n", conversionLabel, frame, hReg1);
+        printf("JUMPIFEQ %s GF@%s GF@%s\n", conversionLabel, hReg1, hReg2);
+        printf("JUMPIFEQ %sN GF@%s string@float\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
 
         printf("LABEL %sN\n", conversionLabel);
-        printf("JUMPIFEQ %s %s@%s string@float\n", conversionLabel, frame, hReg2);
+        printf("JUMPIFEQ %s GF@%s string@float\n", conversionLabel, hReg2);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %s\n", conversionLabel);
 
     } else if (strcmp(operatorStr, "/") == 0) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand1);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand1);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand1, frame, operand1);
         printf("LABEL %s\n", conversionLabel);
 
         conversionLabel = getHelpRegister();
-        printf("TYPE %s@%s %s@%s\n", frame, hReg1, frame, operand2);
-        printf("JUMPIFNEQ %sS %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s@%s\n", hReg1, frame, operand2);
+        printf("JUMPIFNEQ %sS GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s@%s %s@%s\n", frame, operand2, frame, operand2);
         printf("LABEL %sS\n", conversionLabel);
     }
@@ -765,22 +751,48 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr) {
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType) {
     if (argType == TYPE_DECIMAL && destType == TYPE_NUMBER) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
-        printf("JUMPIFNEQ %s %s@%s string@float\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s\n", hReg1, arg);
+        printf("JUMPIFNEQ %s GF@%s string@float\n", conversionLabel, hReg1);
         printf("FLOAT2R2EINT %s %s\n", arg, arg);
         printf("LABEL %s\n", conversionLabel);
     } else if (argType == TYPE_NUMBER && destType == TYPE_DECIMAL) {
-        char *hReg1 = getHelpRegister();
         char *conversionLabel = getHelpRegister();
-        printf("DEFVAR %s@%s\n", frame, hReg1);
-        printf("TYPE %s@%s %s\n", frame, hReg1, arg);
-        printf("JUMPIFNEQ %s %s@%s string@int\n", conversionLabel, frame, hReg1);
+        printf("TYPE GF@%s %s\n", hReg1, arg);
+        printf("JUMPIFNEQ %s GF@%s string@int\n", conversionLabel, hReg1);
         printf("INT2FLOAT %s %s\n", arg, arg);
         printf("LABEL %s\n", conversionLabel);
     }
+}
+
+/**
+ * @copydoc generateImplicitConversion
+ */
+bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType) {
+    if (type == TYPE_DECIMAL && destType == TYPE_NUMBER) {
+        printf("FLOAT2R2EINT %s %s\n", reg, value);
+    } else if (type == TYPE_NUMBER && destType == TYPE_DECIMAL) {
+        printf("INT2FLOAT %s %s\n", reg, value);
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @copydoc generateOperationImplicitConversion
+ */
+bool generateOperationImplicitConversion(char *reg, datatype type, datatype destType) {
+    if (type == TYPE_DECIMAL && destType == TYPE_NUMBER) {
+        printf("FLOAT2R2EINT %s@%s %s@%s\n", frame, reg, frame, reg);
+    } else if (type == TYPE_NUMBER && destType == TYPE_DECIMAL) {
+        printf("INT2FLOAT %s@%s %s@%s\n", frame, reg, frame, reg);
+    } else {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -873,7 +885,7 @@ char *getHelpRegister() {
 }
 
 /**
- * @copydoc v
+ * @copydoc getNewLabel
  */
 char *getNewLabel() {
     char *newLabel = (char *) gcmalloc(30 * sizeof(char));
@@ -893,4 +905,52 @@ char *getVarFrame() {
     }
 
     return frameTP;
+}
+
+/**
+ * @copydoc getFunctionParams
+ */
+functionArgs *getFunctionParams(const char *name) {
+    for (int i = 0; i < globalStmtArray.length; i++) {
+        if (globalStmtArray.array[i].tag_stmt == function_definition_stmt) {
+            if (globalStmtArray.array[i].op.function_definition_stmt.function->data.name == name) {
+                return globalStmtArray.array[i].op.function_definition_stmt.args;
+            }
+        } else if (globalStmtArray.array[i].tag_stmt == scope_stmt) {
+            break;
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * @copydoc getVarSymbol
+ */
+char *getVarSymbol(BinaryTreePtr var) {
+    char *varSymbol = (char *) gcmalloc(10 * sizeof(char));
+
+    switch (var->data.type) {
+        case TYPE_NUMBER:
+            strcpy(varSymbol, "int");
+            break;
+        case TYPE_DECIMAL:
+            strcpy(varSymbol, "float");
+            break;
+        case TYPE_STRING:
+            strcpy(varSymbol, "string");
+            break;
+        default:
+            break;
+    }
+    return varSymbol;
+}
+
+/**
+ * @copydoc getWholeRegisterName
+ */
+char *getWholeRegisterName(const char *reg, char *location) {
+    char *fullReg = (char *) gcmalloc(30 * sizeof(char));
+    sprintf(fullReg, "%s@%s", location, reg);
+    return fullReg;
 }
