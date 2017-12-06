@@ -130,6 +130,10 @@ void generateDataConversion(char *operand1, char *operand2, char *operatorStr);
  */
 void generateArgumentsConversion(char *arg, datatype argType, datatype destType);
 
+bool generateImplicitConversion(char *reg, char *value, datatype type, datatype destType);
+
+bool generateOperationImplicitConversion(char *reg, datatype type, datatype destType);
+
 /**
  * @return void
  * @param function Function to generate
@@ -277,5 +281,9 @@ char *getVarSymbol(BinaryTreePtr var);
  * Returns all parameters of given function
  */
 functionArgs *getFunctionParams(const char *name);
+
+char *getVarSymbol(BinaryTreePtr var);
+
+char *getWholeRegisterName(const char *reg, char *location);
 
 #endif //IFJ2017PROJECT_GENERATOR_H
